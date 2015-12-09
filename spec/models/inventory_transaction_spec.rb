@@ -1,0 +1,40 @@
+require 'spec_helper'
+
+RSpec.describe InventoryTransaction, type: :model do
+  let(:inventory_transaction) { FactoryGirl.build :inventory_transaction }
+  subject { inventory_transaction }
+
+  it { should respond_to(:inventory_item_id) }
+  it { should respond_to(:concept) }
+  it { should respond_to(:storage_type) }
+  it { should respond_to(:additional_comments) }
+
+  it { should validate_presence_of :inventory_item }
+  it { should validate_presence_of :concept }
+  it { should validate_presence_of :storage_type }
+
+  it { should belong_to :inventory_item }
+
+  describe ".check_ins" do
+    before(:each) do
+      3.times { FactoryGirl.create :check_in_transaction }
+    end
+
+    it "returns 3 records of type CheckInTransaction" do
+      check_ins = InventoryTransaction.check_ins
+      expect(check_ins['inventory_transactions'].count).to eql 3
+    end
+  end
+
+  describe ".check_outs" do
+    before(:each) do
+      3.times { FactoryGirl.create :check_out_transaction }
+    end
+
+    it "returns 3 records of type CheckInTransaction" do
+      check_outs = InventoryTransaction.check_outs
+      expect(check_outs['inventory_transactions'].count).to eql 3
+    end
+  end
+
+end
