@@ -36,7 +36,11 @@ gem 'rack-cors', :require => 'rack/cors'
 
 gem "paperclip", "~> 4.3"
 
-gem 'mysql2'
+group :production do
+  gem 'rails_12factor'
+  gem 'pg'
+end
+
 
 
 group :development, :test do
