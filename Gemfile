@@ -42,8 +42,8 @@ group :production do
 end
 
 
-
 group :development, :test do
+  gem 'mysql2'
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   # Access an IRB console on exception pages or by using <%= console %> in views
