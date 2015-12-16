@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151209180247) do
+ActiveRecord::Schema.define(version: 20151215002202) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -115,6 +115,7 @@ ActiveRecord::Schema.define(version: 20151209180247) do
     t.string   "item_type",                limit: 255
     t.string   "barcode",                  limit: 255
     t.date     "validity_expiration_date"
+    t.integer  "state",                    limit: 4,     default: 1
   end
 
   add_index "inventory_items", ["project_id"], name: "index_inventory_items_on_project_id", using: :btree
@@ -133,6 +134,19 @@ ActiveRecord::Schema.define(version: 20151209180247) do
   end
 
   add_index "inventory_transactions", ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id", using: :btree
+
+  create_table "item_locations", force: :cascade do |t|
+    t.integer  "inventory_item_id",     limit: 4
+    t.integer  "warehouse_location_id", limit: 4
+    t.integer  "units",                 limit: 4, default: 1
+    t.integer  "quantity",              limit: 4, default: 1
+    t.integer  "part_id",               limit: 4, default: 0
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
+  end
+
+  add_index "item_locations", ["inventory_item_id"], name: "index_item_locations_on_inventory_item_id", using: :btree
+  add_index "item_locations", ["warehouse_location_id"], name: "index_item_locations_on_warehouse_location_id", using: :btree
 
   create_table "logs", force: :cascade do |t|
     t.integer  "user_id",    limit: 4
@@ -200,11 +214,33 @@ ActiveRecord::Schema.define(version: 20151209180247) do
   add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
+  create_table "warehouse_locations", force: :cascade do |t|
+    t.string   "name",              limit: 255, default: ""
+    t.integer  "units",             limit: 4,   default: 1
+    t.integer  "status",            limit: 4,   default: 1
+    t.integer  "warehouse_rack_id", limit: 4
+    t.datetime "created_at",                                 null: false
+    t.datetime "updated_at",                                 null: false
+  end
+
+  add_index "warehouse_locations", ["warehouse_rack_id"], name: "index_warehouse_locations_on_warehouse_rack_id", using: :btree
+
+  create_table "warehouse_racks", force: :cascade do |t|
+    t.string   "name",       limit: 255, default: ""
+    t.integer  "row",        limit: 4,   default: 1
+    t.integer  "column",     limit: 4,   default: 1
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
   add_foreign_key "bundle_item_parts", "bundle_items"
   add_foreign_key "client_contacts", "clients"
   add_foreign_key "inventory_items", "projects"
   add_foreign_key "inventory_items", "users"
   add_foreign_key "inventory_transactions", "inventory_items"
+  add_foreign_key "item_locations", "inventory_items"
+  add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "logs", "users"
   add_foreign_key "projects", "clients"
+  add_foreign_key "warehouse_locations", "warehouse_racks"
 end
