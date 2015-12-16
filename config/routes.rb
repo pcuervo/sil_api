@@ -49,7 +49,7 @@ Sil::Application.routes.draw do
         collection do 
           get 'get_project_users/:id',  :action => 'get_project_users'
           get 'get_project_client/:id', :action => 'get_project_client'
-          get 'by_user/:id',              :action => 'by_user'
+          get 'by_user/:id',            :action => 'by_user'
         end
       end
       resources :clients, :only => [:show, :index, :create, :update, :destroy]
@@ -60,10 +60,12 @@ Sil::Application.routes.draw do
       end
       resources :inventory_transactions, :only => [:show, :index] do
         collection do 
-          get 'get_check_ins', :action => 'get_check_ins'
+          get 'get_check_ins',  :action => 'get_check_ins'
           get 'get_check_outs', :action => 'get_check_outs'
         end
       end
+      resources :warehouse_locations, :only => [:show, :index]
+      resources :warehouse_racks, :only => [:show, :index]
     end
   end
 

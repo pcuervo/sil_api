@@ -17,9 +17,8 @@ class InventoryItem < ActiveRecord::Base
   OUT_OF_STOCK = 2
   PARTIAL_STOCK = 3
   EXPIRED = 4
-  DAMAGED = 5
-  PENDING_ENTRY = 6
-  PENDING_WITHDRAWAL = 7
+  PENDING_ENTRY = 5
+  PENDING_WITHDRAWAL = 6
 
   def self.search( params = {} )
     inventory_items = InventoryItem.all
@@ -107,8 +106,6 @@ class InventoryItem < ActiveRecord::Base
       return 'Disponible parcialmente'
     when EXPIRED
       return 'Expirado'
-    when DAMAGED
-      return 'Dañado'
     when PENDING_ENTRY
       return 'Entrada pendiente'
     when PENDING_WITHDRAWAL
