@@ -64,8 +64,17 @@ Sil::Application.routes.draw do
           get 'get_check_outs', :action => 'get_check_outs'
         end
       end
-      resources :warehouse_locations, :only => [:show, :index]
-      resources :warehouse_racks, :only => [:show, :index]
+      resources :warehouse_locations, :only => [:show, :index] do
+        collection do
+          post 'locate_item', :action => 'locate_item'
+        end
+      end
+      resources :warehouse_racks, :only => [:show, :index] do
+        collection do
+          get 'get_available_locations/:id', :action => 'get_available_locations'
+        end
+      end
+      resources :item_locations, :only => [:show, :index, :create]
     end
   end
 

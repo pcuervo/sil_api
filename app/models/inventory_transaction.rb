@@ -75,7 +75,9 @@ class InventoryTransaction < ActiveRecord::Base
       return CheckInTransaction.find( id )
     end
 
-    return CheckOutTransaction.find( id )
+    if 'CheckOutTransaction' == type 
+      return CheckOutTransaction.find( id )
+    end
   end
 
 end

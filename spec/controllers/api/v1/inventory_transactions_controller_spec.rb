@@ -17,7 +17,7 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #index" do
     before(:each) do
-      5.times { FactoryGirl.create :inventory_transaction }
+      5.times { FactoryGirl.create :check_in_transaction }
       get :index
     end
 

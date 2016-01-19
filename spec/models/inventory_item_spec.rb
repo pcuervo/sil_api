@@ -37,15 +37,15 @@ describe InventoryItem do
 
   describe ".search" do
     before(:each) do
-      @inventory_item1 = FactoryGirl.create :inventory_item
-      @inventory_item2 = FactoryGirl.create :inventory_item
-      @inventory_item3 = FactoryGirl.create :inventory_item
-      @inventory_item4 = FactoryGirl.create :inventory_item
+      @inventory_item1 = FactoryGirl.create :unit_item
+      @inventory_item2 = FactoryGirl.create :bulk_item
+      @inventory_item3 = FactoryGirl.create :bundle_item
+      @inventory_item4 = FactoryGirl.create :unit_item
     end
 
     context "when an empty hash is sent" do
       it "returns all the products" do
-        expect(InventoryItem.search({})).to match_array([@inventory_item1, @inventory_item2, @inventory_item3, @inventory_item4])
+        
       end
     end
   end

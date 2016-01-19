@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20151215002202) do
+ActiveRecord::Schema.define(version: 20160109005406) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -233,6 +233,20 @@ ActiveRecord::Schema.define(version: 20151215002202) do
     t.datetime "updated_at",                          null: false
   end
 
+  create_table "warehouse_transactions", force: :cascade do |t|
+    t.integer  "inventory_item_id",     limit: 4
+    t.integer  "warehouse_location_id", limit: 4
+    t.integer  "concept",               limit: 4, default: 1
+    t.integer  "units",                 limit: 4, default: 1
+    t.integer  "quantity",              limit: 4, default: 1
+    t.integer  "part_id",               limit: 4, default: 0
+    t.datetime "created_at",                                  null: false
+    t.datetime "updated_at",                                  null: false
+  end
+
+  add_index "warehouse_transactions", ["inventory_item_id"], name: "index_warehouse_transactions_on_inventory_item_id", using: :btree
+  add_index "warehouse_transactions", ["warehouse_location_id"], name: "index_warehouse_transactions_on_warehouse_location_id", using: :btree
+
   add_foreign_key "bundle_item_parts", "bundle_items"
   add_foreign_key "client_contacts", "clients"
   add_foreign_key "inventory_items", "projects"
@@ -243,4 +257,6 @@ ActiveRecord::Schema.define(version: 20151215002202) do
   add_foreign_key "logs", "users"
   add_foreign_key "projects", "clients"
   add_foreign_key "warehouse_locations", "warehouse_racks"
+  add_foreign_key "warehouse_transactions", "inventory_items"
+  add_foreign_key "warehouse_transactions", "warehouse_locations"
 end

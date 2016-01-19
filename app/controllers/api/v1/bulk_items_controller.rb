@@ -10,7 +10,6 @@ class Api::V1::BulkItemsController < ApplicationController
   end
 
   def create
-
     bulk_item = BulkItem.new(bulk_item_params)
     bulk_item.user = current_user
 
