@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>class InventoryItem - Rails Application Documentation</title>
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script src="./js/jquery.js"></script>
+<script src="./js/darkfish.js"></script>
+
+<link href="./css/fonts.css" rel="stylesheet">
+<link href="./css/rdoc.css" rel="stylesheet">
+
+
+
+<body id="top" role="document" class="class">
+<nav role="navigation">
+  <div id="project-navigation">
+    <div id="home-section" role="region" title="Quick navigation" class="nav-section">
+  <h2>
+    <a href="./index.html" rel="home">Home</a>
+  </h2>
+
+  <div id="table-of-contents-navigation">
+    <a href="./table_of_contents.html#pages">Pages</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </div>
+</div>
+
+    <div id="search-section" role="search" class="project-section initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <div id="search-field-wrapper">
+      <input id="search-field" role="combobox" aria-label="Search"
+             aria-autocomplete="list" aria-controls="search-results"
+             type="text" name="search" placeholder="Search" spellcheck="false"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </div>
+
+    <ul id="search-results" aria-label="Search Results"
+        aria-busy="false" aria-expanded="false"
+        aria-atomic="false" class="initially-hidden"></ul>
+  </form>
+</div>
+
+  </div>
+
+  
+
+  <div id="class-metadata">
+    
+    <div id="parent-class-section" class="nav-section">
+  <h3>Parent</h3>
+
+  
+  <p class="link">ActiveRecord::Base
+  
+</div>
+
+    
+    
+    <!-- Method Quickref -->
+<div id="method-list-section" class="nav-section">
+  <h3>Methods</h3>
+
+  <ul class="link-list" role="directory">
+    
+    <li ><a href="#method-c-get_by_type">::get_by_type</a>
+    
+    <li ><a href="#method-c-search">::search</a>
+    
+    <li ><a href="#method-i-get_details">#get_details</a>
+    
+    <li ><a href="#method-i-get_quantity">#get_quantity</a>
+    
+    <li ><a href="#method-i-get_status">#get_status</a>
+    
+  </ul>
+</div>
+
+  </div>
+</nav>
+
+<main role="main" aria-labelledby="class-InventoryItem">
+  <h1 id="class-InventoryItem" class="class">
+    class InventoryItem
+  </h1>
+
+  <section class="description">
+    
+  </section>
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <section class="constants-list">
+      <header>
+        <h3>Constants</h3>
+      </header>
+      <dl>
+      
+        <dt id="EXPIRED">EXPIRED
+        
+        <dd>
+        
+      
+        <dt id="IN_STOCK">IN_STOCK
+        
+        <dd><p>ITEM STATUS</p>
+        
+      
+        <dt id="OUT_OF_STOCK">OUT_OF_STOCK
+        
+        <dd>
+        
+      
+        <dt id="PARTIAL_STOCK">PARTIAL_STOCK
+        
+        <dd>
+        
+      
+        <dt id="PENDING_ENTRY">PENDING_ENTRY
+        
+        <dd>
+        
+      
+        <dt id="PENDING_WITHDRAWAL">PENDING_WITHDRAWAL
+        
+        <dd>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Class Methods</h3>
+       </header>
+
+    
+      <div id="method-c-get_by_type" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_by_type</span><span
+            class="method-args">( id, type )</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="get_by_type-source">
+            <pre><span class="ruby-comment"># File app/models/inventory_item.rb, line 89</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">get_by_type</span>( <span class="ruby-identifier">id</span>, <span class="ruby-identifier">type</span> )
+  <span class="ruby-keyword">case</span> <span class="ruby-identifier">type</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-string">&#39;UnitItem&#39;</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-constant">UnitItem</span>.<span class="ruby-identifier">find</span>( <span class="ruby-identifier">id</span> )
+  <span class="ruby-keyword">when</span> <span class="ruby-string">&#39;BulkItem&#39;</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-constant">BulkItem</span>.<span class="ruby-identifier">find</span>( <span class="ruby-identifier">id</span> )
+  <span class="ruby-keyword">when</span> <span class="ruby-string">&#39;BundleItem&#39;</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-constant">BundleItem</span>.<span class="ruby-identifier">find</span>( <span class="ruby-identifier">id</span> )
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-c-search" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">search</span><span
+            class="method-args">( params = {} )</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="search-source">
+            <pre><span class="ruby-comment"># File app/models/inventory_item.rb, line 24</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">search</span>( <span class="ruby-identifier">params</span> = {} )
+  <span class="ruby-identifier">inventory_items</span> = <span class="ruby-constant">InventoryItem</span>.<span class="ruby-identifier">all</span>
+  <span class="ruby-identifier">inventory_items</span> = <span class="ruby-identifier">inventory_items</span>.<span class="ruby-identifier">recent</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">params</span>[<span class="ruby-value">:recent</span>].<span class="ruby-identifier">present?</span>
+
+  <span class="ruby-identifier">inventory_items_details</span> = { <span class="ruby-string">&#39;inventory_items&#39;</span> =<span class="ruby-operator">&gt;</span> [] }
+
+  <span class="ruby-identifier">inventory_items</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">inventory_items_details</span>[<span class="ruby-string">&#39;inventory_items&#39;</span>].<span class="ruby-identifier">push</span>({
+      <span class="ruby-string">&#39;id&#39;</span>                            =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">id</span>,
+      <span class="ruby-string">&#39;name&#39;</span>                          =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">name</span>,
+      <span class="ruby-string">&#39;item_type&#39;</span>                     =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">item_type</span>,
+      <span class="ruby-string">&#39;quantity&#39;</span>                      =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">get_quantity</span>,
+      <span class="ruby-string">&#39;actable_type&#39;</span>                  =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">actable_type</span>,
+      <span class="ruby-string">&#39;created_at&#39;</span>                    =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">created_at</span>,
+      <span class="ruby-string">&#39;validity_expiration_date&#39;</span>      =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">validity_expiration_date</span>
+    })
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">inventory_items_details</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section">
+       <header>
+         <h3>Public Instance Methods</h3>
+       </header>
+
+    
+      <div id="method-i-get_details" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_details</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="get_details-source">
+            <pre><span class="ruby-comment"># File app/models/inventory_item.rb, line 45</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_details</span>
+  <span class="ruby-identifier">project</span> = <span class="ruby-constant">Project</span>.<span class="ruby-identifier">find</span>(<span class="ruby-keyword">self</span>.<span class="ruby-identifier">project_id</span>)
+  <span class="ruby-identifier">pm</span> = <span class="ruby-identifier">project</span>.<span class="ruby-identifier">get_pm</span>
+  <span class="ruby-identifier">ae</span> = <span class="ruby-identifier">project</span>.<span class="ruby-identifier">get_ae</span>
+  <span class="ruby-identifier">client</span> = <span class="ruby-identifier">project</span>.<span class="ruby-identifier">get_client</span>
+  <span class="ruby-identifier">client_contact</span> = <span class="ruby-identifier">project</span>.<span class="ruby-identifier">get_client_contact</span>
+  <span class="ruby-identifier">puts</span> <span class="ruby-identifier">item_img</span>(<span class="ruby-value">:thumb</span>).<span class="ruby-identifier">gsub</span>(<span class="ruby-string">&#39;/Users/micho/Documents/cuervo/sitios/&#39;</span>, <span class="ruby-string">&#39;&#39;</span>)
+  <span class="ruby-identifier">details</span> = { <span class="ruby-string">&#39;inventory_item&#39;</span> =<span class="ruby-operator">&gt;</span> {
+      <span class="ruby-string">&#39;id&#39;</span>              =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">id</span>,
+      <span class="ruby-string">&#39;actable_id&#39;</span>      =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_id</span>,
+      <span class="ruby-string">&#39;name&#39;</span>            =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">name</span>,
+      <span class="ruby-string">&#39;actable_type&#39;</span>    =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span>,
+      <span class="ruby-string">&#39;item_type&#39;</span>       =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">item_type</span>,
+      <span class="ruby-string">&#39;barcode&#39;</span>         =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">barcode</span>,
+      <span class="ruby-string">&#39;project&#39;</span>         =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">project</span>.<span class="ruby-identifier">name</span>,
+      <span class="ruby-string">&#39;pm&#39;</span>              =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">pm</span>,
+      <span class="ruby-string">&#39;ae&#39;</span>              =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">ae</span>,
+      <span class="ruby-string">&#39;description&#39;</span>     =<span class="ruby-operator">&gt;</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">description</span>,
+      <span class="ruby-string">&#39;client&#39;</span>          =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">client</span>,
+      <span class="ruby-string">&#39;client_contact&#39;</span>  =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">client_contact</span>,
+      <span class="ruby-string">&#39;img&#39;</span>             =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">item_img</span>(<span class="ruby-value">:thumb</span>).<span class="ruby-identifier">gsub</span>(<span class="ruby-string">&#39;/Users/micho/Documents/cuervo/sitios/&#39;</span>, <span class="ruby-string">&#39;&#39;</span>)
+    }  
+  }
+
+  <span class="ruby-keyword">if</span> <span class="ruby-string">&#39;BulkItem&#39;</span> <span class="ruby-operator">==</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span>
+    <span class="ruby-identifier">bulk_item</span> = <span class="ruby-constant">BulkItem</span>.<span class="ruby-identifier">find</span>( <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_id</span> )
+    <span class="ruby-identifier">details</span>[<span class="ruby-string">&#39;inventory_item&#39;</span>][<span class="ruby-string">&#39;quantity&#39;</span>] = <span class="ruby-identifier">bulk_item</span>.<span class="ruby-identifier">quantity</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-string">&#39;BundleItem&#39;</span> <span class="ruby-operator">==</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span>
+    <span class="ruby-identifier">bundle_item</span> = <span class="ruby-constant">BundleItem</span>.<span class="ruby-identifier">find</span>( <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_id</span> )
+    <span class="ruby-identifier">details</span>[<span class="ruby-string">&#39;inventory_item&#39;</span>][<span class="ruby-string">&#39;parts&#39;</span>] = <span class="ruby-identifier">bundle_item</span>.<span class="ruby-identifier">bundle_item_parts</span>
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-identifier">details</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_quantity" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_quantity</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="get_quantity-source">
+            <pre><span class="ruby-comment"># File app/models/inventory_item.rb, line 82</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_quantity</span>
+  <span class="ruby-identifier">i</span> = <span class="ruby-constant">InventoryItem</span>.<span class="ruby-identifier">get_by_type</span>( <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_id</span>, <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span> )
+  <span class="ruby-keyword">return</span> <span class="ruby-value">1</span> <span class="ruby-keyword">if</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span> <span class="ruby-operator">==</span> <span class="ruby-string">&#39;UnitItem&#39;</span> 
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">quantity</span> <span class="ruby-keyword">if</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span> <span class="ruby-operator">==</span> <span class="ruby-string">&#39;BulkItem&#39;</span>
+  <span class="ruby-keyword">return</span> <span class="ruby-identifier">i</span>.<span class="ruby-identifier">num_parts</span> <span class="ruby-keyword">if</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">actable_type</span> <span class="ruby-operator">==</span> <span class="ruby-string">&#39;BundleItem&#39;</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+      <div id="method-i-get_status" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">get_status</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="get_status-source">
+            <pre><span class="ruby-comment"># File app/models/inventory_item.rb, line 100</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_status</span>
+  <span class="ruby-keyword">case</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">status</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">IN_STOCK</span> 
+    <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;Disponible&#39;</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">OUT_OF_STOCK</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;No disponible&#39;</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">PARTIAL_STOCK</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;Disponible parcialmente&#39;</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">EXPIRED</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;Expirado&#39;</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">PENDING_ENTRY</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;Entrada pendiente&#39;</span>
+  <span class="ruby-keyword">when</span> <span class="ruby-constant">PENDING_WITHDRAWAL</span>
+    <span class="ruby-keyword">return</span> <span class="ruby-string">&#39;Salida pendiente&#39;</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div>
+          
+        </div>
+
+        
+
+        
+      </div>
+
+    
+    </section>
+  
+  </section>
+</main>
+
+
+<footer id="validator-badges" role="contentinfo">
+  <p><a href="http://validator.w3.org/check/referer">Validate</a>
+  <p>Generated by <a href="http://docs.seattlerb.org/rdoc/">RDoc</a> 4.2.0.
+  <p>Based on <a href="http://deveiate.org/projects/Darkfish-RDoc/">Darkfish</a> by <a href="http://deveiate.org">Michael Granger</a>.
+</footer>
+

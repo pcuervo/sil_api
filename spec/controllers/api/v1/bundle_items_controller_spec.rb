@@ -191,13 +191,21 @@ describe Api::V1::BundleItemsController, type: :controller do
 
     context "when bundle item could not be withdrawn because it's out of stock, pending withdrawal of pending entry" do
       before(:each) do
+        user = FactoryGirl.create :user
         @bundle_item = FactoryGirl.create :bundle_item
+        @bundle_item_part1 = FactoryGirl.create :bundle_item_part
+        @bundle_item_part2 = FactoryGirl.create :bundle_item_part
+        @bundle_item.bundle_item_parts << @bundle_item_part1
+        @bundle_item.bundle_item_parts << @bundle_item_part2
+        @parts_to_remove = [ @bundle_item_part1.id, @bundle_item_part2.id ]
+        @bundle_item.update_num_parts
+        api_authorization_header user.auth_token
       end
 
       it "renders the json errors when the item is already out of stock" do
         @bundle_item.status = InventoryItem::OUT_OF_STOCK
         @bundle_item.save
-        post :withdraw, { id: @bundle_item }
+        post :withdraw, { id: @bundle_item.id, parts: @parts_to_remove, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
         bundle_item_response = json_response
         expect(bundle_item_response).to have_key(:errors)
         expect(bundle_item_response[:errors]).to include 'No se pudo completar la salida por que el artículo "' + @bundle_item.name + '" no se encuentra en existencia.'
@@ -206,7 +214,7 @@ describe Api::V1::BundleItemsController, type: :controller do
       it "renders the json errors when the item is pending entry" do
         @bundle_item.status = InventoryItem::PENDING_ENTRY
         @bundle_item.save
-        post :withdraw, { id: @bundle_item }
+        post :withdraw, { id: @bundle_item.id, parts: @parts_to_remove, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
         bundle_item_response = json_response
         expect(bundle_item_response).to have_key(:errors)
         expect(bundle_item_response[:errors]).to include 'No se pudo completar la salida por que el artículo "' + @bundle_item.name + '" no ha ingresado al almacén.'
@@ -215,7 +223,7 @@ describe Api::V1::BundleItemsController, type: :controller do
       it "renders the json errors when the item is pending withdrawal" do
         @bundle_item.status = InventoryItem::PENDING_WITHDRAWAL
         @bundle_item.save
-        post :withdraw, { id: @bundle_item }
+        post :withdraw, { id: @bundle_item.id, parts: @parts_to_remove, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
         bundle_item_response = json_response
         expect(bundle_item_response[:errors]).to include 'No se pudo completar la salida por que el artículo "' + @bundle_item.name + '" tiene una salida programada.'
       end

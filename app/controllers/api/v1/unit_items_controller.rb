@@ -13,7 +13,6 @@ class Api::V1::UnitItemsController < ApplicationController
 
     unit_item = UnitItem.new(unit_item_params)
     unit_item.user = current_user
-    puts current_user.to_yaml
 
     # Paperclip adaptor 
     item_img = Paperclip.io_adapters.for(params[:item_img])
@@ -59,13 +58,13 @@ class Api::V1::UnitItemsController < ApplicationController
     unit_item.status = InventoryItem::OUT_OF_STOCK
     if unit_item.save
       inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
+
       log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida unitaria", '-', params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], 1)
       log_action( current_user.id, 'InventoryItem', 'Salida unitaria de: "' + unit_item.name + '"', inventory_item.id )
       render json: { success: '¡Has sacado el artículo "' +  unit_item.name + '"!' }, status: 201  
     else
       render json: { errors: unit_item.errors }, status: 422
     end 
-       
 
   end
 

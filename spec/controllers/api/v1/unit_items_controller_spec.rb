@@ -94,8 +94,11 @@ describe Api::V1::UnitItemsController do
   describe "POST #withdraw" do
     context "when unit item is succesfully withdrawn" do
       before(:each) do
+        user = FactoryGirl.create :user
         @unit_item = FactoryGirl.create :unit_item
-        post :withdraw, { id: @unit_item.id }
+
+        api_authorization_header user.auth_token
+        post :withdraw, { id: @unit_item.id, quantity: 120, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
       end
 
       it "returns a success message about the withdrawn item" do

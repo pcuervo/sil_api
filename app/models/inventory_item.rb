@@ -7,6 +7,8 @@ class InventoryItem < ActiveRecord::Base
   belongs_to :user
   belongs_to :project
   has_many :inventory_transactions
+  has_many :item_locations
+  has_many :warehouse_transactions
 
   # For item image
   has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "150x150#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension"
@@ -91,7 +93,7 @@ class InventoryItem < ActiveRecord::Base
       return UnitItem.find( id )
     when 'BulkItem'
       return BulkItem.find( id )
-    else
+    when 'BundleItem'
       return BundleItem.find( id )
     end
   end

@@ -7,11 +7,15 @@ class Project < ActiveRecord::Base
 
   def get_pm
     pm = self.users.where('role=?', User::PROJECT_MANAGER).first
+
+    return unless pm.present?
     pm.first_name + ' ' + pm.last_name
   end
 
   def get_ae
     ae = self.users.where('role=?', User::ACCOUNT_EXECUTIVE).first
+
+    return unless ae.present?
     ae.first_name + ' ' + ae.last_name
   end
 
@@ -21,6 +25,8 @@ class Project < ActiveRecord::Base
 
   def get_client_contact
     client_contact = ClientContact.find_by_client_id( self.client_id )
+
+    return unless client_contact.present?
     client_contact.first_name + ' ' + client_contact.last_name
   end
 
