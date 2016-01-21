@@ -64,13 +64,34 @@ class Api::V1::BulkItemsController < ApplicationController
     else
       render json: { errors: bulk_item.errors }, status: 422
     end 
+  end
 
+  def re_entry
+    bulk_item = BulkItem.find_by_id(params[:id])
+
+    if ! bulk_item.present?
+      render json: { errors: "No se encontró el artículo." }, status: 422
+      return
+    end
+
+    bulk_item.status = InventoryItem::IN_STOCK
+    bulk_item.state = params[:state]
+    bulk_item.quantity = bulk_item.quantity.to_i + params[:quantity].to_i
+    if bulk_item.save
+      inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Reingreso granel", '-', '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
+      log_action( current_user.id, 'InventoryItem', 'Reingreso granel de: "' + bulk_item.name + '"', inventory_item.id )
+      render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  bulk_item.name + '"!' }, status: 201  
+      return
+    end
+
+    render json: { errors: bulk_item.errors }, status: 422 
   end
 
   private
 
     def bulk_item_params
-      params.require(:bulk_item).permit(:quantity, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date)
+      params.require(:bulk_item).permit(:quantity, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state)
     end
 end
 

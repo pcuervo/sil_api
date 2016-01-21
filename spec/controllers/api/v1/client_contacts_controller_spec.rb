@@ -143,4 +143,27 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
 
     it { should respond_with 204 }
   end
+
+  describe "GET #inventory_items" do
+    before(:each) do
+      @client = FactoryGirl.create :client
+      @client_contact = FactoryGirl.create :client_contact
+      @client.client_contacts << @client_contact
+      project = FactoryGirl.create :project
+      3.times do |i|
+        item = FactoryGirl.create :inventory_item 
+        project.inventory_items << item
+      end 
+      @client.projects << project
+
+      get :inventory_items, id: @client_contact.id
+    end
+
+    it "returns hash containing inventory items that belong to a client contact" do
+      client_contact_response = json_response[:client_contacts]
+      expect(client_contact_response.size).to eq(3)
+    end
+
+    it { should respond_with 200 }
+  end
 end

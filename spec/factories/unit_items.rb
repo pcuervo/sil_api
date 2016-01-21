@@ -9,6 +9,8 @@ FactoryGirl.define do
     brand { FFaker::Product.brand }
     model { FFaker::Product.model }
     item_type 'Desktop'
+    state 1
+    value 10
   end
 
 end

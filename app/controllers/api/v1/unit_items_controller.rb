@@ -21,11 +21,6 @@ class Api::V1::UnitItemsController < ApplicationController
 
     if unit_item.save
       inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
-
-      if params[:location].present?
-
-      end
-
       log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada unitaria", params[:storage_type], params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
       log_action( current_user.id, 'InventoryItem', 'Created unit item "' + unit_item.name + '"', inventory_item.id )
       render json: unit_item, status: 201, location: [:api, unit_item]
@@ -68,10 +63,31 @@ class Api::V1::UnitItemsController < ApplicationController
 
   end
 
+  def re_entry
+    unit_item = UnitItem.find_by_id(params[:id])
+
+    if ! unit_item.present?
+      render json: { errors: "No se encontró el artículo." }, status: 422
+      return
+    end
+
+    unit_item.status = InventoryItem::IN_STOCK
+    unit_item.state = params[:state]
+    if unit_item.save
+      inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Reingreso unitario", '-', '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
+      log_action( current_user.id, 'InventoryItem', 'Reingreso unitario de: "' + unit_item.name + '"', inventory_item.id )
+      render json: { success: '¡Has reingresado el artículo "' +  unit_item.name + '"!' }, status: 201  
+      return
+    end
+
+    render json: { errors: unit_item.errors }, status: 422 
+  end
+
   private
 
     def unit_item_params
-      params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :state, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date )
+      params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state )
       # params.permit(:serial_number, :brand, :model, :name, :description, :project_id, :image_url, :status, :item_img)
     end
 end

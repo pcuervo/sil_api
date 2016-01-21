@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160109005406) do
+ActiveRecord::Schema.define(version: 20160121025920) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -98,12 +98,13 @@ ActiveRecord::Schema.define(version: 20160109005406) do
   end
 
   create_table "inventory_items", force: :cascade do |t|
-    t.string   "name",                     limit: 255,   default: " "
+    t.string   "name",                     limit: 255,                            default: " "
     t.text     "description",              limit: 65535
-    t.string   "image_url",                limit: 255,   default: "default_item.png"
-    t.integer  "status",                   limit: 4,     default: 1
+    t.string   "image_url",                limit: 255,                            default: "default_item.png"
+    t.integer  "status",                   limit: 4,                              default: 1
     t.integer  "user_id",                  limit: 4
     t.integer  "project_id",               limit: 4
+    t.decimal  "value",                                  precision: 10, scale: 2, default: 0.0
     t.integer  "actable_id",               limit: 4
     t.string   "actable_type",             limit: 255
     t.datetime "created_at"
@@ -115,7 +116,7 @@ ActiveRecord::Schema.define(version: 20160109005406) do
     t.string   "item_type",                limit: 255
     t.string   "barcode",                  limit: 255
     t.date     "validity_expiration_date"
-    t.integer  "state",                    limit: 4,     default: 1
+    t.integer  "state",                    limit: 4,                              default: 1
   end
 
   add_index "inventory_items", ["project_id"], name: "index_inventory_items_on_project_id", using: :btree
@@ -176,6 +177,12 @@ ActiveRecord::Schema.define(version: 20160109005406) do
 
   add_index "projects_users", ["project_id", "user_id"], name: "index_projects_users_on_project_id_and_user_id", using: :btree
   add_index "projects_users", ["user_id", "project_id"], name: "index_projects_users_on_user_id_and_project_id", using: :btree
+
+  create_table "suppliers", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "unit_items", force: :cascade do |t|
     t.string   "serial_number", limit: 255, default: " "

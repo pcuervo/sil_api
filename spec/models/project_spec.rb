@@ -16,6 +16,7 @@ RSpec.describe Project, type: :model do
 
   it { should have_and_belong_to_many(:users) }
   it { should belong_to(:client) }
+  it { should have_many(:inventory_items) }
 
   it { should be_valid }
 

@@ -7,6 +7,8 @@ FactoryGirl.define do
     barcode { FFaker::Vehicle.vin }
     quantity 100
     item_type 'POP'
+    state 1
+    value 100
   end
 
 end

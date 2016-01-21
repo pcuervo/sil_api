@@ -14,13 +14,22 @@ class InventoryItem < ActiveRecord::Base
   has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "150x150#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension"
   validates_attachment_content_type :item_img, content_type: /\Aimage\/.*\Z/
   
-  # ITEM STATUS
+  # Item status
   IN_STOCK = 1
   OUT_OF_STOCK = 2
   PARTIAL_STOCK = 3
   EXPIRED = 4
   PENDING_ENTRY = 5
   PENDING_WITHDRAWAL = 6
+
+  # States
+  NEW = 1
+  AS_NEW = 2
+  USED = 3
+  DAMAGED = 4
+  INCOMPLETE = 5
+  NEED_MAINTENANCE = 6
+  GOOD = 7
 
   def self.search( params = {} )
     inventory_items = InventoryItem.all

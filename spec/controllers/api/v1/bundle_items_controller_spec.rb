@@ -65,6 +65,8 @@ describe Api::V1::BundleItemsController, type: :controller do
       it "renders the json representation for the inventory item just created" do
         bundle_item_response = json_response[:bundle_item]
         expect(bundle_item_response[:name]).to eql @bundle_item_attributes[:name]
+        expect(bundle_item_response[:state]).to eql @bundle_item_attributes[:state]
+        expect(bundle_item_response[:value]).to eql @bundle_item_attributes[:value]
       end
 
       it "should record the transaction in database" do
