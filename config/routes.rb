@@ -33,11 +33,13 @@ Sil::Application.routes.draw do
       resources :unit_items, :only => [:index, :show] do 
         collection do
           post 'withdraw/', :action => 'withdraw'
+          post 're_entry/', :action => 're_entry'
         end
       end
       resources :bulk_items, :only => [:index, :show] do
         collection do
           post 'withdraw/', :action => 'withdraw'
+          post 're_entry/', :action => 're_entry'
         end
       end
       resources :bundle_items, :only => [:index, :show] do
@@ -56,6 +58,7 @@ Sil::Application.routes.draw do
       resources :client_contacts, :only => [:show, :index, :create, :update, :destroy] do
         collection do 
           get 'get_by_client/', :action => 'get_by_client'
+          get 'inventory_items/:id', :action => 'inventory_items'
         end
       end
       resources :inventory_transactions, :only => [:show, :index] do
@@ -75,6 +78,7 @@ Sil::Application.routes.draw do
         end
       end
       resources :item_locations, :only => [:show, :index, :create]
+      resources :suppliers, :only => [:show, :index, :create, :update, :destroy]
     end
   end
 

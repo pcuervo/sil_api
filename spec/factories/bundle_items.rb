@@ -8,6 +8,8 @@ FactoryGirl.define do
     item_type 'POP'
     is_complete true
     num_parts 0
+    state 1
+    value 110
   end
 
 end

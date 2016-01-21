@@ -19,9 +19,9 @@ RSpec.describe Client, type: :model do
       client.destroy
 
       client_contacts.each do |cc|
-        puts cc.to_json
         expect(ClientContact.find(cc.id)).to raise_error ActiveRecord::RecordNotFound
       end
     end
   end
+
 end

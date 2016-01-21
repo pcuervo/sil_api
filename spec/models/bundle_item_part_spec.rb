@@ -8,6 +8,8 @@ describe BundleItemPart, type: :model do
   it { should respond_to(:serial_number) }
   it { should respond_to(:brand) }
   it { should respond_to(:model) }
+  it { should respond_to(:state) }
+  it { should respond_to(:value) }
 
   it { should belong_to(:bundle_item) }
   it { should validate_uniqueness_of :serial_number }

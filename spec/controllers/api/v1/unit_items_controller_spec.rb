@@ -55,6 +55,8 @@ describe Api::V1::UnitItemsController do
       it "renders the json representation for the inventory item just created" do
         unit_item_response = json_response[:unit_item]
         expect(unit_item_response[:name]).to eql @unit_item_attributes[:name]
+        expect(unit_item_response[:state]).to eql @unit_item_attributes[:state]
+        expect(unit_item_response[:value]).to eql @unit_item_attributes[:value]
       end
 
       it "should record the transaction in database" do
@@ -160,7 +162,24 @@ describe Api::V1::UnitItemsController do
       end
 
     end
-
-
   end
+
+  describe "POST #re_entry" do
+    context "when unit item is succesfully re-entered to inventory" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @unit_item = FactoryGirl.create :unit_item
+        api_authorization_header user.auth_token
+        post :re_entry, { id: @unit_item.id, quantity: 1, :entry_date => Time.now, :delivery_company => 'DHL', :delivery_company_contact => 'Juan Pérez', :additional_comments => 'Noooo dice, se puso bien guapo dice', :state => 4 }
+      end
+
+      it "returns a success message about the withdrawn item" do
+        success_msg = json_response
+        expect(success_msg).to have_key(:success)
+      end
+
+      it { should respond_with 201 }
+    end
+  end
+
 end

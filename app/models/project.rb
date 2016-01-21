@@ -3,6 +3,7 @@ class Project < ActiveRecord::Base
   validates :name, :litobel_id, :client, presence: true
 
   has_and_belongs_to_many :users
+  has_many :inventory_items
   belongs_to :client
 
   def get_pm

@@ -48,7 +48,12 @@ class Api::V1::ClientContactsController < ApplicationController
   def get_by_client
     client_contacts = ClientContact.where('client_id = ?', params[:id] )
     respond_with client_contacts
-    #render json: client_contacts, status: 201, location: [:api, client_contacts] 
+  end
+
+  def inventory_items
+    user = User.find( params[:id] )
+    client_contact = ClientContact.find( user.actable_id )
+    respond_with client_contact.inventory_items
   end
 
   private 

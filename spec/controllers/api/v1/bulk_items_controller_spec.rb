@@ -8,7 +8,6 @@ describe Api::V1::BulkItemsController, type: :controller do
     end
 
     it "returns the information about a bulk_item in JSON format" do
-      puts json_response.to_yaml
       bulk_item_response = json_response[:bulk_item]
       expect(bulk_item_response[:quantity]).to eql @bulk_item.quantity
     end
@@ -55,6 +54,8 @@ describe Api::V1::BulkItemsController, type: :controller do
       it "renders the json representation for the inventory item just created" do
         bulk_item_response = json_response[:bulk_item]
         expect(bulk_item_response[:name]).to eql @bulk_item_attributes[:name]
+        expect(bulk_item_response[:state]).to eql @bulk_item_attributes[:state]
+        expect(bulk_item_response[:value]).to eql @bulk_item_attributes[:value]
       end
 
       it "should record the transaction in database" do

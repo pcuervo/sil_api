@@ -11,6 +11,8 @@ describe BulkItem, type: :model do
   it { should respond_to(:item_type) }
   it { should respond_to(:barcode) }
   it { should respond_to(:quantity) }
+  it { should respond_to(:state) }
+  it { should respond_to(:value) }
   
 
 end
