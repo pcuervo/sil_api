@@ -35,7 +35,7 @@ gem 'rack-cors', :require => 'rack/cors'
 # gem 'capistrano-rails', group: :development
 
 gem "paperclip", "~> 4.3"
-gem 'aws-sdk'
+gem 'aws-sdk', '< 2.0'
 
 group :production do
   gem 'rails_12factor'
