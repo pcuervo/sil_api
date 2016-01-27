@@ -4,7 +4,7 @@ class CreateInventoryItems < ActiveRecord::Migration
       t.string      :name,        default: " "
       t.text        :description
       t.string      :image_url,   default: "default_item.png"
-      t.string      :status,      default: "inactive"
+      t.integer      :status,      default: 1
       t.string      :item_type
       t.string      :barcode,     unique: true
       t.references  :user,        index: true
