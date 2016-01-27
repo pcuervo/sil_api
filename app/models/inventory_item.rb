@@ -11,7 +11,7 @@ class InventoryItem < ActiveRecord::Base
   has_many :warehouse_transactions
 
   # For item image
-  has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "150x150#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension"
+  has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "150x150#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :storage => :s3, :bucket => "sil-dev"
   validates_attachment_content_type :item_img, content_type: /\Aimage\/.*\Z/
   
   # Item status
