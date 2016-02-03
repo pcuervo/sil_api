@@ -37,8 +37,22 @@ class Api::V1::InventoryItemsController < ApplicationController
     respond_with InventoryItem.where( 'actable_type=?', params[:type] )
   end
 
-  private
+  def pending_entry
+    respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_ENTRY )
+  end
 
+  def authorize_entry
+    item = InventoryItem.find( params[:id] )
+    item.status = InventoryItem::IN_STOCK
+    item.save
+    render json: { success: '¡Se ha aprobado el ingreso del artículo "' + item.name + '"!' }, status: 201
+  end
+
+  def with_pending_location
+    respond_with InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id WHERE item_locations.id is null').order(updated_at: :desc)
+  end
+
+  private
     def inventory_item_params
       params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type)
     end

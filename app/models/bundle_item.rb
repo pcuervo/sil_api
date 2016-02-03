@@ -42,7 +42,6 @@ class BundleItem < ActiveRecord::Base
   end
 
   def update_status
-
     out_of_stock_parts = 0
     self.bundle_item_parts.each do |p|
       if p.status == InventoryItem::OUT_OF_STOCK
@@ -69,7 +68,6 @@ class BundleItem < ActiveRecord::Base
 
   private 
     def parts_params( params )
-      
       params.permit( :name, :serial_number, :brand, :model )
     end
 end

@@ -40,7 +40,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
       @warehouse_location = FactoryGirl.create :warehouse_location
 
       api_authorization_header user.auth_token
-      post :locate_item, { inventory_item_id: @unit_item.actable_id, warehouse_location_id: @warehouse_location.id, quantity: 1, units: 5 }
+      post :locate_item, { inventory_item_id: @unit_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1, units: 5 }
     end
 
     context "when item is successfully located" do
@@ -51,8 +51,43 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
       it { should respond_with 201 }
     end
+  end
 
-    
+  describe "POST #locate_bundle" do 
+    before(:each) do
+      user = FactoryGirl.create :user
+      inventory_item = FactoryGirl.create :inventory_item
+      @bundle_item = FactoryGirl.create :bundle_item
+      @bundle_item.actable_id = inventory_item.id
+      @part1 = FactoryGirl.create :bundle_item_part
+      @part2 = FactoryGirl.create :bundle_item_part
+      @bundle_item.bundle_item_parts << @part1
+      @bundle_item.bundle_item_parts << @part2
+
+      location1 = FactoryGirl.create :warehouse_location
+      location2 = FactoryGirl.create :warehouse_location
+      @locations = [ location1, location2 ]
+
+      @part_locations = []
+      @bundle_item.bundle_item_parts.each_with_index do |part, i|
+        @part_locations.push( { :part_id => part.id, :units => 3, :warehouse_location_id => @locations[i].id } )
+      end
+
+      api_authorization_header user.auth_token
+      post :locate_bundle, { inventory_item_id: @bundle_item.id, part_locations: @part_locations }
+    end
+
+    context "when item is successfully located" do
+      it "returns a JSON of the new ItemLocation" do
+        item_locations_response = json_response[:item_locations]
+
+        expect(item_locations_response[0][:part_id]).to eq(@part1.id)
+        expect(item_locations_response[1][:part_id]).to eq(@part2.id)
+        expect(item_locations_response[0][:inventory_item_id]).to eq(@locations[0].id)
+      end
+
+      it { should respond_with 201 }
+    end
   end
 
 end

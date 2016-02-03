@@ -11,7 +11,7 @@ class InventoryItem < ActiveRecord::Base
   has_many :warehouse_transactions
 
   # For item image
-  has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "150x150#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
+  has_attached_file :item_img, :styles => { :medium => "300x300>" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
   validates_attachment_content_type :item_img, content_type: /\Aimage\/.*\Z/
   
   # Item status
@@ -33,7 +33,7 @@ class InventoryItem < ActiveRecord::Base
 
   def self.search( params = {} )
     inventory_items = InventoryItem.all
-    inventory_items = inventory_items.recent if params[:recent].present?
+    inventory_items = inventory_items.where('status=?', IN_STOCK).recent if params[:recent].present?
 
     inventory_items_details = { 'inventory_items' => [] }
 
@@ -58,7 +58,7 @@ class InventoryItem < ActiveRecord::Base
     ae = project.get_ae
     client = project.get_client
     client_contact = project.get_client_contact
-    puts item_img(:thumb).gsub('/Users/micho/Documents/cuervo/sitios/', '')
+    puts item_img(:thumb).to_yaml
     details = { 'inventory_item' => {
         'id'              => self.id,
         'actable_id'      => self.actable_id,
@@ -72,7 +72,7 @@ class InventoryItem < ActiveRecord::Base
         'description'     => self.description,
         'client'          => client,
         'client_contact'  => client_contact,
-        'img'             => item_img(:thumb).gsub('/Users/micho/Documents/cuervo/sitios/', '')
+        'img'             => item_img(:thumb)
       }  
     }
 

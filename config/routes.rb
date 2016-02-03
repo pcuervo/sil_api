@@ -9,6 +9,7 @@ Sil::Application.routes.draw do
       resources :users, :only => [:index, :show, :create, :update, :destroy] do
         collection do 
           post 'update/', :action => 'update'
+          post 'change_password/', :action => 'change_password'
         end
         resources :inventory_items, :only => [:create]
         resources :unit_items, :only => [:create]
@@ -28,6 +29,9 @@ Sil::Application.routes.draw do
         collection do
           get 'by_barcode/', :action => 'by_barcode'
           get 'by_type/', :action => 'by_type'
+          get 'pending_entry/', :action => 'pending_entry'
+          post 'authorize_entry/', :action => 'authorize_entry'
+          get 'with_pending_location/', :action => 'with_pending_location'
         end
       end
       resources :unit_items, :only => [:index, :show] do 
@@ -45,6 +49,7 @@ Sil::Application.routes.draw do
       resources :bundle_items, :only => [:index, :show] do
         collection do
           post 'withdraw/', :action => 'withdraw'
+          post 're_entry/', :action => 're_entry'
         end
       end
       resources :projects, :only => [:index, :show, :create, :update, :destroy] do
@@ -70,11 +75,13 @@ Sil::Application.routes.draw do
       resources :warehouse_locations, :only => [:show, :index] do
         collection do
           post 'locate_item', :action => 'locate_item'
+          post 'locate_bundle', :action => 'locate_bundle'
         end
       end
       resources :warehouse_racks, :only => [:show, :index] do
         collection do
           get 'get_available_locations/:id', :action => 'get_available_locations'
+          get 'show_details/:id', :action => 'show_details'
         end
       end
       resources :item_locations, :only => [:show, :index, :create]

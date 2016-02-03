@@ -73,7 +73,33 @@ class Api::V1::BundleItemsController < ApplicationController
     else
       render json: { errors: bundle_item.errors }, status: 422
     end 
+  end
 
+  def re_entry
+    bundle_item = BundleItem.find_by_id(params[:id])
+
+    if ! bundle_item.present?
+      render json: { errors: "No se encontró el artículo." }, status: 422
+      return
+    end
+
+     if ! params[:parts].present?
+      render json: { errors: "Deber retirar al menos una pieza del paquete." }, status: 422
+      return
+    end
+
+    bundle_item.add_existing_parts( params[:parts] )
+    bundle_item.state = params[:state]
+
+    if bundle_item.save
+      inventory_item = InventoryItem.find_by_actable_id( bundle_item.id )
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Reingreso paquete", '-', '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
+      log_action( current_user.id, 'InventoryItem', 'Reingreso paquete de: "' + bundle_item.name + '"', inventory_item.id )
+      render json: { success: '¡Has reingresado partes del artículo  "' +  bundle_item.name + '"!' }, status: 201  
+      return
+    end
+
+    render json: { errors: bundle_item.errors }, status: 422 
   end
 
   private 

@@ -37,6 +37,8 @@ Rails.application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
+  # Fixed time zone for Mexico City
+  config.time_zone = "Mexico City"
 
   config.logger = Logger.new(STDOUT)
   config.log_level = :ERROR
