@@ -9,6 +9,11 @@ class Api::V1::WarehouseRacksController < ApplicationController
     respond_with WarehouseRack.find( params[:id] )
   end
 
+  def show_details
+    rack = WarehouseRack.find( params[:id] )
+    respond_with rack.details
+  end
+
   def get_available_locations
     rack = WarehouseRack.find( params[:id] )
     respond_with rack.available_locations

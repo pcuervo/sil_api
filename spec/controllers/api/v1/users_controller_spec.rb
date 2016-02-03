@@ -127,6 +127,20 @@ describe Api::V1::UsersController do
     end
 
     it { should respond_with 204 }
+  end
 
+  describe "POST #change_password" do
+    before(:each) do
+      @user = FactoryGirl.create :user
+      api_authorization_header @user.auth_token #we added this line
+      post :change_password, password: 'holama123', password_confirmation: 'holama123'
+    end
+
+    it "renders a success message about the password change" do
+      user_response = json_response
+      expect(user_response).to have_key(:success)
+    end
+
+    it { should respond_with 200 }
   end
 end

@@ -111,7 +111,5 @@ describe WarehouseLocation, type: :model do
         expect(invalid_item_location).to eq WarehouseLocation::IS_FULL
       end
     end
-
   end
-
 end

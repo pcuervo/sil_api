@@ -34,6 +34,18 @@ class Api::V1::UsersController < ApplicationController
 		end
 	end
 
+	def change_password
+		user = current_user
+
+		if user.update(user_password_params)
+			sign_in user, :bypass => true
+			render json: { success: 'Se ha cambiado el password' }, status: 200
+			return
+		end
+
+		render json: { errors: user.errors }, status: 422
+	end
+
 	def destroy
 	  current_user.destroy
 	  head 204
@@ -51,5 +63,9 @@ class Api::V1::UsersController < ApplicationController
 
 		def user_params
 			params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :role)
+		end
+
+		def user_password_params
+			params.require(:user).permit(:password, :password_confirmation)
 		end
 end

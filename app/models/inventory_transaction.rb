@@ -56,8 +56,8 @@ class InventoryTransaction < ActiveRecord::Base
 
     transactions.each do |t|
       item = InventoryItem.find(t.inventory_item_id)
-      inventory_transaction = InventoryTransaction.find_by_actable_id( t.id )
-      check_outs['inventory_transactions'].push({
+      inventory_transaction = InventoryTransaction.where('actable_type = ? AND actable_id = ?', 'CheckOutTransaction', t.id).first
+      check_outs['inventory_transactions'].push({ 
         'id'              => inventory_transaction.id,
         'concept'         => inventory_transaction.concept,
         'actable_type'    => item.actable_type,

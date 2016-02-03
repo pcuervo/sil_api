@@ -77,4 +77,16 @@ describe Api::V1::InventoryItemsController do
     end
   end
 
+  describe "GET #pending_entries" do
+    before(:each) do
+      # TODO
+    end
+  end
+
+  describe "GET #authorize_entry" do
+    before(:each) do
+      # TODO
+    end
+  end
+
 end

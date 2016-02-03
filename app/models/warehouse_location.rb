@@ -22,6 +22,10 @@ class WarehouseLocation < ActiveRecord::Base
     inventory_item = InventoryItem.find( inventory_item_id )
     item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
+
+    puts 'status:'
+    puts self.status.to_yaml
+    item_location.save
     return item_location.id if part_id == 0
 
     item_location.part_id = part_id
@@ -38,6 +42,18 @@ class WarehouseLocation < ActiveRecord::Base
     units = 0
     item_locations.each { |il| units += il.units }
     return self.units - units
+  end
+
+  def update_status
+    available_units = get_available_units
+    if 0 == available_units
+      self.status = 3
+    elsif available_units == self.units
+      self.status = 1
+    else
+      self.status = 2
+    end
+    self.save
   end
 
 end

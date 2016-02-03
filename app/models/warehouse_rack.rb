@@ -17,4 +17,19 @@ class WarehouseRack < ActiveRecord::Base
     end
     return available_locations_info
   end
+
+  def details
+    locations_info = { 'warehouse_info' => [] }
+    self.warehouse_locations.each do |location|
+      locations_info['warehouse_info'].push({
+        'id'              => location.id,
+        'name'            => location.name,
+        'units'           => location.units,
+        'available_units' => location.get_available_units,
+        'status'          => location.status
+      })
+    end
+    return locations_info
+  end
+  
 end
