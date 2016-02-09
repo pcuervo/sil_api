@@ -70,7 +70,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
       @part_locations = []
       @bundle_item.bundle_item_parts.each_with_index do |part, i|
-        @part_locations.push( { :part_id => part.id, :units => 3, :warehouse_location_id => @locations[i].id } )
+        @part_locations.push( { :partId => part.id, :units => 3, :locationId => @locations[i].id } )
       end
 
       api_authorization_header user.auth_token
@@ -83,10 +83,50 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
         expect(item_locations_response[0][:part_id]).to eq(@part1.id)
         expect(item_locations_response[1][:part_id]).to eq(@part2.id)
-        expect(item_locations_response[0][:inventory_item_id]).to eq(@locations[0].id)
       end
 
       it { should respond_with 201 }
+    end
+  end
+
+  describe "PUT/PATCH #update" do
+
+    context "when is successfully updated" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        api_authorization_header user.auth_token
+        @warehouse_location = FactoryGirl.create :warehouse_location
+        post :update, { id: @warehouse_location.id, name: "NewNameBro", units: 50 }, format: :json
+      end
+
+      it "renders the json representation for the updated WarehouseLocation" do
+        warehouse_location_response = json_response[:warehouse_location]
+        expect(warehouse_location_response[:name]).to eql "NewNameBro"
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context "when is not updated" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        api_authorization_header user.auth_token
+        @warehouse_location = FactoryGirl.create :warehouse_location
+        post :update, { id: @warehouse_location.id, name: "NewNameBro", units: -50 }, format: :json
+      end
+
+      it "renders an errors json" do
+        warehouse_location_response = json_response
+        expect(warehouse_location_response).to have_key(:errors)
+      end
+
+      it "renders the json errors when the email is invalid" do
+        warehouse_location_response = json_response
+        puts json_response.to_yaml
+        expect(warehouse_location_response[:errors][:units]).to include "must be greater than 0"
+      end
+
+      it { should respond_with 422 }
     end
   end
 

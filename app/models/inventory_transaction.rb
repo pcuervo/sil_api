@@ -5,7 +5,7 @@ class InventoryTransaction < ActiveRecord::Base
   validates :concept, :storage_type, :inventory_item, presence: true
 
   def self.search( params = {} )
-    inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
+    inventory_transactions = InventoryTransaction.order(created_at: :desc).all
 
     transaction_details = { 'inventory_transactions' => [] }
 
@@ -18,8 +18,10 @@ class InventoryTransaction < ActiveRecord::Base
         'inventory_item'  => {
             'name'          => inventory_item.name,
             'actable_type'  => inventory_item.actable_type,
-            'status'        => inventory_item.get_status
+            'status'        => inventory_item.get_status,
+            'img'           => inventory_item.item_img(:medium)
         },
+        'id'                      => i.id,
         'actable_type'            => i.actable_type,
         'quantity'                => i.quantity,
         'entry_exit_date'         => entry_exit_date,
@@ -28,6 +30,31 @@ class InventoryTransaction < ActiveRecord::Base
     end
 
     transaction_details
+  end
+
+  def get_details
+    inventory_item = InventoryItem.find( self.inventory_item_id )
+    transaction = InventoryTransaction.get_by_type( self.actable_id, self.actable_type )
+    entry_exit_date = "CheckInTransaction" == self.actable_type ? transaction.entry_date : transaction.exit_date
+    delivery_pickup_contact = "CheckInTransaction" == self.actable_type ? transaction.delivery_company_contact : transaction.pickup_company_contact
+    delivery_pickup_company = "CheckInTransaction" == self.actable_type ? transaction.delivery_company : transaction.pickup_company
+    details = { 'inventory_transaction' => {
+        'inventory_item'  => {
+            'name'          => inventory_item.name,
+            'actable_type'  => inventory_item.actable_type,
+            'status'        => inventory_item.get_status,
+            'img'           => inventory_item.item_img(:medium)
+        },
+        'actable_type'            => self.actable_type,
+        'quantity'                => self.quantity,
+        'entry_exit_date'         => entry_exit_date,
+        'delivery_pickup_contact' => delivery_pickup_contact,
+        'delivery_pickup_company' => delivery_pickup_company,
+        'concept'                 => concept,
+        'additional_comments'     => additional_comments
+      }  
+    }
+    details
   end
 
   def self.check_ins

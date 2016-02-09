@@ -58,21 +58,25 @@ class InventoryItem < ActiveRecord::Base
     ae = project.get_ae
     client = project.get_client
     client_contact = project.get_client_contact
-    puts item_img(:thumb).to_yaml
     details = { 'inventory_item' => {
-        'id'              => self.id,
-        'actable_id'      => self.actable_id,
-        'name'            => self.name,
-        'actable_type'    => self.actable_type,
-        'item_type'       => self.item_type,
-        'barcode'         => self.barcode,
-        'project'         => project.name,
-        'pm'              => pm,
-        'ae'              => ae,
-        'description'     => self.description,
-        'client'          => client,
-        'client_contact'  => client_contact,
-        'img'             => item_img(:thumb)
+        'id'                        => self.id,
+        'actable_id'                => self.actable_id,
+        'name'                      => self.name,
+        'actable_type'              => self.actable_type,
+        'item_type'                 => self.item_type,
+        'barcode'                   => self.barcode,
+        'project'                   => project.name,
+        'pm'                        => pm,
+        'ae'                        => ae,
+        'description'               => self.description,
+        'client'                    => client,
+        'client_contact'            => client_contact,
+        'img'                       => item_img(:medium),
+        'state'                     => self.state,
+        'item_type'                 => self.item_type,
+        'value'                     => self.value,
+        'validity_expiration_date'  => self.validity_expiration_date,
+        'created_at'                => self.created_at
       }  
     }
 

@@ -2,7 +2,7 @@ class Api::V1::InventoryTransactionsController < ApplicationController
   respond_to :json
   
   def show
-    respond_with InventoryTransaction.find(params[:id])
+    respond_with InventoryTransaction.find(params[:id]).get_details
   end
 
   def index

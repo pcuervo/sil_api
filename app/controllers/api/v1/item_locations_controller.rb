@@ -38,7 +38,4 @@ class Api::V1::ItemLocationsController < ApplicationController
     render json: { errors: item_location.errors }, status: 422
   end
 
-  def add_item_to_location
-
-  end
 end

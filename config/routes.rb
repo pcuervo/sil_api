@@ -76,9 +76,10 @@ Sil::Application.routes.draw do
         collection do
           post 'locate_item', :action => 'locate_item'
           post 'locate_bundle', :action => 'locate_bundle'
+          post 'update', :action => 'update'
         end
       end
-      resources :warehouse_racks, :only => [:show, :index] do
+      resources :warehouse_racks, :only => [:show, :index, :create] do
         collection do
           get 'get_available_locations/:id', :action => 'get_available_locations'
           get 'show_details/:id', :action => 'show_details'
