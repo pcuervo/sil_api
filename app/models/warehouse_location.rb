@@ -1,6 +1,7 @@
 class WarehouseLocation < ActiveRecord::Base
   validates :name, presence: true
   validates :name, uniqueness: true
+  validates :units, numericality: { only_intenger: true, greater_than: 0 }
   belongs_to :warehouse_rack
   has_many :item_locations
   has_many :warehouse_transactions
@@ -23,8 +24,6 @@ class WarehouseLocation < ActiveRecord::Base
     item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
 
-    puts 'status:'
-    puts self.status.to_yaml
     item_location.save
     return item_location.id if part_id == 0
 
@@ -54,6 +53,21 @@ class WarehouseLocation < ActiveRecord::Base
       self.status = 2
     end
     self.save
+  end
+
+  def get_details
+    inventory_items = []
+    self.item_locations.each { |il| inventory_items.push( il.inventory_item.get_details ) }
+    details = { 'warehouse_location' => {
+        'id'                        => self.id,
+        'name'                      => self.name,
+        'status'                    => self.status,
+        'units'                     => self.units,
+        'warehouse_rack'            => self.warehouse_rack,
+        'item_locations'            => self.item_locations,
+        'inventory_items'           => inventory_items,
+      }  
+    }
   end
 
 end

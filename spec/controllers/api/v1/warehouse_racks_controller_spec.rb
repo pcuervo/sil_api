@@ -47,4 +47,51 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
       expect(locations_response[:available_locations].size).to eq(5)
     end
   end
+
+  describe "POST #create" do
+    context "when rack is succesfully created" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @rack_attributes = FactoryGirl.attributes_for :warehouse_rack
+
+        api_authorization_header user.auth_token
+        post :create, { user_id: user.id, warehouse_rack: @rack_attributes, units: 50  }
+      end
+
+      it "renders the WarehouseRack just created in JSON format" do
+        rack_response = json_response[:warehouse_rack]
+        expect(rack_response[:name]).to eql @rack_attributes[:name]
+        expect(rack_response[:warehouse_locations].count).to eql ( @rack_attributes[:row] * @rack_attributes[:column] )
+      end
+
+      it { should respond_with 201 }
+    end
+
+    # context "when project is not created" do
+    #   before(:each) do
+    #     user = FactoryGirl.create :user
+    #     pm = FactoryGirl.create :user
+    #     pm.role = User::PROJECT_MANAGER
+    #     ae = FactoryGirl.create :user
+    #     ae.role = User::ACCOUNT_EXECUTIVE
+    #     @invalid_project_attributes = { name: "Proyecto Inválido" }
+
+    #     api_authorization_header user.auth_token
+    #     post :create, { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: @invalid_project_attributes }
+    #   end
+
+    #   it "renders an errors json" do 
+    #     project_response = json_response
+    #     expect(project_response).to have_key(:errors)
+    #   end
+
+    #   it "renders the json errors when there is no client present" do
+    #     project_response = json_response
+    #     expect(project_response[:errors][:client]).to include "can't be blank"
+    #   end
+
+    #   it { should respond_with 422 }
+    # end
+  end
+
 end

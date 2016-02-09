@@ -19,9 +19,9 @@ class WarehouseRack < ActiveRecord::Base
   end
 
   def details
-    locations_info = { 'warehouse_info' => [] }
+    rack_info = { 'rack_info' => { :rows => self.row, :columns => self.column }, 'locations' => [] }
     self.warehouse_locations.each do |location|
-      locations_info['warehouse_info'].push({
+      rack_info['locations'].push({
         'id'              => location.id,
         'name'            => location.name,
         'units'           => location.units,
@@ -29,7 +29,17 @@ class WarehouseRack < ActiveRecord::Base
         'status'          => location.status
       })
     end
-    return locations_info
+    return rack_info
+  end
+
+  def add_initial_locations units
+    row.times do |r|
+      column.times do |c|
+        location_name = name + '-' + ( r + 1 ).to_s + '-' + ( c + 1 ).to_s
+        new_location = WarehouseLocation.create( :name => location_name, :units => units )
+        warehouse_locations << new_location
+      end
+    end
   end
   
 end
