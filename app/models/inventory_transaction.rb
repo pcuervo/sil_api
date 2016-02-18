@@ -2,7 +2,7 @@ class InventoryTransaction < ActiveRecord::Base
   actable 
 
   belongs_to :inventory_item
-  validates :concept, :storage_type, :inventory_item, presence: true
+  validates :concept, :inventory_item, presence: true
 
   def self.search( params = {} )
     inventory_transactions = InventoryTransaction.order(created_at: :desc).all

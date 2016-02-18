@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160121025920) do
+ActiveRecord::Schema.define(version: 20160217231905) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -117,6 +117,7 @@ ActiveRecord::Schema.define(version: 20160121025920) do
     t.string   "barcode",                  limit: 255
     t.date     "validity_expiration_date"
     t.integer  "state",                    limit: 4,                              default: 1
+    t.string   "storage_type",             limit: 255
   end
 
   add_index "inventory_items", ["project_id"], name: "index_inventory_items_on_project_id", using: :btree
@@ -125,10 +126,9 @@ ActiveRecord::Schema.define(version: 20160121025920) do
   create_table "inventory_transactions", force: :cascade do |t|
     t.integer  "inventory_item_id",   limit: 4
     t.string   "concept",             limit: 255
-    t.string   "storage_type",        limit: 255,   default: "temporal"
     t.text     "additional_comments", limit: 65535
-    t.datetime "created_at",                                             null: false
-    t.datetime "updated_at",                                             null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
     t.integer  "actable_id",          limit: 4
     t.string   "actable_type",        limit: 255
     t.integer  "quantity",            limit: 4

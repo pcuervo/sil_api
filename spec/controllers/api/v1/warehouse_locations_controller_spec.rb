@@ -89,6 +89,36 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
     end
   end
 
+  describe "POST #locate_bulk" do 
+    before(:each) do
+      user = FactoryGirl.create :user
+      inventory_item = FactoryGirl.create :inventory_item
+      @bulk_item = FactoryGirl.create :bulk_item
+      @bulk_item.actable_id = inventory_item.id
+
+      location1 = FactoryGirl.create :warehouse_location
+      location2 = FactoryGirl.create :warehouse_location
+      @locations = [ location1, location2 ]
+
+      @bulk_locations = []
+      @bulk_locations.push( { :quantity => 50, :units => 3, :locationId => location1.id } )
+      @bulk_locations.push( { :quantity => 50, :units => 3, :locationId => location2.id } )
+
+      api_authorization_header user.auth_token
+      post :locate_bulk, { inventory_item_id: @bulk_item.id, bulk_locations: @bulk_locations }
+    end
+
+    context "when item is successfully located" do
+      it "returns a JSON of the new ItemLocation" do
+        item_locations_response = json_response[:item_locations]
+        expect(item_locations_response[0][:quantity]).to eq(50)
+        expect(item_locations_response[1][:quantity]).to eq(50)
+      end
+
+      it { should respond_with 201 }
+    end
+  end
+
   describe "PUT/PATCH #update" do
 
     context "when is successfully updated" do
@@ -122,7 +152,6 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
       it "renders the json errors when the email is invalid" do
         warehouse_location_response = json_response
-        puts json_response.to_yaml
         expect(warehouse_location_response[:errors][:units]).to include "must be greater than 0"
       end
 

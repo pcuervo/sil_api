@@ -59,6 +59,10 @@ class Api::V1::UsersController < ApplicationController
     respond_with User.ae_users
   end
 
+  def get_client_contacts
+    respond_with User.client_users
+  end
+
 	private	
 
 		def user_params

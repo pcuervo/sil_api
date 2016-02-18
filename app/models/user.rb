@@ -49,5 +49,6 @@ class User < ActiveRecord::Base
   scope :admin_users, -> { where( role: ADMIN ) }
   scope :pm_users, -> { where( role: PROJECT_MANAGER ) }
   scope :ae_users, -> { where( role: ACCOUNT_EXECUTIVE ) }
+  scope :client_users, -> { where( role: CLIENT ) }
   scope :pm_ae_users, -> { where('role = ? OR role = ?', PROJECT_MANAGER, ACCOUNT_EXECUTIVE ) }
 end
