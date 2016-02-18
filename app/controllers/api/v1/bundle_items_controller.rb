@@ -28,7 +28,7 @@ class Api::V1::BundleItemsController < ApplicationController
     if bundle_item.save
       bundle_item.add_new_parts( params[:parts] )
       inventory_item = InventoryItem.find_by_actable_id(bundle_item.id)
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada paquete", params[:storage_type], params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], bundle_item.num_parts )
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada paquete", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], bundle_item.num_parts )
       log_action( current_user.id, 'InventoryItem', 'Created bundle item "' + bundle_item.name + '"', inventory_item.id )
       render json: bundle_item, status: 201, location: [:api, bundle_item]
     else

@@ -16,6 +16,7 @@ Sil::Application.routes.draw do
           collection do 
             get 'get_project_managers/', :action => 'get_project_managers'
             get 'get_account_executives/', :action => 'get_account_executives'
+            get 'get_client_contacts/', :action => 'get_client_contacts'
           end
         resources :bulk_items, :only => [:create]
         resources :bundle_items, :only => [:create]
@@ -76,6 +77,7 @@ Sil::Application.routes.draw do
         collection do
           post 'locate_item', :action => 'locate_item'
           post 'locate_bundle', :action => 'locate_bundle'
+          post 'locate_bulk', :action => 'locate_bulk'
           post 'update', :action => 'update'
         end
       end

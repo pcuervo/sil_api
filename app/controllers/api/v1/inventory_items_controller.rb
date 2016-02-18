@@ -54,7 +54,7 @@ class Api::V1::InventoryItemsController < ApplicationController
 
   private
     def inventory_item_params
-      params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type)
+      params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type, :storage_type)
     end
 
 end

@@ -21,7 +21,7 @@ class Api::V1::UnitItemsController < ApplicationController
 
     if unit_item.save
       inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada unitaria", params[:storage_type], params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada unitaria", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
       log_action( current_user.id, 'InventoryItem', 'Created unit item "' + unit_item.name + '"', inventory_item.id )
       render json: unit_item, status: 201, location: [:api, unit_item]
       return
@@ -87,7 +87,7 @@ class Api::V1::UnitItemsController < ApplicationController
   private
 
     def unit_item_params
-      params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state )
+      params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state, :storage_type )
       # params.permit(:serial_number, :brand, :model, :name, :description, :project_id, :image_url, :status, :item_img)
     end
 end

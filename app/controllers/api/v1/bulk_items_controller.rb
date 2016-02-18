@@ -20,7 +20,7 @@ class Api::V1::BulkItemsController < ApplicationController
 
     if bulk_item.save
       inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada granel inicial", params[:storage_type], params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity])
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity])
       log_action( current_user.id, 'InventoryItem', 'Ingreso inicial a granel de: "' + bulk_item.name + '"', inventory_item.id )
       render json: bulk_item, status: 201, location: [:api, bulk_item]
     else

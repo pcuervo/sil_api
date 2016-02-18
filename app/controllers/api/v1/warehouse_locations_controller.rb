@@ -53,6 +53,33 @@ class Api::V1::WarehouseLocationsController < ApplicationController
       location = WarehouseLocation.find( pl[:locationId] )
       new_location_id = location.locate( inventory_item.id, pl[:units].to_i, 1, pl[:partId] )
       if new_location_id > 0
+        item_location = ItemLocation.find( new_location_id )
+        location.item_locations << item_location
+        location.update_status
+        locations.push( item_location )
+        next
+      end
+
+      render json: { errors: 'No se pudo ubicar el artículo' }, status: 422
+      return
+    end
+
+    render json: { item_locations: locations }, status: 201
+  end
+
+  def locate_bulk
+    if params[:is_inventory_item]
+      inventory_item = InventoryItem.find( params[:inventory_item_id] )
+    else
+      inventory_item = InventoryItem.find_by_actable_id( params[:inventory_item_id] )
+    end
+    bulk_locations = params[:bulk_locations]
+    locations = []
+
+    bulk_locations.each do |bl|
+      location = WarehouseLocation.find( bl[:locationId] )
+      new_location_id = location.locate( inventory_item.id, bl[:units].to_i, bl[:quantity], 0 )
+      if new_location_id > 0
         locations.push( ItemLocation.find( new_location_id ) )
         next
       end

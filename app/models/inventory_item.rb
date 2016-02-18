@@ -33,19 +33,65 @@ class InventoryItem < ActiveRecord::Base
 
   def self.search( params = {} )
     inventory_items = InventoryItem.all
-    inventory_items = inventory_items.where('status=?', IN_STOCK).recent if params[:recent].present?
+    inventory_items = inventory_items.where( 'status=?', IN_STOCK ).recent if params[:recent].present?
+
+    if params[:keyword]
+      inventory_items = inventory_items.where( 'name LIKE ?', "%#{params[:keyword]}%" )
+    end
+
+    if params[:project_id].present?
+      inventory_items = inventory_items.where( 'project_id = ?', params[:project_id] )
+    end
+
+    if params[:item_type].present?
+      inventory_items = inventory_items.where( 'item_type = ?', params[:item_type] )
+    end
+
+    if params[:status].present?
+      inventory_items = inventory_items.where( 'status = ?', params[:status] )
+    end
+
+    if params[:pm_id].present?
+      user = User.find( params[:pm_id] )
+      projects = user.projects
+      projects_id = []
+      projects.each {|p| projects_id.push(p.id) }
+      inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
+    end
+
+    if params[:ae_id].present?
+      user = User.find( params[:ae_id] )
+      projects = user.projects
+      projects_id = []
+      projects.each {|p| projects_id.push(p.id) }
+      inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
+    end
+
+    if params[:client_contact_id].present?
+      user = User.find( params[:client_contact_id] )
+      projects = user.projects
+      projects_id = []
+      projects.each {|p| projects_id.push(p.id) }
+      inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
+    end
+
+    if params[:storage_type].present?
+      inventory_items = inventory_items.where( 'storage_type = ?', params[:storage_type] )
+    end
 
     inventory_items_details = { 'inventory_items' => [] }
-
     inventory_items.each do |i|
       inventory_items_details['inventory_items'].push({
-        'id'                            => i.id,
-        'name'                          => i.name,
-        'item_type'                     => i.item_type,
-        'quantity'                      => i.get_quantity,
-        'actable_type'                  => i.actable_type,
-        'created_at'                    => i.created_at,
-        'validity_expiration_date'      => i.validity_expiration_date
+        'id'                        => i.id,
+        'name'                      => i.name,
+        'item_type'                 => i.item_type,
+        'quantity'                  => i.get_quantity,
+        'actable_type'              => i.actable_type,
+        'storage_type'              => i.storage_type,
+        'status'                    => i.status,
+        'value'                     => i.value,
+        'created_at'                => i.created_at,
+        'validity_expiration_date'  => i.validity_expiration_date
       })
     end
 
