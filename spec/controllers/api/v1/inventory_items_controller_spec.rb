@@ -4,12 +4,20 @@ describe Api::V1::InventoryItemsController do
   describe "GET #show" do
     before(:each) do
       @inventory_item = FactoryGirl.create :inventory_item
+      @location = FactoryGirl.create :warehouse_location
+      item_location = ItemLocation.new
+      item_location.inventory_item = @inventory_item
+      item_location.warehouse_location = @location
+      item_location.units = 10
+      item_location.quantity = 1
+      item_location.save
       get :show, id: @inventory_item.id
     end
 
     it "returns the information about an inventory item on a hash" do
       inventory_item_response = json_response[:inventory_item]
       expect(inventory_item_response[:name]).to eql @inventory_item.name
+      expect(inventory_item_response).to have_key(:locations)
     end
 
     it { should respond_with 200 }
@@ -87,6 +95,38 @@ describe Api::V1::InventoryItemsController do
     before(:each) do
       # TODO
     end
+  end
+
+  describe "GET #total_number_items" do
+    before(:each) do
+      5.times{ FactoryGirl.create :inventory_item }
+      get :total_number_items
+    end
+
+    it "returns the information about an inventory item on a hash" do
+      inventory_item_response = json_response[:total_number_items]
+      expect(inventory_item_response).to eql 5
+    end
+
+    it { should respond_with 200 }
+  end
+
+  describe "GET #inventory_value" do
+    before(:each) do
+      @value = 0
+      5.times do
+        item = FactoryGirl.create :inventory_item 
+        @value += item.value
+      end
+      get :inventory_value
+    end
+
+    it "returns the information about an inventory item on a hash" do
+      inventory_item_response = json_response[:inventory_value]
+      expect( inventory_item_response.to_f ).to eql @value.to_f
+    end
+
+    it { should respond_with 200 }
   end
 
 end

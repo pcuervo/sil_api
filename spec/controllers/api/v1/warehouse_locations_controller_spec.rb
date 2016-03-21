@@ -119,6 +119,26 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
     end
   end
 
+  describe "POST #relocate_item" do 
+    before(:each) do
+      user = FactoryGirl.create :user
+      @item_location = FactoryGirl.create :item_location
+      @warehouse_location = FactoryGirl.create :warehouse_location
+
+      api_authorization_header user.auth_token
+      post :relocate_item, { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: 1, units: @item_location.units }
+    end
+
+    context "when UnitItem is successfully relocated" do
+      it "returns a JSON of the new ItemLocation" do
+        item_location_response = json_response[:item_location]
+        expect(item_location_response[:units]).to eq( @item_location.units )
+      end
+
+      it { should respond_with 201 }
+    end
+  end
+
   describe "PUT/PATCH #update" do
 
     context "when is successfully updated" do

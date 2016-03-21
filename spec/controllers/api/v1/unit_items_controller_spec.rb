@@ -56,7 +56,7 @@ describe Api::V1::UnitItemsController do
         unit_item_response = json_response[:unit_item]
         expect(unit_item_response[:name]).to eql @unit_item_attributes[:name]
         expect(unit_item_response[:state]).to eql @unit_item_attributes[:state]
-        expect(unit_item_response[:value]).to eql @unit_item_attributes[:value]
+        expect( unit_item_response[:value].to_i ).to eql @unit_item_attributes[:value]
       end
 
       it "should record the transaction in database" do
@@ -104,6 +104,28 @@ describe Api::V1::UnitItemsController do
       end
 
       it "returns a success message about the withdrawn item" do
+        success_msg = json_response
+        expect(success_msg).to have_key(:success)
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when unit item has location and is succesfully withdrawn " do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @unit_item = FactoryGirl.create :unit_item
+        inventory_item = InventoryItem.find_by_actable_id( @unit_item.id )
+        location = FactoryGirl.create :warehouse_location
+        item_location = location.locate( inventory_item.id, 5, 1 )
+
+        api_authorization_header user.auth_token
+        post :withdraw, { id: @unit_item.id, quantity: 120, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
+      end
+
+      it "returns a success message about the withdrawn item" do
+        transaction = WarehouseTransaction.last
+        puts transaction
         success_msg = json_response
         expect(success_msg).to have_key(:success)
       end

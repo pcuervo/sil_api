@@ -104,6 +104,8 @@ class InventoryItem < ActiveRecord::Base
     ae = project.get_ae
     client = project.get_client
     client_contact = project.get_client_contact
+    locations = get_locations
+
     details = { 'inventory_item' => {
         'id'                        => self.id,
         'actable_id'                => self.actable_id,
@@ -122,6 +124,7 @@ class InventoryItem < ActiveRecord::Base
         'item_type'                 => self.item_type,
         'value'                     => self.value,
         'validity_expiration_date'  => self.validity_expiration_date,
+        'locations'                 => locations,
         'created_at'                => self.created_at
       }  
     }
@@ -172,6 +175,19 @@ class InventoryItem < ActiveRecord::Base
     when PENDING_WITHDRAWAL
       return 'Salida pendiente'
     end
+  end
+
+  def has_location?
+    return self.item_locations.present?
+  end
+
+  def get_locations
+    locations = []
+    item_locations = self.item_locations
+    item_locations.each do |il|
+      locations.push( il.warehouse_location )
+    end
+    locations
   end
 
   scope :recent, -> {

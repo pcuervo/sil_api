@@ -34,7 +34,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def by_type
-    respond_with InventoryItem.where( 'actable_type=?', params[:type] )
+    respond_with InventoryItem.where( 'actable_type=? AND status = ?', params[:type], params[:status] )
   end
 
   def pending_entry
@@ -50,6 +50,21 @@ class Api::V1::InventoryItemsController < ApplicationController
 
   def with_pending_location
     respond_with InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id WHERE item_locations.id is null').order(updated_at: :desc)
+  end
+
+  def total_number_items
+    render json: { total_number_items: InventoryItem.all.count }, status: 200
+  end
+
+  def inventory_value
+    in_stock_statuses = [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY  ]
+    render json: { inventory_value: InventoryItem.where( 'status IN (?)', in_stock_statuses ).sum( :value ) }, status: 200
+  end
+
+  def current_rent
+    in_stock_statuses = [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK  ]
+    rentable_units = InventoryItem.joins( :item_locations ).where( 'status IN (?)', in_stock_statuses ).sum( :units )
+    render json: { current_rent: rentable_units / 50.0 * 500 }, status: 200
   end
 
   private

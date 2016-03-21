@@ -58,7 +58,7 @@ class Api::V1::BulkItemsController < ApplicationController
     bulk_item.status = InventoryItem::OUT_OF_STOCK if bulk_item.quantity.to_i == 0
     if bulk_item.save
       inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
-      log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida a granel", '-', params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], params[:quantity])
+      log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida a granel", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], params[:quantity])
       log_action( current_user.id, 'InventoryItem', 'Salida a granel de: "' + bulk_item.name + '" por ' + params[:quantity].to_s + ' existencia(s)', inventory_item.id )
       render json: { success: '¡Has sacado ' + params[:quantity].to_s + ' existencia(s) del artículo "' +  bulk_item.name + '"!', quantity: bulk_item.quantity }, status: 201   
     else

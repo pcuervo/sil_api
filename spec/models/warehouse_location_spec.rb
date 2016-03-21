@@ -112,4 +112,45 @@ describe WarehouseLocation, type: :model do
       end
     end
   end
+
+  describe ".relocate" do
+    before(:each) do
+      @item_location = FactoryGirl.create :item_location
+      @new_location = FactoryGirl.create :warehouse_location
+    end
+
+    context "relocates a unit item successfully" do
+      it "return a hash containing the information of the new item location" do
+        item_location = ItemLocation.find( @new_location.relocate( @item_location.id, @item_location.units, 1 ) )
+        warehouse_transaction = WarehouseTransaction.last
+        expect(item_location[:units]).to eq @item_location.units 
+        expect(item_location[:units]).to eq warehouse_transaction.units
+      end
+    end
+
+    context "unsuccessfully relocates a unit item" do
+      it "return an error code when WarehouseLocation is full" do
+        invalid_item_location = @new_location.relocate( @item_location.id, 10000, 1 )
+        expect(invalid_item_location).to eq WarehouseLocation::IS_FULL
+      end
+    end
+  end
+
+  describe ".remove_item" do
+    before(:each) do
+      @item_location = FactoryGirl.create :item_location
+      @location = @item_location.warehouse_location
+    end
+
+    context "remove an UnitItem from current location" do
+      it "return a true if UnitItem was removed successfully" do
+        was_removed = @location.remove_item( @item_location.inventory_item )
+        #warehouse_transaction = WarehouseTransaction.last
+        expect( was_removed ).to eq true
+        #expect(item_location[:units]).to eq warehouse_transaction.units
+      end
+    end
+
+  end
+
 end
