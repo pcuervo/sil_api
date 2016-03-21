@@ -32,6 +32,45 @@ class WarehouseLocation < ActiveRecord::Base
     return item_location.id
   end
 
+  # Relocates an existing InventoryItem to current WarehouseLocation
+  # * *Params:* 
+  #   - +item_location_id+ -> ID of ItemLocation to relocate
+  #   - +units+ -> Units to relocate
+  #   - +quantity+ -> Item quantity 
+  #   - +part_id+ -> ID of BundleItemPart in case of relocating a BundleItem
+  # * *Returns:* 
+  #   - ID of new ItemLocation
+  def relocate( item_location_id, units, quantity, part_id = 0 )
+    return IS_FULL if get_available_units < units 
+
+    item_location = ItemLocation.find( item_location_id )
+    inventory_item = InventoryItem.find( item_location.inventory_item_id )
+    old_location = item_location.warehouse_location
+    new_item_location = ItemLocation.create( :inventory_item_id => item_location.inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => quantity )
+    w = WarehouseTransaction.create( :inventory_item_id => item_location.inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => quantity, :concept => WarehouseTransaction::RELOCATION )
+
+    new_item_location.save
+    item_location.destroy
+
+    return new_item_location.id if part_id == 0
+
+    new_item_location.part_id = part_id
+    new_item_location.save
+    return new_item_location.id
+  end
+
+  # Remove an item from current location
+  # * *Params:* 
+  #   - +inventory_item_id+ -> ID of ItemLocation to relocate
+  # * *Returns:* 
+  #   - bool if item was removed successfully
+  def remove_item( inventory_item_id )
+    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
+    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
+    item_location.destroy
+    return item_location.present?
+  end
+
   # Returns the available units in current WarehouseLocation
   # * *Returns:* 
   #   - number of available units

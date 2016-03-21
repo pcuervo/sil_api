@@ -11,7 +11,7 @@ Sil::Application.routes.draw do
           post 'update/', :action => 'update'
           post 'change_password/', :action => 'change_password'
         end
-        resources :inventory_items, :only => [:create]
+        resources :inventory_items, :only => [:create] 
         resources :unit_items, :only => [:create]
           collection do 
             get 'get_project_managers/', :action => 'get_project_managers'
@@ -33,6 +33,9 @@ Sil::Application.routes.draw do
           get 'pending_entry/', :action => 'pending_entry'
           post 'authorize_entry/', :action => 'authorize_entry'
           get 'with_pending_location/', :action => 'with_pending_location'
+          get 'total_number_items/', :action => 'total_number_items'
+          get 'inventory_value/', :action => 'inventory_value'
+          get 'current_rent/', :action => 'current_rent'
         end
       end
       resources :unit_items, :only => [:index, :show] do 
@@ -58,6 +61,7 @@ Sil::Application.routes.draw do
           get 'get_project_users/:id',  :action => 'get_project_users'
           get 'get_project_client/:id', :action => 'get_project_client'
           get 'by_user/:id',            :action => 'by_user'
+          post 'add_users',             :action => 'add_users'
         end
       end
       resources :clients, :only => [:show, :index, :create, :update, :destroy]
@@ -75,20 +79,27 @@ Sil::Application.routes.draw do
       end
       resources :warehouse_locations, :only => [:show, :index] do
         collection do
-          post 'locate_item', :action => 'locate_item'
+          post 'locate_item',   :action => 'locate_item'
           post 'locate_bundle', :action => 'locate_bundle'
-          post 'locate_bulk', :action => 'locate_bulk'
-          post 'update', :action => 'update'
+          post 'locate_bulk',   :action => 'locate_bulk'
+          post 'relocate_item', :action => 'relocate_item'
+          post 'update',        :action => 'update'
         end
       end
       resources :warehouse_racks, :only => [:show, :index, :create] do
         collection do
           get 'get_available_locations/:id', :action => 'get_available_locations'
           get 'show_details/:id', :action => 'show_details'
+          get 'get_items/:id', :action => 'get_items'
         end
       end
-      resources :item_locations, :only => [:show, :index, :create]
+      resources :item_locations, :only => [:show, :index, :create] do
+        collection do
+          post 'get_item_location_details/', :action => 'get_details'
+        end
+      end
       resources :suppliers, :only => [:show, :index, :create, :update, :destroy]
+      resources :warehouse_transactions, :only => [:index]
     end
   end
 

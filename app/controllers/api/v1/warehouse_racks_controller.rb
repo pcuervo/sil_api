@@ -32,6 +32,11 @@ class Api::V1::WarehouseRacksController < ApplicationController
     render json: { errors: warehouse_rack.errors }, status: 422 
   end
 
+  def get_items
+    rack = WarehouseRack.find( params[:id] )
+    respond_with rack.items
+  end
+
   private
 
     def warehouse_rack_params

@@ -54,7 +54,14 @@ class Api::V1::UnitItemsController < ApplicationController
     if unit_item.save
       inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
 
-      log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida unitaria", '-', params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], 1)
+      if unit_item.has_location?
+        item_location = unit_item.item_locations.first
+        location = item_location.warehouse_location
+        location.remove_item( inventory_item.id )
+      end
+
+      puts params[:additional_comments]
+      log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida unitaria", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], 1)
       log_action( current_user.id, 'InventoryItem', 'Salida unitaria de: "' + unit_item.name + '"', inventory_item.id )
       render json: { success: '¡Has sacado el artículo "' +  unit_item.name + '"!' }, status: 201  
     else
@@ -74,8 +81,8 @@ class Api::V1::UnitItemsController < ApplicationController
     unit_item.status = InventoryItem::IN_STOCK
     unit_item.state = params[:state]
     if unit_item.save
-      inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Reingreso unitario", '-', '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
+      inventory_item = InventoryItem.find_by_actable_id( unit_item.id )
+      log_checkin_transaction( params[:entry_date], inventory_item.id, "Reingreso unitario", '-', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
       log_action( current_user.id, 'InventoryItem', 'Reingreso unitario de: "' + unit_item.name + '"', inventory_item.id )
       render json: { success: '¡Has reingresado el artículo "' +  unit_item.name + '"!' }, status: 201  
       return

@@ -185,11 +185,79 @@ describe Api::V1::ProjectsController do
 
     it "returns the projects for a given user" do
       project_response = json_response[:projects]
-      puts project_response.to_yaml
       expect(project_response.count).to eq 2
     end
 
     it { should respond_with 200 }
+  end
+
+  describe "POST #add_users" do
+    context "when user are added to project" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @pm = FactoryGirl.create :user
+        @pm.role = User::PROJECT_MANAGER
+        @ae = FactoryGirl.create :user
+        @ae.role = User::ACCOUNT_EXECUTIVE
+
+        @project = FactoryGirl.create :project
+        api_authorization_header user.auth_token
+        post :add_users, { new_pm_id: @pm.id, new_ae_id: @ae.id, project_id: @project.id }
+      end
+
+      it "renders the project record just created in JSON format" do
+        project_response = json_response
+        expect(@project.users.count).to eql 2
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when user are not added to project" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @project = FactoryGirl.create :project
+        api_authorization_header user.auth_token
+        post :add_users, { project_id: @project.id }
+      end
+
+      it "renders an errors message" do
+        project_response = json_response
+        expect(project_response).to have_key(:errors)
+      end
+
+      it "renders the json errors when there are no users present" do
+        project_response = json_response
+        expect(project_response[:errors]).to include "Necesitas agregar al menos un Project Manager o Ejecutivo de Cuenta"
+      end
+
+    end
+
+    context "when project is not created" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        pm = FactoryGirl.create :user
+        pm.role = User::PROJECT_MANAGER
+        ae = FactoryGirl.create :user
+        ae.role = User::ACCOUNT_EXECUTIVE
+        @invalid_project_attributes = { name: "Proyecto Inválido" }
+
+        api_authorization_header user.auth_token
+        post :create, { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: @invalid_project_attributes }
+      end
+
+      it "renders an errors json" do 
+        project_response = json_response
+        expect(project_response).to have_key(:errors)
+      end
+
+      it "renders the json errors when there is no client present" do
+        project_response = json_response
+        expect(project_response[:errors][:client]).to include "can't be blank"
+      end
+
+      it { should respond_with 422 }
+    end
   end
 
 end

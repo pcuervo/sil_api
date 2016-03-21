@@ -91,6 +91,22 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     render json: { item_locations: locations }, status: 201
   end
 
+  def relocate_item
+    item_location = ItemLocation.find( params[:item_location_id] )
+    location = WarehouseLocation.find( params[:new_location_id] )
+    new_location_id = location.relocate( item_location.id, item_location.units, item_location.quantity )
+
+    if new_location_id > 0
+      item_location = ItemLocation.find( new_location_id )
+      location.item_locations << item_location
+      location.update_status
+      render json: item_location, status: 201, location: [:api, item_location]
+      return
+    end
+
+    render json: { errors: 'No se pudo ubicar el artículo' }, status: 422
+  end
+
   private
 
     def warehouse_location_params

@@ -8,7 +8,7 @@ class Api::V1::ProjectsController < ApplicationController
   end
   
   def show
-    respond_with Project.find(params[:id])
+    respond_with Project.find( params[:id] )
   end
 
   def create
@@ -85,6 +85,29 @@ class Api::V1::ProjectsController < ApplicationController
     projects = user.projects
 
     render json: { :projects => projects }, status: 200, location: [:api, user]
+  end
+
+  def add_users
+    if ! params[:new_pm_id].present? and ! params[:new_ae_id].present? 
+      render json: { errors: 'Necesitas agregar al menos un Project Manager o Ejecutivo de Cuenta' }, status: 422
+      return
+    end     
+    project = Project.find( params[:project_id] )
+    if params[:new_pm_id].present? 
+      pm = User.find( params[:new_pm_id] )
+      project.users << pm
+    end
+    if params[:new_ae_id].present? 
+      ae = User.find( params[:new_ae_id] )
+      project.users << ae
+    end
+    
+    if project.save
+      render json: { :success => 'Usuario(s) agregado(s) con éxito.' }, status: 201, location: [:api, project]
+      return
+    end
+
+    render json: { errors: 'No se pudo agregar el usuario al proyecto' }, status: 422
   end
 
 

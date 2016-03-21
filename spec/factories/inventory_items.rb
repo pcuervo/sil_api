@@ -5,6 +5,7 @@ FactoryGirl.define do
     item_type "Desktop"
     user
     project
+    value 100.00
     barcode { FFaker::Vehicle.vin }
   end
 end
