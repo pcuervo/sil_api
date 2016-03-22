@@ -60,10 +60,19 @@ class Api::V1::BulkItemsController < ApplicationController
       inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
       log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida a granel", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], params[:quantity])
       log_action( current_user.id, 'InventoryItem', 'Salida a granel de: "' + bulk_item.name + '" por ' + params[:quantity].to_s + ' existencia(s)', inventory_item.id )
+
+      if params[:locations].present?
+        params[:locations].each do |l|
+          location = WarehouseLocation.find( l[:location_id] )
+          location.remove_quantity( inventory_item.id, l[:quantity].to_i, l[:units].to_i )
+        end
+      end
+
       render json: { success: '¡Has sacado ' + params[:quantity].to_s + ' existencia(s) del artículo "' +  bulk_item.name + '"!', quantity: bulk_item.quantity }, status: 201   
-    else
-      render json: { errors: bulk_item.errors }, status: 422
-    end 
+      return
+    end
+    
+    render json: { errors: bulk_item.errors }, status: 422 
   end
 
   def re_entry

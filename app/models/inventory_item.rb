@@ -185,7 +185,12 @@ class InventoryItem < ActiveRecord::Base
     locations = []
     item_locations = self.item_locations
     item_locations.each do |il|
-      locations.push( il.warehouse_location )
+      locations.push({
+        'location_id' => il.warehouse_location.id,
+        'location'    => il.warehouse_location.name + ' - ' + il.units.to_s,
+        'quantity'    => il.quantity,
+        'units'       => il.units
+      })
     end
     locations
   end

@@ -129,4 +129,37 @@ describe Api::V1::InventoryItemsController do
     it { should respond_with 200 }
   end
 
+  describe "POST #multiple_withdrawal" do
+    context "when multiple UnitItems with location are succesfully withdrawn" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        
+        inventory_item_ids = []
+        3.times do 
+          inventory_item = FactoryGirl.create :inventory_item
+          unit_item = FactoryGirl.create :unit_item
+          unit_item.actable_id = inventory_item.id
+          item_location = FactoryGirl.create :item_location
+          unit_item.item_locations << item_location
+          warehouse_location.item_locations << item_location
+          inventory_item_ids.push( unit_item.id )
+        end 
+
+        puts inventory_item_ids.to_yaml
+
+        api_authorization_header user.auth_token
+        post :multiple_withdrawal, { inventory_item_ids: inventory_item_ids }
+      end
+
+      it "returns the number of withdrawn items along with success message" do
+        inventory_item_response = json_response
+        expect( inventory_item_response[:items_withdrawn] ).to eql 3
+        expect( inventory_item_response ).to have_key(:success)
+      end
+
+      it { should respond_with 201 }
+    end
+
+  end
+
 end
