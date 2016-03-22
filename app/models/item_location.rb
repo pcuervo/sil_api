@@ -5,9 +5,7 @@ class ItemLocation < ActiveRecord::Base
 
   def update_location
     location = WarehouseLocation.find( self.warehouse_location_id )
-    puts location.status.to_yaml
     location.update_status
-    puts location.status.to_yaml
   end
 
   def get_details

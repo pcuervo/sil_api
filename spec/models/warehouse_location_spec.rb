@@ -150,6 +150,57 @@ describe WarehouseLocation, type: :model do
         #expect(item_location[:units]).to eq warehouse_transaction.units
       end
     end
+  end
+
+  describe ".remove_quantity" do
+    before(:each) do
+      @item_location = FactoryGirl.create :item_location
+      @item_location.quantity = 100
+      @item_location.save
+      @location = @item_location.warehouse_location
+    end
+
+    context "remove a quantity from current location" do
+      it "return new quantity if quantity was removed successfully" do
+        new_quantity = @location.remove_quantity( @item_location.inventory_item_id, 50, 5 )
+        expect( new_quantity ).to eq 50
+      end
+
+      it "saves WarehouseTransaction" do
+        new_quantity = @location.remove_quantity( @item_location.inventory_item_id, 50, 5 )
+        warehouse_transaction = WarehouseTransaction.last
+        expect( warehouse_transaction.quantity ).to eq 50
+        item_location = ItemLocation.find( @item_location.id )
+        expect( item_location.present? ).to eq true
+      end
+    end
+
+    context "remove full quantity from current location" do
+      it "return new quantity if quantity was removed successfully" do
+        new_quantity = @location.remove_quantity( @item_location.inventory_item_id, 100, 5 )
+        expect( new_quantity ).to eq 0
+      end
+
+      it "saves WarehouseTransaction" do
+        new_quantity = @location.remove_quantity( @item_location.inventory_item_id, 100, 5 )
+        warehouse_transaction = WarehouseTransaction.last
+        expect( warehouse_transaction.quantity ).to eq 100
+        item_location = ItemLocation.find_by_id( @item_location.id )
+        expect( item_location.present? ).to eq false
+      end
+    end
+
+    context "cannot remove quantity because there are not enough stocks" do
+      it "return an error code when not enough stocks" do
+        new_quantity = @location.remove_quantity( @item_location.inventory_item_id, 200, 5 )
+        expect( new_quantity ).to eq WarehouseLocation::NOT_ENOUGH_STOCKS
+      end
+
+      it "return an error code when not enough units" do
+        new_quantity = @location.remove_quantity( @item_location.inventory_item_id, 100, 50 )
+        expect( new_quantity ).to eq WarehouseLocation::NOT_ENOUGH_UNITS
+      end
+    end
 
   end
 

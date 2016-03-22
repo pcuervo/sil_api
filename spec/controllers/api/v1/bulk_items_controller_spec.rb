@@ -55,7 +55,7 @@ describe Api::V1::BulkItemsController, type: :controller do
         bulk_item_response = json_response[:bulk_item]
         expect(bulk_item_response[:name]).to eql @bulk_item_attributes[:name]
         expect(bulk_item_response[:state]).to eql @bulk_item_attributes[:state]
-        expect(bulk_item_response[:value]).to eql @bulk_item_attributes[:value]
+        expect(bulk_item_response[:value].to_i).to eql @bulk_item_attributes[:value]
       end
 
       it "should record the transaction in database" do
@@ -113,6 +113,45 @@ describe Api::V1::BulkItemsController, type: :controller do
       it "returns the quantity left" do
         bulk_item_response = json_response
         expect(bulk_item_response[:quantity].to_i).to eql 0
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when bulk item is succesfully withdrawn from multiple locations" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @bulk_item = FactoryGirl.create :bulk_item
+        @bulk_item.quantity = 120
+        @bulk_item.save
+        item_location_1 = FactoryGirl.create :item_location
+        item_location_2 = FactoryGirl.create :item_location
+
+        @bulk_item.item_locations << item_location_1 
+        item_location_1.quantity = 40
+        item_location_1.save
+        @bulk_item.item_locations << item_location_2 
+        item_location_2.quantity = 40
+        item_location_2.save
+
+        location_info = []
+        location_info[0] = { 'location_id' => item_location_1.warehouse_location.id, 'quantity' => 40, 'units' => 5 }
+        location_info[1] = { 'location_id' => item_location_2.warehouse_location.id, 'quantity' => 40, 'units' => 5 }
+
+        api_authorization_header user.auth_token
+        post :withdraw, { id: @bulk_item.id, quantity: 80, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL', :locations => location_info }
+      end
+
+      it "returns a success message about the withdrawn item" do
+        success_msg = json_response
+        expect(success_msg).to have_key(:success)
+      end
+
+      it "returns the quantity left" do
+        last_warehouse_transaction = WarehouseTransaction.last
+        bulk_item_response = json_response
+        expect(bulk_item_response[:quantity].to_i).to eql last_warehouse_transaction.quantity
+        expect(bulk_item_response[:quantity].to_i).to eql 40
       end
 
       it { should respond_with 201 }

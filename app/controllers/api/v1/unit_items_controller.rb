@@ -60,7 +60,6 @@ class Api::V1::UnitItemsController < ApplicationController
         location.remove_item( inventory_item.id )
       end
 
-      puts params[:additional_comments]
       log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida unitaria", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], 1)
       log_action( current_user.id, 'InventoryItem', 'Salida unitaria de: "' + unit_item.name + '"', inventory_item.id )
       render json: { success: '¡Has sacado el artículo "' +  unit_item.name + '"!' }, status: 201  

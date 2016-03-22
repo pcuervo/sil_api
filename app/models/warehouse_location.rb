@@ -8,6 +8,8 @@ class WarehouseLocation < ActiveRecord::Base
 
   # Error codes
   IS_FULL = -1
+  NOT_ENOUGH_STOCKS = -2
+  NOT_ENOUGH_UNITS = -3
 
   # Locates an InventoryItem in current WarehouseLocation
   # * *Params:* 
@@ -69,6 +71,32 @@ class WarehouseLocation < ActiveRecord::Base
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
     item_location.destroy
     return item_location.present?
+  end
+
+  # Remove a quantity of an item from current location
+  # * *Params:* 
+  #   - +inventory_item_id+ -> ID of ItemLocation to relocate
+  #   - +quantity+ -> quantity to remove
+  # * *Returns:* 
+  #   - current quantity or error
+  def remove_quantity( inventory_item_id, quantity, units )
+
+    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
+    
+    return NOT_ENOUGH_STOCKS if quantity > item_location.quantity 
+    return NOT_ENOUGH_UNITS if units > item_location.units 
+
+    item_location.quantity -= quantity
+    item_location.units -= units
+    item_location.save
+    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::WITHDRAW )
+
+    if item_location.quantity == 0 or item_location.units == 0
+      item_location.destroy
+      return 0
+    end
+    self.update_status
+    return item_location.quantity
   end
 
   # Returns the available units in current WarehouseLocation
