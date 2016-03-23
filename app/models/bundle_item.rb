@@ -36,6 +36,14 @@ class BundleItem < ActiveRecord::Base
     update_status
   end
 
+  def remove_all_parts
+    self.bundle_item_parts.each do |p|
+      p.status = InventoryItem::OUT_OF_STOCK
+      p.save
+    end
+    update_status
+  end
+
   def update_num_parts
     self.num_parts = self.bundle_item_parts.count
     self.save
@@ -63,6 +71,28 @@ class BundleItem < ActiveRecord::Base
 
     self.status = InventoryItem::PARTIAL_STOCK
     self.save
+  end
+
+  # Withdraws Bundleitem and remove from WarehouseLocation if it has any
+  # * *Returns:* 
+  #   - true if successful or error code
+  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
+    return self.status if cannot_withdraw?
+
+    self.remove_all_parts
+    quantity_withdrawn = self.bundle_item_parts.count
+    if self.save
+      inventory_item = InventoryItem.find_by_actable_id( self.id )
+      if self.has_location?
+        item_location = self.item_locations.first
+        location = item_location.warehouse_location
+        location.remove_item( inventory_item.id )
+      end
+      CheckOutTransaction.create( :inventory_item_id => inventory_item.id, :concept => 'Salida unitaria', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => quantity_withdrawn )
+      return true
+    end
+
+    return false
   end
 
 

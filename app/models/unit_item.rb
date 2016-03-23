@@ -7,7 +7,7 @@ class UnitItem < ActiveRecord::Base
   # Withdraws UnitItem and remove from WarehouseLocation if it has any
   # * *Returns:* 
   #   - true if successful or error code
-  def withdraw
+  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
     return self.status if cannot_withdraw?
 
     self.status = InventoryItem::OUT_OF_STOCK
@@ -18,21 +18,11 @@ class UnitItem < ActiveRecord::Base
         location = item_location.warehouse_location
         location.remove_item( inventory_item.id )
       end
+      CheckOutTransaction.create( :inventory_item_id => inventory_item.id, :concept => 'Salida unitaria', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => 1 )
       return true
     end
 
     return false
-  end
-
-  def cannot_withdraw?
-    case self.status
-    when InventoryItem::OUT_OF_STOCK
-      return true
-    when InventoryItem::PENDING_ENTRY
-      return true
-    when InventoryItem::PENDING_WITHDRAWAL
-      return true
-    end
   end
 
 end

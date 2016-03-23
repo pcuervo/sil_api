@@ -67,6 +67,15 @@ class Api::V1::BundleItemsController < ApplicationController
 
     if bundle_item.save
       inventory_item = InventoryItem.find_by_actable_id( bundle_item.id )
+
+      if bundle_item.has_location?
+        item_locations = bundle_item.item_locations
+        item_locations.each do |il|
+          location = il.warehouse_location
+          location.remove_item( inventory_item.id )
+        end
+      end
+
       log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida de paquete", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], quantity)
       log_action( current_user.id, 'InventoryItem', 'Salida de paquete de: "' + quantity.to_s + '" pieza(s)', inventory_item.id )
       render json: { success: '¡Has sacado ' + quantity.to_s + ' pieza(s) del paquete "' +  bundle_item.name + '"!' }, status: 201   

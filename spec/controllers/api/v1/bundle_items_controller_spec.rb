@@ -66,7 +66,7 @@ describe Api::V1::BundleItemsController, type: :controller do
         bundle_item_response = json_response[:bundle_item]
         expect(bundle_item_response[:name]).to eql @bundle_item_attributes[:name]
         expect(bundle_item_response[:state]).to eql @bundle_item_attributes[:state]
-        expect(bundle_item_response[:value]).to eql @bundle_item_attributes[:value]
+        expect(bundle_item_response[:value].to_i).to eql @bundle_item_attributes[:value]
       end
 
       it "should record the transaction in database" do
@@ -172,6 +172,34 @@ describe Api::V1::BundleItemsController, type: :controller do
       it { should respond_with 201 }
     end
 
+    context "when BundleItem has one location and is succesfully withdrawn " do
+      before(:each) do
+        user = FactoryGirl.create :user
+        @bundle_item = FactoryGirl.create :bundle_item
+        @bundle_item_part1 = FactoryGirl.create :bundle_item_part
+        @bundle_item_part2 = FactoryGirl.create :bundle_item_part
+        @bundle_item.bundle_item_parts << @bundle_item_part1
+        @bundle_item.bundle_item_parts << @bundle_item_part2
+        parts_to_remove = [ @bundle_item_part1.id, @bundle_item_part2.id ]
+        @bundle_item.update_num_parts
+        @inventory_item = InventoryItem.find_by_actable_id( @bundle_item.id )
+        location = FactoryGirl.create :warehouse_location
+        item_location = location.locate( @inventory_item.id, 5, 1 )
+
+        api_authorization_header user.auth_token
+        post :withdraw, { id: @bundle_item.id, parts: parts_to_remove, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
+      end
+
+      it "returns a success message about the withdrawn item" do
+        transaction = WarehouseTransaction.last
+        success_msg = json_response
+        expect(success_msg).to have_key(:success)
+        expect( transaction.inventory_item_id ).to eq @inventory_item.id
+      end
+
+      it { should respond_with 201 }
+    end
+
     context "when bundle item could not be withdrawn because item doesn't exist" do
       before(:each) do
         invalid_id = -1
@@ -229,11 +257,8 @@ describe Api::V1::BundleItemsController, type: :controller do
         bundle_item_response = json_response
         expect(bundle_item_response[:errors]).to include 'No se pudo completar la salida por que el artículo "' + @bundle_item.name + '" tiene una salida programada.'
       end
-
     end
-
   end
-
 end
 
 

@@ -11,7 +11,7 @@ class InventoryItem < ActiveRecord::Base
   has_many :warehouse_transactions
 
   # For item image
-  has_attached_file :item_img, :styles => { :medium => "300x300>" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
+  has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "100x100#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
   validates_attachment_content_type :item_img, content_type: /\Aimage\/.*\Z/
   
   # Item status
@@ -34,9 +34,10 @@ class InventoryItem < ActiveRecord::Base
   def self.search( params = {} )
     inventory_items = InventoryItem.all
     inventory_items = inventory_items.where( 'status=?', IN_STOCK ).recent if params[:recent].present?
+    inventory_items = inventory_items.in_stock if params[:in_stock].present?
 
     if params[:keyword]
-      inventory_items = inventory_items.where( 'name LIKE ?', "%#{params[:keyword]}%" )
+      inventory_items = inventory_items.where( 'name LIKE ? OR barcode LIKE ?', "%#{params[:keyword]}%", "%#{params[:keyword]}%" )
     end
 
     if params[:project_id].present?
@@ -90,6 +91,7 @@ class InventoryItem < ActiveRecord::Base
         'storage_type'              => i.storage_type,
         'status'                    => i.status,
         'value'                     => i.value,
+        'img'                       => i.item_img(:medium),
         'created_at'                => i.created_at,
         'validity_expiration_date'  => i.validity_expiration_date
       })
@@ -136,7 +138,10 @@ class InventoryItem < ActiveRecord::Base
 
     if 'BundleItem' == self.actable_type
       bundle_item = BundleItem.find( self.actable_id )
-      details['inventory_item']['parts'] = bundle_item.bundle_item_parts
+      details['inventory_item']['parts'] = [] 
+      bundle_item.bundle_item_parts.each do |part|
+        details['inventory_item']['parts'].push( part.get_details )
+      end
     end
 
     details
@@ -186,6 +191,7 @@ class InventoryItem < ActiveRecord::Base
     item_locations = self.item_locations
     item_locations.each do |il|
       locations.push({
+        'rack'        => il.warehouse_location.warehouse_rack.name,
         'location_id' => il.warehouse_location.id,
         'location'    => il.warehouse_location.name + ' - ' + il.units.to_s,
         'quantity'    => il.quantity,
@@ -195,8 +201,46 @@ class InventoryItem < ActiveRecord::Base
     locations
   end
 
+  # Withdraws InventoryItem
+  # * *Returns:* 
+  #   - true if successful or error code
+  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
+    case self.actable_type
+    when 'UnitItem'
+      unit_item = UnitItem.find( self.actable_id )
+      return unit_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
+    when 'BulkItem'
+      bulk_item = BulkItem.find( self.actable_id )
+      return bulk_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
+    when 'BundleItem'
+      bundle_item = BundleItem.find( self.actable_id )
+      return bundle_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
+    end
+  end
+
+  # Check if InventoryItem can be withdrawn
+  # * *Returns:* 
+  #   - bool
+  def cannot_withdraw?
+    case self.status
+    when InventoryItem::OUT_OF_STOCK
+      return true
+    when InventoryItem::PENDING_ENTRY
+      return true
+    when InventoryItem::PENDING_WITHDRAWAL
+      return true
+    when InventoryItem::EXPIRED
+      return true
+    end
+    return false
+  end
+
   scope :recent, -> {
     order(updated_at: :desc).limit(5)
+  }
+
+  scope :in_stock, -> {
+    where('status IN (?)', [ IN_STOCK, PARTIAL_STOCK ])
   }
 
 end

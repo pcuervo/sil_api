@@ -60,7 +60,7 @@ describe UnitItem do
 
       it "returns 2 if withdrawal was not sucessful because UnitItem is already out of stock" do
         @unit_item.status = InventoryItem::OUT_OF_STOCK
-        @withdraw = @unit_item.withdraw
+        @withdraw = @unit_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
         expect( @withdraw ).to eq InventoryItem::OUT_OF_STOCK
       end
 
