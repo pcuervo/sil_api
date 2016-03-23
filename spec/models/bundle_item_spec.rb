@@ -96,4 +96,74 @@ describe BundleItem, type: :model do
     end
   end
 
+  describe ".withdraw" do
+    before(:each) do
+      @bundle_item = FactoryGirl.create :bundle_item
+      @part1 = FactoryGirl.create :bundle_item_part
+      @part2 = FactoryGirl.create :bundle_item_part
+      @bundle_item.bundle_item_parts << @part1
+      @bundle_item.bundle_item_parts << @part2
+      @bundle_item.update_num_parts
+    end
+
+    context "withdraws a BundleItem with location successfuly" do
+      before(:each) do
+        @warehouse_location = FactoryGirl.create :warehouse_location
+        @item_location = FactoryGirl.create :item_location
+        @item_location.quantity = @bundle_item.num_parts
+        @item_location.save
+        @bundle_item.item_locations << @item_location
+        @warehouse_location.item_locations << @item_location
+        @supplier = FactoryGirl.create :supplier
+        @withdraw = @bundle_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
+      end
+
+      it "returns true if withdrawal was sucessful" do
+        expect( @withdraw ).to eq true
+      end
+
+      it "changes BundleItem status to Out of Stock" do
+        expect( @bundle_item.status ).to eq InventoryItem::OUT_OF_STOCK
+      end
+
+      it "records the WarehouseTransaction" do
+        last_transaction = WarehouseTransaction.last
+        expect( last_transaction.quantity ).to eq @item_location.quantity
+      end
+
+      it "deletes ItemLocation associated with BundleItem" do
+        item_location = ItemLocation.find_by_id( @item_location.id )
+        expect( item_location.present? ).to eq false
+      end
+    end
+
+    # context "cannot withdraw a BundleItem with location successfuly" do
+    #   before(:each) do
+    #     @warehouse_location = FactoryGirl.create :warehouse_location
+    #     @item_location = FactoryGirl.create :item_location
+    #     @bundle_item.item_locations << @item_location
+    #     @warehouse_location.item_locations << @item_location
+    #     @supplier = FactoryGirl.create :supplier
+    #   end
+
+    #   it "returns 2 if withdrawal was not sucessful because BundleItem is already out of stock" do
+    #     @bundle_item.status = InventoryItem::OUT_OF_STOCK
+    #     @withdraw = @bundle_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
+    #     expect( @withdraw ).to eq InventoryItem::OUT_OF_STOCK
+    #   end
+
+    #   it "returns 2 if withdrawal was not sucessful because BundleItem has a pending entry" do
+    #     @bundle_item.status = InventoryItem::PENDING_ENTRY
+    #     @withdraw = @bundle_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
+    #     expect( @withdraw ).to eq InventoryItem::PENDING_ENTRY
+    #   end
+
+    #   # it "deletes ItemLocation associated with BundleItem" do
+    #   #   item_location = ItemLocation.find_by_id( @item_location.id )
+    #   #   expect( item_location.present? ).to eq false
+    #   # end
+    # end
+
+  end
+
 end

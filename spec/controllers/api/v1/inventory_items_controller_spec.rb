@@ -130,34 +130,81 @@ describe Api::V1::InventoryItemsController do
   end
 
   describe "POST #multiple_withdrawal" do
-    context "when multiple UnitItems with location are succesfully withdrawn" do
+    context "when multiple InventoryItems with location are succesfully withdrawn" do
       before(:each) do
         user = FactoryGirl.create :user
+        supplier = FactoryGirl.create :supplier
         
         inventory_item_ids = []
-        3.times do 
+        3.times do |t|
           inventory_item = FactoryGirl.create :inventory_item
-          unit_item = FactoryGirl.create :unit_item
-          unit_item.actable_id = inventory_item.id
+          if t == 0
+            unit_item = FactoryGirl.create :unit_item
+            inventory_item.actable_id = unit_item.id
+            inventory_item.actable_type = 'UnitItem'
+          elsif t == 1
+            bulk_item = FactoryGirl.create :bulk_item
+            inventory_item.actable_id = bulk_item.id
+            inventory_item.actable_type = 'BulkItem'
+          else
+            bundle_item = FactoryGirl.create :bundle_item
+            inventory_item.actable_id = bundle_item.id
+            inventory_item.actable_type = 'BundleItem'
+          end
+          warehouse_location = FactoryGirl.create :warehouse_location
           item_location = FactoryGirl.create :item_location
-          unit_item.item_locations << item_location
+          inventory_item.item_locations << item_location
           warehouse_location.item_locations << item_location
-          inventory_item_ids.push( unit_item.id )
+          inventory_item.save
+          inventory_item_ids.push( inventory_item.id )
         end 
 
-        puts inventory_item_ids.to_yaml
-
         api_authorization_header user.auth_token
-        post :multiple_withdrawal, { inventory_item_ids: inventory_item_ids }
+        post :multiple_withdrawal, { inventory_item_ids: inventory_item_ids, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
       end
 
       it "returns the number of withdrawn items along with success message" do
         inventory_item_response = json_response
         expect( inventory_item_response[:items_withdrawn] ).to eql 3
         expect( inventory_item_response ).to have_key(:success)
+        expect( WarehouseTransaction.all.count ).to eql 3
       end
 
       it { should respond_with 201 }
+    end
+
+    context "when multiple InventoryItems could not be withdrawn" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        supplier = FactoryGirl.create :supplier
+        
+        inventory_item_ids = []
+        3.times do 
+          inventory_item = FactoryGirl.create :inventory_item
+          unit_item = FactoryGirl.create :unit_item
+          inventory_item.actable_id = unit_item.id
+          inventory_item.actable_type = 'UnitItem'
+          warehouse_location = FactoryGirl.create :warehouse_location
+          item_location = FactoryGirl.create :item_location
+          inventory_item.item_locations << item_location
+          warehouse_location.item_locations << item_location
+          inventory_item.status = InventoryItem::OUT_OF_STOCK
+          inventory_item.save
+          inventory_item_ids.push( inventory_item.id )
+        end 
+
+        api_authorization_header user.auth_token
+        post :multiple_withdrawal, { inventory_item_ids: inventory_item_ids, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
+      end
+
+      it "returns the number of withdrawn items along with success message" do
+        inventory_item_response = json_response
+        expect( inventory_item_response[:items_withdrawn] ).to eql 0
+        expect( inventory_item_response ).to have_key(:errors)
+        expect( WarehouseTransaction.all.count ).to eql 0
+      end
+
+      it { should respond_with 422 }
     end
 
   end

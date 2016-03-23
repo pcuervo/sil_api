@@ -31,11 +31,12 @@ Sil::Application.routes.draw do
           get 'by_barcode/', :action => 'by_barcode'
           get 'by_type/', :action => 'by_type'
           get 'pending_entry/', :action => 'pending_entry'
-          post 'authorize_entry/', :action => 'authorize_entry'
           get 'with_pending_location/', :action => 'with_pending_location'
           get 'total_number_items/', :action => 'total_number_items'
           get 'inventory_value/', :action => 'inventory_value'
           get 'current_rent/', :action => 'current_rent'
+          post 'authorize_entry/', :action => 'authorize_entry'
+          post 'multiple_withdrawal/', :action => 'multiple_withdrawal'
         end
       end
       resources :unit_items, :only => [:index, :show] do 

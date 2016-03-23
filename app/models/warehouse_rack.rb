@@ -36,9 +36,11 @@ class WarehouseRack < ActiveRecord::Base
   end
 
   def add_initial_locations units
-    row.times do |r|
+    row_letters = ['A','B','C','D','E','F','G','H','I','J','K','L']
+    #row_letters = row_letters.reverse
+    row.downto(0) do |r|
       column.times do |c|
-        location_name = name + '-' + ( r + 1 ).to_s + '-' + ( c + 1 ).to_s
+        location_name = name + '-' + row_letters[r] + '-' + ( c + 1 ).to_s
         new_location = WarehouseLocation.create( :name => location_name, :units => units )
         warehouse_locations << new_location
       end

@@ -61,6 +61,14 @@ class Api::V1::BulkItemsController < ApplicationController
       log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida a granel", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], params[:quantity])
       log_action( current_user.id, 'InventoryItem', 'Salida a granel de: "' + bulk_item.name + '" por ' + params[:quantity].to_s + ' existencia(s)', inventory_item.id )
 
+      if bulk_item.has_location? and ! params[:locations].present?
+        item_locations = bulk_item.item_locations
+        item_locations.each do |il|
+          location = il.warehouse_location
+          location.remove_item( inventory_item.id )
+        end
+      end
+
       if params[:locations].present?
         params[:locations].each do |l|
           location = WarehouseLocation.find( l[:location_id] )

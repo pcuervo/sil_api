@@ -49,7 +49,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def with_pending_location
-    respond_with InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id WHERE item_locations.id is null').order(updated_at: :desc)
+    respond_with InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id ').where(' item_locations.id is null AND inventory_items.status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK ]).order(updated_at: :desc)
   end
 
   def total_number_items
@@ -65,6 +65,23 @@ class Api::V1::InventoryItemsController < ApplicationController
     in_stock_statuses = [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK  ]
     rentable_units = InventoryItem.joins( :item_locations ).where( 'status IN (?)', in_stock_statuses ).sum( :units )
     render json: { current_rent: rentable_units / 50.0 * 500 }, status: 200
+  end
+
+  def multiple_withdrawal
+    item_ids = params[:inventory_item_ids]
+
+    item_ids.each do |id|
+      inventory_item = InventoryItem.find( id )
+      withdraw = inventory_item.withdraw( params[:exit_date], '', params[:pickup_company], params[:pickup_company_contact], params[:additional_comments] )
+
+      if [ InventoryItem::OUT_OF_STOCK, InventoryItem::PENDING_ENTRY, InventoryItem::PENDING_WITHDRAWAL, InventoryItem::EXPIRED ].include? withdraw
+        render json: { errors: 'No se pudo realizar la salida masiva', items_withdrawn: 0 }, status: 422
+        return
+      end 
+      
+    end
+
+    render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: item_ids.count }, status: 201
   end
 
   private
