@@ -1,4 +1,7 @@
 class InventoryItem < ActiveRecord::Base
+  after_create :send_notification_to_account_executives, if: :belongs_to_client?
+  after_create :send_entry_request_notifications, if: :has_pending_entry?
+
   actable
 
   validates :name, :status, :item_type, :user, :project, presence: true
@@ -90,8 +93,9 @@ class InventoryItem < ActiveRecord::Base
         'actable_type'              => i.actable_type,
         'storage_type'              => i.storage_type,
         'status'                    => i.status,
+        'barcode'                   => i.barcode,
         'value'                     => i.value,
-        'img'                       => i.item_img(:medium),
+        'img'                       => i.item_img(:thumb),
         'created_at'                => i.created_at,
         'validity_expiration_date'  => i.validity_expiration_date
       })
@@ -123,6 +127,7 @@ class InventoryItem < ActiveRecord::Base
         'client_contact'            => client_contact,
         'img'                       => item_img(:medium),
         'state'                     => self.state,
+        'status'                     => self.status,
         'item_type'                 => self.item_type,
         'value'                     => self.value,
         'validity_expiration_date'  => self.validity_expiration_date,
@@ -235,6 +240,18 @@ class InventoryItem < ActiveRecord::Base
     return false
   end
 
+  def belongs_to_client?
+    return true if self.user.role == User::CLIENT
+
+    return false
+  end
+
+  def has_pending_entry?
+    return true if self.status == PENDING_ENTRY
+
+    return false
+  end
+
   scope :recent, -> {
     order(updated_at: :desc).limit(5)
   }
@@ -242,5 +259,22 @@ class InventoryItem < ActiveRecord::Base
   scope :in_stock, -> {
     where('status IN (?)', [ IN_STOCK, PARTIAL_STOCK ])
   }
+
+  private
+
+  def send_notification_to_account_executives
+    project = self.project
+    account_executives = project.users.where( 'role = ?', User::ACCOUNT_EXECUTIVE )
+    account_executives.each do |ae|
+      ae.notifications << Notification.create( :title => 'Solicitud de entrada', :inventory_item_id => self.id, :message => 'El cliente "' + self.user.first_name + ' ' + self.user.last_name + '" ha solicitado un ingreso.' )
+    end
+  end 
+
+  def send_entry_request_notifications
+    admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
+    admins.each do |admin|
+      admin.notifications << Notification.create( :title => 'Solicitud de entrada', :inventory_item_id => self.id, :message => self.user.get_role + ' "' + self.user.first_name + ' ' + self.user.last_name + '" ha solicitado el ingreso del artículo "' + self.name + '".' )
+    end
+  end 
 
 end

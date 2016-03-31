@@ -2,7 +2,7 @@ class Api::V1::WarehouseRacksController < ApplicationController
   respond_to :json
 
   def index
-    respond_with WarehouseRack.all
+    respond_with WarehouseRack.more_info
   end
 
   def show
@@ -35,6 +35,20 @@ class Api::V1::WarehouseRacksController < ApplicationController
   def get_items
     rack = WarehouseRack.find( params[:id] )
     respond_with rack.items
+  end
+
+  def destroy
+    rack = WarehouseRack.find( params[:id] )
+    if rack.is_empty? 
+      rack.warehouse_locations.each do |l| 
+        l.warehouse_transactions.destroy_all
+        l.destroy 
+      end
+      rack.destroy
+      head 204
+      return
+    end
+    render json: { errors: "No se puede eliminar un rack con ubicaciones ocupadas" }, status: 422 
   end
 
   private

@@ -17,11 +17,11 @@ class ItemLocation < ActiveRecord::Base
         'location_id'     => location.id,
         'units'           => self.units,
         'item'            => item.name,
-        'item_img'        => item.item_img,
+        'item_img'        => item.item_img(:medium),
         'barcode'         => item.barcode,
         'location'        => location.name,
         'rack_id'         => location.warehouse_rack.id,
-        'rack_name'        => location.warehouse_rack.name,
+        'rack_name'       => location.warehouse_rack.name,
         'available_units' => location.get_available_units
       }  
     }

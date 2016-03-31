@@ -46,4 +46,24 @@ RSpec.describe WarehouseRack, type: :model do
     end
   end
 
+  describe ".is_empty?" do
+    before(:each) do
+      @warehouse_rack = FactoryGirl.create :warehouse_rack
+      @warehouse_rack.add_initial_locations 10
+      @location = @warehouse_rack.warehouse_locations.first
+      @inventory_item = FactoryGirl.create :inventory_item
+      @item_location = FactoryGirl.create :item_location
+    end
+
+    it "return true if WarehouseRack is empty" do
+      expect( @warehouse_rack.is_empty? ).to eq true
+    end
+
+    it "return false if WarehouseRack is not empty" do
+      @inventory_item.item_locations << @item_location
+      @location.item_locations << @item_location
+      expect( @warehouse_rack.is_empty? ).to eq false
+    end
+  end
+
 end

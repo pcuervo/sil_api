@@ -93,8 +93,41 @@ describe Api::V1::InventoryItemsController do
 
   describe "GET #authorize_entry" do
     before(:each) do
-      # TODO
+      @ae = FactoryGirl.create :user
+      @ae.role = User::CLIENT
+      @ae.save
+      @client = FactoryGirl.create :user
+      @client.role = User::CLIENT
+      @client.save
+
+      project = FactoryGirl.create :project
+      project.users << @ae
+      project.users << @client
+
+      @item = FactoryGirl.create :inventory_item 
+      @item.status = InventoryItem::PENDING_ENTRY
+      @item.project_id = project.id
+      @item.save
+
+      post :authorize_entry, id: @item.id
     end
+
+    it "returns a success message" do
+      inventory_item_response = json_response
+      expect( inventory_item_response ).to have_key(:success)
+    end
+
+    it "should notify Client" do
+      notification = @client.notifications.first
+      expect( notification.inventory_item.name ).to eq @item.name
+    end
+
+    it "should notify AccountExecutive" do
+      notification = @ae.notifications.first
+      expect( notification.inventory_item.name ).to eq @item.name
+    end
+
+    it { should respond_with 201 }
   end
 
   describe "GET #total_number_items" do
@@ -156,6 +189,7 @@ describe Api::V1::InventoryItemsController do
           inventory_item.item_locations << item_location
           warehouse_location.item_locations << item_location
           inventory_item.save
+
           inventory_item_ids.push( inventory_item.id )
         end 
 

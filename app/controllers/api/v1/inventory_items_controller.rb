@@ -1,5 +1,7 @@
 class Api::V1::InventoryItemsController < ApplicationController
   before_action :authenticate_with_token!, only: [:create]
+  after_action :send_notification_authorize_entry, only: [:authorize_entry]
+  after_action :send_notification_authorize_withdrawal, only: [:authorize_withdrawal]
   respond_to :json
 
   def index
@@ -23,6 +25,7 @@ class Api::V1::InventoryItemsController < ApplicationController
 
   def by_barcode
     inventory_item = InventoryItem.find_by_barcode(params[:barcode])
+    is_reentry = params[:re_entry]
 
     if inventory_item.present?
       respond_with inventory_item.get_details
@@ -41,11 +44,22 @@ class Api::V1::InventoryItemsController < ApplicationController
     respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_ENTRY )
   end
 
+  def pending_withdrawal
+    respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_WITHDRAWAL )
+  end
+
   def authorize_entry
-    item = InventoryItem.find( params[:id] )
-    item.status = InventoryItem::IN_STOCK
-    item.save
-    render json: { success: '¡Se ha aprobado el ingreso del artículo "' + item.name + '"!' }, status: 201
+    @item = InventoryItem.find( params[:id] )
+    @item.status = InventoryItem::IN_STOCK
+    @item.save
+    render json: { success: '¡Se ha aprobado el ingreso del artículo "' + @item.name + '"!' }, status: 201
+  end
+
+  def authorize_withdrawal
+    @item = InventoryItem.find( params[:id] )
+    @item.status = InventoryItem::OUT_OF_STOCK
+    @item.save
+    render json: { success: '¡Se ha aprobado la salida del artículo "' + @item.name + '"!' }, status: 201
   end
 
   def with_pending_location
@@ -87,6 +101,24 @@ class Api::V1::InventoryItemsController < ApplicationController
   private
     def inventory_item_params
       params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type, :storage_type)
+    end
+
+    def send_notification_authorize_entry
+      project = @item.project
+      users = project.users.where( 'role IN (?)', [ User::ACCOUNT_EXECUTIVE, User::CLIENT ] )
+      users.each do |u|
+        u.notifications << Notification.create( :title => 'Confirmación de entrada', :inventory_item_id => @item.id, :message => 'Se ha aprobado la entrada del artículo "' + @item.name + '" en el proyecto "' + project.name + '".' )
+      end
+    end
+
+    def send_notification_authorize_withdrawal
+      puts 'sending notif'
+      project = @item.project
+      users = project.users.where( 'role IN (?)', [ User::ACCOUNT_EXECUTIVE, User::CLIENT ] )
+      puts users.count.to_yaml
+      users.each do |u|
+        u.notifications << Notification.create( :title => 'Confirmación de salida', :inventory_item_id => @item.id, :message => 'Se ha aprobado la salida del artículo "' + @item.name + '" en el proyecto "' + project.name + '".' )
+      end
     end
 
 end

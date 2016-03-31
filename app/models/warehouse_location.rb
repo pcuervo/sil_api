@@ -6,6 +6,11 @@ class WarehouseLocation < ActiveRecord::Base
   has_many :item_locations
   has_many :warehouse_transactions
 
+  # Status
+  EMPTY = 1
+  PARTIAL_SPACE = 2
+  NO_SPACE = 3
+
   # Error codes
   IS_FULL = -1
   NOT_ENOUGH_STOCKS = -2
@@ -103,7 +108,7 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:* 
   #   - number of available units
   def get_available_units
-    return 0 if self.status == 3
+    return 0 if self.status == NO_SPACE
     
     units = 0
     item_locations.each { |il| units += il.units }
@@ -113,11 +118,11 @@ class WarehouseLocation < ActiveRecord::Base
   def update_status
     available_units = get_available_units
     if 0 == available_units
-      self.status = 3
+      self.status = NO_SPACE
     elsif available_units == self.units
-      self.status = 1
+      self.status = EMPTY
     else
-      self.status = 2
+      self.status = PARTIAL_SPACE
     end
     self.save
   end

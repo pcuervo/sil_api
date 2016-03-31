@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
   has_many :inventory_items
   has_many :logs
   has_and_belongs_to_many :projects
+  has_and_belongs_to_many :notifications
 
   # AVAILABLE ROLES
   ADMIN = 1

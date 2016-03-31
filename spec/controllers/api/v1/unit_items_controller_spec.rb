@@ -18,7 +18,6 @@ describe Api::V1::UnitItemsController do
       unit_item_response = json_response[:unit_item]
       expect(unit_item_response[:name]).to eql @unit_item.name
       expect(unit_item_response[:description]).to eql @unit_item.description
-      expect(unit_item_response[:image_url]).to eql @unit_item.image_url
       expect(unit_item_response[:status]).to eql @unit_item.status
     end
 
@@ -40,7 +39,7 @@ describe Api::V1::UnitItemsController do
   end
 
   describe "POST #create" do
-    context "when is succesfully created" do
+    context "when is succesfully created by admin" do
       before(:each) do
         user = FactoryGirl.create :user
         project = FactoryGirl.create :project
@@ -64,6 +63,53 @@ describe Api::V1::UnitItemsController do
         inv_item = InventoryItem.find_by_actable_id(unit_item_response[:id])
         inv_transaction = InventoryTransaction.find_by_inventory_item_id(inv_item.id)
         expect(inv_transaction.to_json.size).to be >= 1
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when is succesfully created by client" do
+      before(:each) do
+        @admin = FactoryGirl.create :user
+        @admin.role = User::ADMIN 
+        @admin.save
+
+        @ae = FactoryGirl.create :user
+        @ae.role = User::ACCOUNT_EXECUTIVE 
+        @ae.save
+
+        @warehouse_admin = FactoryGirl.create :user
+        @warehouse_admin.role = User::WAREHOUSE_ADMIN 
+        @warehouse_admin.save
+
+        user = FactoryGirl.create :user
+        user.role = User::CLIENT
+        user.save
+        project = FactoryGirl.create :project
+        project.users << @ae
+
+        @unit_item_attributes = FactoryGirl.attributes_for :unit_item
+        @unit_item_attributes[:project_id] = project.id
+
+        api_authorization_header user.auth_token
+        post :create, { user_id: user.id, unit_item: @unit_item_attributes, :entry_date => Time.now, :storage_type => 'Permanente', :delivery_company => 'DHL' }
+      end
+
+      it "should have a status of Pending Entry" do
+        unit_item_response = json_response[:unit_item]
+        expect( unit_item_response[:status] ).to eql InventoryItem::PENDING_ENTRY
+      end
+
+      it "should send notification to Account Executive" do
+        notification = @ae.notifications.first
+        expect( notification.inventory_item.name ).to eql @unit_item_attributes[:name]
+      end
+
+      it "should send notification to Admins and WarehouseAdmins" do
+        admin_notification = @admin.notifications.first
+        warehouse_admin_notification = @warehouse_admin.notifications.first
+        expect( admin_notification.inventory_item.name ).to eql @unit_item_attributes[:name]
+        expect( warehouse_admin_notification.inventory_item.name ).to eql @unit_item_attributes[:name]
       end
 
       it { should respond_with 201 }
@@ -111,6 +157,56 @@ describe Api::V1::UnitItemsController do
       it { should respond_with 201 }
     end
 
+    context "when unit item is succesfully withdrawn by client" do
+      before(:each) do
+        @unit_item = FactoryGirl.create :unit_item
+
+        @admin = FactoryGirl.create :user
+        @admin.role = User::ADMIN 
+        @admin.save
+
+        @ae = FactoryGirl.create :user
+        @ae.role = User::ACCOUNT_EXECUTIVE 
+        @ae.save
+
+        @warehouse_admin = FactoryGirl.create :user
+        @warehouse_admin.role = User::WAREHOUSE_ADMIN 
+        @warehouse_admin.save
+
+        user = FactoryGirl.create :user
+        user.role = User::CLIENT
+        user.save
+        project = FactoryGirl.create :project
+        project.users << @ae
+        @unit_item.project_id = project.id
+        @unit_item.user = user
+        @unit_item.save
+
+        api_authorization_header user.auth_token
+        post :withdraw, { id: @unit_item.id, quantity: 120, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
+      end
+
+      it "changes the status of InventoryItem to PENDING_WITHDRAWAL" do
+        inventory_item = InventoryItem.find_by_actable_id( @unit_item.id )
+        expect( inventory_item.status ).to eq InventoryItem::PENDING_WITHDRAWAL
+      end
+
+      it "should send notification to Account Executive" do
+        notification = @ae.notifications.first
+        puts notification.to_yaml
+        expect( notification.inventory_item.name ).to eql @unit_item[:name]
+      end
+
+      it "should send notification to Admins and WarehouseAdmins" do
+        admin_notification = @admin.notifications.first
+        warehouse_admin_notification = @warehouse_admin.notifications.first
+        expect( admin_notification.inventory_item.name ).to eql @unit_item[:name]
+        expect( warehouse_admin_notification.inventory_item.name ).to eql @unit_item[:name]
+      end
+
+      it { should respond_with 201 }
+    end
+
     context "when unit item has location and is succesfully withdrawn " do
       before(:each) do
         user = FactoryGirl.create :user
@@ -125,7 +221,6 @@ describe Api::V1::UnitItemsController do
 
       it "returns a success message about the withdrawn item" do
         transaction = WarehouseTransaction.last
-        puts transaction
         success_msg = json_response
         expect(success_msg).to have_key(:success)
       end
@@ -190,7 +285,21 @@ describe Api::V1::UnitItemsController do
     context "when unit item is succesfully re-entered to inventory" do
       before(:each) do
         user = FactoryGirl.create :user
+
+        @ae = FactoryGirl.create :user
+        @ae.role = User::ACCOUNT_EXECUTIVE
+        @ae.save
+        @admin = FactoryGirl.create :user
+        @admin.role = User::ADMIN
+        @admin.save
+
+        project = FactoryGirl.create :project
+        project.users << @ae
+
         @unit_item = FactoryGirl.create :unit_item
+        @unit_item.project_id = project.id
+        @unit_item.save
+
         api_authorization_header user.auth_token
         post :re_entry, { id: @unit_item.id, quantity: 1, :entry_date => Time.now, :delivery_company => 'DHL', :delivery_company_contact => 'Juan Pérez', :additional_comments => 'Noooo dice, se puso bien guapo dice', :state => 4 }
       end
@@ -198,6 +307,16 @@ describe Api::V1::UnitItemsController do
       it "returns a success message about the withdrawn item" do
         success_msg = json_response
         expect(success_msg).to have_key(:success)
+      end
+
+      it "should notify Admin" do
+        notification = @admin.notifications.first
+        expect( notification.inventory_item.name ).to eq @unit_item.name
+      end
+
+      it "should notify AccountExecutive" do
+        notification = @ae.notifications.first
+        expect( notification.inventory_item.name ).to eq @unit_item.name
       end
 
       it { should respond_with 201 }

@@ -104,7 +104,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
       return
     end
 
-    render json: { errors: 'No se pudo ubicar el artículo' }, status: 422
+    render json: { errors: 'No se pudo ubicar el artículo, la ubicación "' + location.name + '" se encuentra llena.' }, status: 422
   end
 
   private
