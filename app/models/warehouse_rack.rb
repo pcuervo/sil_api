@@ -18,6 +18,25 @@ class WarehouseRack < ActiveRecord::Base
     return available_locations_info
   end
 
+  def self.more_info
+    racks = WarehouseRack.all
+
+    racks_details = { 'warehouse_racks' => [] }
+    racks.each do |r|
+      racks_details['warehouse_racks'].push({
+        'id'                  => r.id,
+        'name'                => r.name,
+        'row'                 => r.row,
+        'column'              => r.column,
+        'total_locations'     => r.warehouse_locations.count,
+        'available_locations' => r.available_locations['available_locations'].count,
+        'is_empty'            => r.is_empty?,
+        'created_at'          => r.created_at
+      })
+    end
+    racks_details
+  end
+
   def details
     rack_info = { 
       'rack_info' => { :rows => self.row, :columns => self.column, :name => self.name }, 
@@ -38,9 +57,9 @@ class WarehouseRack < ActiveRecord::Base
   def add_initial_locations units
     row_letters = ['A','B','C','D','E','F','G','H','I','J','K','L']
     #row_letters = row_letters.reverse
-    row.downto(0) do |r|
+    row.downto(1) do |r|
       column.times do |c|
-        location_name = name + '-' + row_letters[r] + '-' + ( c + 1 ).to_s
+        location_name = name + '-' + row_letters[r-1] + '-' + ( c + 1 ).to_s
         new_location = WarehouseLocation.create( :name => location_name, :units => units )
         warehouse_locations << new_location
       end
@@ -65,6 +84,13 @@ class WarehouseRack < ActiveRecord::Base
       end
     end
     return rack_items
+  end
+
+  def is_empty?
+    self.warehouse_locations.each do |location|
+      return false if location.get_available_units < location.units
+    end
+    true
   end
   
 end

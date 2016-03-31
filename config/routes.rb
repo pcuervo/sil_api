@@ -28,15 +28,17 @@ Sil::Application.routes.draw do
       end
       resources :inventory_items, :only => [:index, :show] do
         collection do
-          get 'by_barcode/', :action => 'by_barcode'
-          get 'by_type/', :action => 'by_type'
-          get 'pending_entry/', :action => 'pending_entry'
+          get 'by_barcode/',            :action => 'by_barcode'
+          get 'by_type/',               :action => 'by_type'
+          get 'pending_entry/',         :action => 'pending_entry'
+          get 'pending_withdrawal',     :action => 'pending_withdrawal'
           get 'with_pending_location/', :action => 'with_pending_location'
-          get 'total_number_items/', :action => 'total_number_items'
-          get 'inventory_value/', :action => 'inventory_value'
-          get 'current_rent/', :action => 'current_rent'
-          post 'authorize_entry/', :action => 'authorize_entry'
-          post 'multiple_withdrawal/', :action => 'multiple_withdrawal'
+          get 'total_number_items/',    :action => 'total_number_items'
+          get 'inventory_value/',       :action => 'inventory_value'
+          get 'current_rent/',          :action => 'current_rent'
+          post 'authorize_entry/',      :action => 'authorize_entry'
+          post 'authorize_withdrawal/',      :action => 'authorize_withdrawal'
+          post 'multiple_withdrawal/',  :action => 'multiple_withdrawal'
         end
       end
       resources :unit_items, :only => [:index, :show] do 
@@ -91,7 +93,8 @@ Sil::Application.routes.draw do
         collection do
           get 'get_available_locations/:id', :action => 'get_available_locations'
           get 'show_details/:id', :action => 'show_details'
-          get 'get_items/:id', :action => 'get_items'
+          get 'get_items/:id',    :action => 'get_items'
+          post 'destroy',         :action => 'destroy'
         end
       end
       resources :item_locations, :only => [:show, :index, :create] do
@@ -101,7 +104,17 @@ Sil::Application.routes.draw do
       end
       resources :suppliers, :only => [:show, :index, :create, :update, :destroy]
       resources :warehouse_transactions, :only => [:index]
+      resources :notifications, :only => [:index, :show] do
+        collection do
+          get 'get_num_unread',   :action => 'get_num_unread'
+          get 'get_unread',       :action => 'get_unread'
+          get 'get_read',         :action => 'get_read'
+          post 'destroy',         :action => 'destroy'
+          post 'mark_as_read',    :action => 'mark_as_read'
+        end
+      end
     end
+
   end
 
 

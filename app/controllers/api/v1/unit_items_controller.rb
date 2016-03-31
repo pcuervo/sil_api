@@ -1,4 +1,5 @@
 class Api::V1::UnitItemsController < ApplicationController
+
   respond_to :json
   
   def show
@@ -14,6 +15,10 @@ class Api::V1::UnitItemsController < ApplicationController
     unit_item = UnitItem.new(unit_item_params)
     unit_item.user = current_user
 
+    if User::CLIENT == current_user.role or User::PROJECT_MANAGER == current_user.role or User::ACCOUNT_EXECUTIVE == current_user.role
+      unit_item.status = InventoryItem::PENDING_ENTRY
+    end
+
     # Paperclip adaptor 
     item_img = Paperclip.io_adapters.for(params[:item_img])
     item_img.original_filename = params[:filename]
@@ -22,7 +27,6 @@ class Api::V1::UnitItemsController < ApplicationController
     if unit_item.save
       inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
       log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada unitaria", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
-      log_action( current_user.id, 'InventoryItem', 'Created unit item "' + unit_item.name + '"', inventory_item.id )
       render json: unit_item, status: 201, location: [:api, unit_item]
       return
     end
@@ -50,23 +54,30 @@ class Api::V1::UnitItemsController < ApplicationController
       return
     end
 
-    unit_item.status = InventoryItem::OUT_OF_STOCK
+    if User::CLIENT == current_user.role or User::PROJECT_MANAGER == current_user.role or User::ACCOUNT_EXECUTIVE == current_user.role
+      unit_item.status = InventoryItem::PENDING_WITHDRAWAL
+    else
+      unit_item.status = InventoryItem::OUT_OF_STOCK
+    end
+    
     if unit_item.save
-      inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
+      @inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
 
       if unit_item.has_location?
         item_location = unit_item.item_locations.first
         location = item_location.warehouse_location
-        location.remove_item( inventory_item.id )
+        location.remove_item( @inventory_item.id )
       end
 
-      log_checkout_transaction( params[:exit_date], inventory_item.id, "Salida unitaria", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], 1)
-      log_action( current_user.id, 'InventoryItem', 'Salida unitaria de: "' + unit_item.name + '"', inventory_item.id )
+      log_checkout_transaction( params[:exit_date], @inventory_item.id, "Salida unitaria", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], 1)
+      
+      send_notifications_withdraw if InventoryItem::PENDING_WITHDRAWAL == unit_item.status      
+
       render json: { success: '¡Has sacado el artículo "' +  unit_item.name + '"!' }, status: 201  
-    else
-      render json: { errors: unit_item.errors }, status: 422
+      return
     end 
 
+    render json: { errors: unit_item.errors }, status: 422
   end
 
   def re_entry
@@ -77,12 +88,11 @@ class Api::V1::UnitItemsController < ApplicationController
       return
     end
 
-    unit_item.status = InventoryItem::IN_STOCK
     unit_item.state = params[:state]
     if unit_item.save
-      inventory_item = InventoryItem.find_by_actable_id( unit_item.id )
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Reingreso unitario", '-', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
-      log_action( current_user.id, 'InventoryItem', 'Reingreso unitario de: "' + unit_item.name + '"', inventory_item.id )
+      @inventory_item = InventoryItem.find_by_actable_id( unit_item.id )
+      log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso unitario", '-', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
+      send_notifications_re_entry
       render json: { success: '¡Has reingresado el artículo "' +  unit_item.name + '"!' }, status: 201  
       return
     end
@@ -94,6 +104,35 @@ class Api::V1::UnitItemsController < ApplicationController
 
     def unit_item_params
       params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state, :storage_type )
-      # params.permit(:serial_number, :brand, :model, :name, :description, :project_id, :image_url, :status, :item_img)
     end
+
+    def send_notifications_re_entry
+      project = @inventory_item.project
+      account_executives = project.users.where( 'role = ?', User::ACCOUNT_EXECUTIVE )
+      admins = User.where( 'role = ?', User::ADMIN )
+
+      account_executives.each do |ae|
+        ae.notifications << Notification.create( :title => 'Reingreso de material', :inventory_item_id => @inventory_item.id, :message => 'Se ha reingresado al almacén el artículo "' + @inventory_item.name + '" del proyecto "' + project.name + '".' )
+      end
+      admins.each do |admin|
+        admin.notifications << Notification.create( :title => 'Reingreso de material', :inventory_item_id => @inventory_item.id, :message => 'Se ha reingresado al almacén el artículo "' + @inventory_item.name + '" del proyecto "' + project.name + '".' )
+      end
+    end
+
+    def send_notifications_withdraw
+      project = @inventory_item.project
+      admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ] )
+
+      admins.each do |admin|
+        admin.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.get_role + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
+      end
+
+      if User::CLIENT == @inventory_item.user.role
+        account_executives = project.users.where( 'role = ?', User::ACCOUNT_EXECUTIVE )
+        account_executives.each do |ae|
+          ae.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.get_role + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
+        end
+      end
+    end
+    
 end
