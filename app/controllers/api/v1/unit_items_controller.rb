@@ -89,6 +89,7 @@ class Api::V1::UnitItemsController < ApplicationController
     end
 
     unit_item.state = params[:state]
+    unit_item.status = InventoryItem::IN_STOCK
     if unit_item.save
       @inventory_item = InventoryItem.find_by_actable_id( unit_item.id )
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso unitario", '-', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
