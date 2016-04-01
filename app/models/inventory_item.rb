@@ -136,6 +136,13 @@ class InventoryItem < ActiveRecord::Base
       }  
     }
 
+    if 'UnitItem' == self.actable_type
+      unit_item = UnitItem.find( self.actable_id )
+      details['inventory_item']['serial_number'] = unit_item.serial_number
+      details['inventory_item']['brand'] = unit_item.brand
+      details['inventory_item']['model'] = unit_item.model
+    end
+
     if 'BulkItem' == self.actable_type
       bulk_item = BulkItem.find( self.actable_id )
       details['inventory_item']['quantity'] = bulk_item.quantity
@@ -143,6 +150,7 @@ class InventoryItem < ActiveRecord::Base
 
     if 'BundleItem' == self.actable_type
       bundle_item = BundleItem.find( self.actable_id )
+      details['inventory_item']['num_parts'] = bundle_item.num_parts
       details['inventory_item']['parts'] = [] 
       bundle_item.bundle_item_parts.each do |part|
         details['inventory_item']['parts'].push( part.get_details )
