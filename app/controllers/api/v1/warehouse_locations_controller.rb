@@ -31,8 +31,6 @@ class Api::V1::WarehouseLocationsController < ApplicationController
 
     if new_location_id > 0
       item_location = ItemLocation.find( new_location_id )
-      location.item_locations << item_location
-      location.update_status
       render json: item_location, status: 201, location: [:api, item_location]
       return
     end
@@ -53,8 +51,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
       location = WarehouseLocation.find( pl[:locationId] )
       new_location_id = location.locate( inventory_item.id, pl[:units].to_i, 1, pl[:partId] )
       if new_location_id > 0
-        item_location = ItemLocation.find( new_location_id )
-        location.item_locations << item_location
+        
         location.update_status
         locations.push( item_location )
         next
