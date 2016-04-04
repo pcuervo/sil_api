@@ -29,9 +29,10 @@ class WarehouseLocation < ActiveRecord::Base
 
     inventory_item = InventoryItem.find( inventory_item_id )
     item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
+    self.item_locations << item_location
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
 
-    item_location.save
+    self.update_status
     return item_location.id if part_id == 0
 
     item_location.part_id = part_id
@@ -111,12 +112,14 @@ class WarehouseLocation < ActiveRecord::Base
     return 0 if self.status == NO_SPACE
     
     units = 0
-    item_locations.each { |il| units += il.units }
+    self.item_locations.each { |il| units += il.units }
     return self.units - units
   end
 
   def update_status
+    puts 'updating status... '
     available_units = get_available_units
+    puts available_units
     if 0 == available_units
       self.status = NO_SPACE
     elsif available_units == self.units
@@ -124,6 +127,7 @@ class WarehouseLocation < ActiveRecord::Base
     else
       self.status = PARTIAL_SPACE
     end
+    puts self.status.to_yaml
     self.save
   end
 
