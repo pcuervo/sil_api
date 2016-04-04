@@ -6,10 +6,15 @@ class Api::V1::NotificationsController < ApplicationController
   end
 
   def get_num_unread
-    render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
+    notifications = 0
+    if ! current_user.notifications.nil? 
+      notifications = current_user.notifications.unread.count
+    end
+    render json: { unread_notifications: notifications }, status: 200
   end
 
   def get_unread
+    puts current_user.to_yaml
     respond_with current_user.notifications.unread
   end
 
