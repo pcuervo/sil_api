@@ -102,14 +102,16 @@ describe Api::V1::UnitItemsController do
 
       it "should send notification to Account Executive" do
         notification = @ae.notifications.first
-        expect( notification.inventory_item.name ).to eql @unit_item_attributes[:name]
+        inventory_item = InventoryItem.find( notification.inventory_item_id )
+        expect( inventory_item.name ).to eql @unit_item_attributes[:name]
       end
 
       it "should send notification to Admins and WarehouseAdmins" do
         admin_notification = @admin.notifications.first
         warehouse_admin_notification = @warehouse_admin.notifications.first
-        expect( admin_notification.inventory_item.name ).to eql @unit_item_attributes[:name]
-        expect( warehouse_admin_notification.inventory_item.name ).to eql @unit_item_attributes[:name]
+        inventory_item = InventoryItem.find( admin_notification.inventory_item_id )
+        expect( inventory_item.name ).to eql @unit_item_attributes[:name]
+        expect( inventory_item.name ).to eql @unit_item_attributes[:name]
       end
 
       it { should respond_with 201 }
@@ -193,15 +195,15 @@ describe Api::V1::UnitItemsController do
 
       it "should send notification to Account Executive" do
         notification = @ae.notifications.first
-        puts notification.to_yaml
-        expect( notification.inventory_item.name ).to eql @unit_item[:name]
+        inventory_item = InventoryItem.find( notification.inventory_item_id )
+        expect( inventory_item.name ).to eql @unit_item[:name]
       end
 
       it "should send notification to Admins and WarehouseAdmins" do
         admin_notification = @admin.notifications.first
         warehouse_admin_notification = @warehouse_admin.notifications.first
-        expect( admin_notification.inventory_item.name ).to eql @unit_item[:name]
-        expect( warehouse_admin_notification.inventory_item.name ).to eql @unit_item[:name]
+        inventory_item = InventoryItem.find( admin_notification.inventory_item_id )
+        expect( inventory_item.name ).to eql @unit_item[:name]
       end
 
       it { should respond_with 201 }
@@ -311,12 +313,14 @@ describe Api::V1::UnitItemsController do
 
       it "should notify Admin" do
         notification = @admin.notifications.first
-        expect( notification.inventory_item.name ).to eq @unit_item.name
+        inventory_item = InventoryItem.find( notification.inventory_item_id )
+        expect( inventory_item.name ).to eq @unit_item.name
       end
 
       it "should notify AccountExecutive" do
         notification = @ae.notifications.first
-        expect( notification.inventory_item.name ).to eq @unit_item.name
+        inventory_item = InventoryItem.find( notification.inventory_item_id )
+        expect( inventory_item.name ).to eq @unit_item.name
       end
 
       it { should respond_with 201 }

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160330231840) do
+ActiveRecord::Schema.define(version: 20160405180831) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -97,6 +97,21 @@ ActiveRecord::Schema.define(version: 20160330231840) do
     t.datetime "updated_at",             null: false
   end
 
+  create_table "inventory_item_requests", force: :cascade do |t|
+    t.string   "name",                     limit: 255,   default: " "
+    t.text     "description",              limit: 65535
+    t.integer  "quantity",                 limit: 4
+    t.string   "item_type",                limit: 255
+    t.integer  "project_id",               limit: 4
+    t.integer  "pm_id",                    limit: 4
+    t.integer  "ae_id",                    limit: 4
+    t.integer  "state",                    limit: 4
+    t.date     "validity_expiration_date"
+    t.date     "entry_date"
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
+  end
+
   create_table "inventory_items", force: :cascade do |t|
     t.string   "name",                     limit: 255,                            default: " "
     t.text     "description",              limit: 65535
@@ -161,15 +176,13 @@ ActiveRecord::Schema.define(version: 20160330231840) do
   add_index "logs", ["user_id"], name: "index_logs_on_user_id", using: :btree
 
   create_table "notifications", force: :cascade do |t|
+    t.string   "title",             limit: 255,               null: false
     t.string   "message",           limit: 255
     t.integer  "inventory_item_id", limit: 4
     t.string   "status",            limit: 255, default: "1"
     t.datetime "created_at",                                  null: false
     t.datetime "updated_at",                                  null: false
-    t.string   "title",             limit: 255,               null: false
   end
-
-  add_index "notifications", ["inventory_item_id"], name: "index_notifications_on_inventory_item_id", using: :btree
 
   create_table "notifications_users", id: false, force: :cascade do |t|
     t.integer "notification_id", limit: 4, null: false
@@ -281,7 +294,6 @@ ActiveRecord::Schema.define(version: 20160330231840) do
   add_foreign_key "item_locations", "inventory_items"
   add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "logs", "users"
-  add_foreign_key "notifications", "inventory_items"
   add_foreign_key "projects", "clients"
   add_foreign_key "warehouse_locations", "warehouse_racks"
   add_foreign_key "warehouse_transactions", "inventory_items"

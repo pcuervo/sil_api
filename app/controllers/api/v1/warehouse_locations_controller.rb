@@ -24,7 +24,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     if params[:is_inventory_item]
       inventory_item = InventoryItem.find( params[:inventory_item_id] )
     else
-      inventory_item = InventoryItem.find_by_actable_id( params[:inventory_item_id] )
+      inventory_item = InventoryItem.where( 'actable_type = ? AND actable_id = ?', params[:inventory_item_id], params[:inventory_item_id] ).first
     end
     location = WarehouseLocation.find( params[:warehouse_location_id] )
     new_location_id = location.locate( inventory_item.id, params[:units].to_i, params[:quantity] )
@@ -42,7 +42,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     if params[:is_inventory_item]
       inventory_item = InventoryItem.find( params[:inventory_item_id] )
     else
-      inventory_item = InventoryItem.find_by_actable_id( params[:inventory_item_id] )
+      inventory_item = InventoryItem.where( 'actable_type = "BundleItem" AND actable_id = ?', params[:actable_type] ).first
     end
     part_locations = params[:part_locations]
     locations = []
@@ -51,9 +51,8 @@ class Api::V1::WarehouseLocationsController < ApplicationController
       location = WarehouseLocation.find( pl[:locationId] )
       new_location_id = location.locate( inventory_item.id, pl[:units].to_i, 1, pl[:partId] )
       if new_location_id > 0
-        
         location.update_status
-        locations.push( item_location )
+        locations.push( ItemLocation.find( new_location_id ) )
         next
       end
 
@@ -68,7 +67,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     if params[:is_inventory_item]
       inventory_item = InventoryItem.find( params[:inventory_item_id] )
     else
-      inventory_item = InventoryItem.find_by_actable_id( params[:inventory_item_id] )
+      inventory_item = InventoryItem.where( 'actable_type = "BulkItem" AND actable_id = ?', params[:inventory_item_id] ).first
     end
     bulk_locations = params[:bulk_locations]
     locations = []

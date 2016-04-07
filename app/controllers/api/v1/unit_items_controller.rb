@@ -25,8 +25,13 @@ class Api::V1::UnitItemsController < ApplicationController
     unit_item.item_img = item_img
 
     if unit_item.save
-      inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada unitaria", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
+      @inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
+      log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada unitaria", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
+      if params[:item_request_id].to_i > 0
+        @item_request = InventoryItemRequest.find( params[:item_request_id] )
+        send_notifications_approved_entry
+        @item_request.destroy
+      end
       render json: unit_item, status: 201, location: [:api, unit_item]
       return
     end
@@ -134,6 +139,31 @@ class Api::V1::UnitItemsController < ApplicationController
           ae.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.get_role + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
         end
       end
+    end
+
+    def send_notifications_withdraw
+      project = @inventory_item.project
+      admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ] )
+
+      admins.each do |admin|
+        admin.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.get_role + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
+      end
+
+      if User::CLIENT == @inventory_item.user.role
+        account_executives = project.users.where( 'role = ?', User::ACCOUNT_EXECUTIVE )
+        account_executives.each do |ae|
+          ae.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.get_role + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
+        end
+      end
+    end
+
+    def send_notifications_approved_entry
+      transaction = CheckInTransaction.last
+      pm = User.find( @item_request.pm_id )
+      ae = User.find( @item_request.ae_id )
+
+      pm.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
+      ae.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
     end
     
 end
