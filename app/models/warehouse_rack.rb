@@ -68,16 +68,18 @@ class WarehouseRack < ActiveRecord::Base
 
   def items
     rack_items = { 'items' => [] }
-    self.warehouse_locations.each do |l|
-      l.item_locations.each do |il|
+    self.warehouse_locations.order(updated_at: :desc).each do |l|
+      l.item_locations.order(created_at: :desc).each do |il|
         next if rack_items['items'].any?{ |i| i['name'] == il.inventory_item.name }
 
         rack_items['items'].push({
           'id'            => il.inventory_item.id,
+          'img'           => il.inventory_item.item_img(:thumb),
           'name'          => il.inventory_item.name,
           'location_id'   => il.warehouse_location_id,
           'location'      => il.warehouse_location.name,
           'units'         => il.units,
+          'created_at'    => il.created_at,
           'item_type'     => il.inventory_item.item_type,
           'actable_type'  => il.inventory_item.actable_type
         })

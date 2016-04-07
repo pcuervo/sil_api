@@ -19,9 +19,14 @@ class Api::V1::BulkItemsController < ApplicationController
     bulk_item.item_img = item_img
 
     if bulk_item.save
-      inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
-      log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity])
-      log_action( current_user.id, 'InventoryItem', 'Ingreso inicial a granel de: "' + bulk_item.name + '"', inventory_item.id )
+      @inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
+      log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity])
+
+      if params[:item_request_id].to_i > 0
+        @item_request = InventoryItemRequest.find( params[:item_request_id] )
+        send_notifications_approved_entry
+        @item_request.destroy
+      end
       render json: bulk_item, status: 201, location: [:api, bulk_item]
     else
       render json: { errors: bulk_item.errors }, status: 422
@@ -139,6 +144,15 @@ class Api::V1::BulkItemsController < ApplicationController
           ae.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.get_role + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
         end
       end
+    end
+
+    def send_notifications_approved_entry
+      transaction = CheckInTransaction.last
+      pm = User.find( @item_request.pm_id )
+      ae = User.find( @item_request.ae_id )
+
+      pm.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
+      ae.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
     end
 
 end

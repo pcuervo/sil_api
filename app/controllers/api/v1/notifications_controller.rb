@@ -6,15 +6,10 @@ class Api::V1::NotificationsController < ApplicationController
   end
 
   def get_num_unread
-    notifications = 0
-    if ! current_user.notifications.nil? 
-      notifications = current_user.notifications.unread.count
-    end
-    render json: { unread_notifications: notifications }, status: 200
+    render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
   end
 
   def get_unread
-    puts current_user.to_yaml
     respond_with current_user.notifications.unread
   end
 
@@ -23,7 +18,8 @@ class Api::V1::NotificationsController < ApplicationController
   end
 
   def mark_as_read
-    Notification.where( 'status = ?', Notification::UNREAD ).update_all( status: Notification::READ )
+    notifications = current_user.notifications
+    notifications.where( 'status = ?', Notification::UNREAD ).update_all( status: Notification::READ )
     head 204
   end
   

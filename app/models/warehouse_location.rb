@@ -117,9 +117,7 @@ class WarehouseLocation < ActiveRecord::Base
   end
 
   def update_status
-    puts 'updating status... '
     available_units = get_available_units
-    puts available_units
     if 0 == available_units
       self.status = NO_SPACE
     elsif available_units == self.units
@@ -127,7 +125,6 @@ class WarehouseLocation < ActiveRecord::Base
     else
       self.status = PARTIAL_SPACE
     end
-    puts self.status.to_yaml
     self.save
   end
 

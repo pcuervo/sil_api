@@ -2,6 +2,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   before_action :authenticate_with_token!, only: [:create]
   after_action :send_notification_authorize_entry, only: [:authorize_entry]
   after_action :send_notification_authorize_withdrawal, only: [:authorize_withdrawal]
+  after_action :send_entry_request_notifications, only: [:request_item_entry]
   respond_to :json
 
   def index
@@ -13,7 +14,6 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def create
-
     inventory_item = current_user.inventory_items.build(inventory_item_params)
 
     if inventory_item.save
@@ -42,6 +42,10 @@ class Api::V1::InventoryItemsController < ApplicationController
 
   def pending_entry
     respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_ENTRY )
+  end
+
+  def pending_entry_requests
+    respond_with InventoryItemRequest.details
   end
 
   def pending_withdrawal
@@ -98,9 +102,27 @@ class Api::V1::InventoryItemsController < ApplicationController
     render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: item_ids.count }, status: 201
   end
 
+  def request_item_entry
+    @inventory_item_request = InventoryItemRequest.new( inventory_item_request_params )
+
+    if @inventory_item_request.save!
+      render json: { inventory_item: @inventory_item_request }, status: 201
+    else
+      render json: { errors: @inventory_item_request.errors }, status: 422
+    end
+  end
+
+  def get_item_request
+    respond_with InventoryItemRequest.where( 'id = ?', params[:id] ).details
+  end
+
   private
     def inventory_item_params
       params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type, :storage_type)
+    end
+
+    def inventory_item_request_params
+      params.require(:inventory_item_request).permit(:name, :description, :state, :quantity, :project_id, :pm_id, :ae_id, :item_type, :validity_expiration_date, :entry_date)
     end
 
     def send_notification_authorize_entry
@@ -112,13 +134,18 @@ class Api::V1::InventoryItemsController < ApplicationController
     end
 
     def send_notification_authorize_withdrawal
-      puts 'sending notif'
       project = @item.project
       users = project.users.where( 'role IN (?)', [ User::ACCOUNT_EXECUTIVE, User::CLIENT ] )
-      puts users.count.to_yaml
       users.each do |u|
         u.notifications << Notification.create( :title => 'Confirmación de salida', :inventory_item_id => @item.id, :message => 'Se ha aprobado la salida del artículo "' + @item.name + '" en el proyecto "' + project.name + '".' )
       end
     end
+
+    def send_entry_request_notifications
+      admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
+      admins.each do |admin|
+        admin.notifications << Notification.create( :title => 'Solicitud de entrada', :inventory_item_id => -1, :message => current_user.get_role + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado el ingreso del artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + '.' )
+      end
+    end 
 
 end

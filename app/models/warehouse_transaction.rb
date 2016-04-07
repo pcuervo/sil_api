@@ -16,7 +16,10 @@ class WarehouseTransaction < ActiveRecord::Base
       location = WarehouseLocation.find( wt.warehouse_location_id )
       warehouse_transaction_details['warehouse_transactions'].push({
         'item_name'   => inventory_item.name,
+        'location_id' => location.id,
         'location'    => location.name,
+        'rack_id'     => location.warehouse_rack.id,
+        'rack'        => location.warehouse_rack.name,
         'concept'     => get_concept_description( wt.concept ),
         'created_at'  => wt.created_at,
         'units'       => wt.units

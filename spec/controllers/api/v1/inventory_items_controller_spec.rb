@@ -119,12 +119,14 @@ describe Api::V1::InventoryItemsController do
 
     it "should notify Client" do
       notification = @client.notifications.first
-      expect( notification.inventory_item.name ).to eq @item.name
+      inventory_item = InventoryItem.find( notification.inventory_item_id )
+      expect( inventory_item.name ).to eq @item.name
     end
 
     it "should notify AccountExecutive" do
       notification = @ae.notifications.first
-      expect( notification.inventory_item.name ).to eq @item.name
+      inventory_item = InventoryItem.find( notification.inventory_item_id )
+      expect( inventory_item.name ).to eq @item.name
     end
 
     it { should respond_with 201 }
@@ -171,19 +173,9 @@ describe Api::V1::InventoryItemsController do
         inventory_item_ids = []
         3.times do |t|
           inventory_item = FactoryGirl.create :inventory_item
-          if t == 0
-            unit_item = FactoryGirl.create :unit_item
-            inventory_item.actable_id = unit_item.id
-            inventory_item.actable_type = 'UnitItem'
-          elsif t == 1
-            bulk_item = FactoryGirl.create :bulk_item
-            inventory_item.actable_id = bulk_item.id
-            inventory_item.actable_type = 'BulkItem'
-          else
-            bundle_item = FactoryGirl.create :bundle_item
-            inventory_item.actable_id = bundle_item.id
-            inventory_item.actable_type = 'BundleItem'
-          end
+          bundle_item = FactoryGirl.create :bundle_item
+          inventory_item.actable_id = bundle_item.id
+          inventory_item.actable_type = 'BundleItem'
           warehouse_location = FactoryGirl.create :warehouse_location
           item_location = FactoryGirl.create :item_location
           inventory_item.item_locations << item_location
@@ -240,7 +232,66 @@ describe Api::V1::InventoryItemsController do
 
       it { should respond_with 422 }
     end
+  end
 
+  describe "POST #request_item_entry" do
+    context "when is succesfully requested" do
+      before(:each) do
+        @admin = FactoryGirl.create :user
+        @admin.role = User::ADMIN
+        @admin.save
+        @warehouse_admin = FactoryGirl.create :user
+        @warehouse_admin.role = User::WAREHOUSE_ADMIN
+        @warehouse_admin.save
+
+        user = FactoryGirl.create :user
+        @requested_item_attributes = FactoryGirl.attributes_for :inventory_item_request
+
+        api_authorization_header user.auth_token
+        post :request_item_entry, { inventory_item_request: @requested_item_attributes }
+      end
+
+      it "renders the json representation for the inventory item just requested" do
+        inventory_item_response = json_response[:inventory_item]
+        expect( inventory_item_response[:name] ).to eql @requested_item_attributes[:name]
+      end
+
+      it "send Notification to Admin and WarehouseAdmin" do
+        notification = @admin.notifications.first
+        expect( notification.title ).to eql 'Solicitud de entrada'
+      end
+
+      it { should respond_with 201 }
+    end
+  end
+
+  describe "GET #pending_entry_requests" do
+    context "when is succesfully requested" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        
+        project = FactoryGirl.create :project
+        ae = FactoryGirl.create :user
+        pm = FactoryGirl.create :user
+        3.times.each do 
+          item_request = FactoryGirl.create :inventory_item_request
+          item_request.project_id = project.id
+          item_request.pm_id = pm.id
+          item_request.ae_id = ae.id
+          item_request.save
+        end
+
+        api_authorization_header user.auth_token
+        get :pending_entry_requests
+      end
+
+      it "returns all the InventoryItemRequests" do
+        inventory_item_response = json_response[:inventory_item_requests]
+        expect( inventory_item_response.count ).to eql 3
+      end
+
+      it { should respond_with 200 }
+    end
   end
 
 end
