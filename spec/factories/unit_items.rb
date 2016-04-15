@@ -12,5 +12,4 @@ FactoryGirl.define do
     state 1
     value 10
   end
-
 end

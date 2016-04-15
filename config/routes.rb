@@ -17,6 +17,7 @@ Sil::Application.routes.draw do
             get 'get_project_managers/', :action => 'get_project_managers'
             get 'get_account_executives/', :action => 'get_account_executives'
             get 'get_client_contacts/', :action => 'get_client_contacts'
+            get 'get_delivery_users/', :action => 'get_delivery_users'
           end
         resources :bulk_items, :only => [:create]
         resources :bundle_items, :only => [:create]
@@ -68,6 +69,7 @@ Sil::Application.routes.draw do
           get 'get_project_client/:id', :action => 'get_project_client'
           get 'by_user/:id',            :action => 'by_user'
           post 'add_users',             :action => 'add_users'
+          post 'remove_user',           :action => 'remove_user'
         end
       end
       resources :clients, :only => [:show, :index, :create, :update, :destroy]
@@ -114,6 +116,11 @@ Sil::Application.routes.draw do
           get 'get_read',         :action => 'get_read'
           post 'destroy',         :action => 'destroy'
           post 'mark_as_read',    :action => 'mark_as_read'
+        end
+      end
+      resources :deliveries, :only => [:show, :index, :create, :update] do
+        collection do
+          get 'stats',       :action => 'stats'
         end
       end
     end

@@ -30,7 +30,7 @@ class Api::V1::BundleItemsController < ApplicationController
       inventory_item = InventoryItem.find_by_actable_id(bundle_item.id)
       log_checkin_transaction( params[:entry_date], inventory_item.id, "Entrada paquete", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], bundle_item.num_parts )
       log_action( current_user.id, 'InventoryItem', 'Created bundle item "' + bundle_item.name + '"', inventory_item.id )
-      render json: bundle_item, status: 201, location: [:api, bundle_item]
+      render json: bundle_item.get_details, status: 201, location: [:api, bundle_item]
     else
       render json: { errors: bundle_item.errors }, status: 422
     end

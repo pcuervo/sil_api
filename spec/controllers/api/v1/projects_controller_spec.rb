@@ -230,34 +230,36 @@ describe Api::V1::ProjectsController do
         project_response = json_response
         expect(project_response[:errors]).to include "Necesitas agregar al menos un Project Manager o Ejecutivo de Cuenta"
       end
-
     end
+  end
 
-    context "when project is not created" do
+  describe "POST #remove_user" do
+    context "when a user is removed from project" do
       before(:each) do
         user = FactoryGirl.create :user
-        pm = FactoryGirl.create :user
-        pm.role = User::PROJECT_MANAGER
-        ae = FactoryGirl.create :user
-        ae.role = User::ACCOUNT_EXECUTIVE
-        @invalid_project_attributes = { name: "Proyecto Inválido" }
+        @ae = FactoryGirl.create :user
+        @ae.role = User::ACCOUNT_EXECUTIVE
+        @project = FactoryGirl.create :project
+        @project.users << @ae
+        @project.save
 
         api_authorization_header user.auth_token
-        post :create, { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: @invalid_project_attributes }
+        post :remove_user, { user_id: @ae.id, project_id: @project.id }
       end
 
-      it "renders an errors json" do 
+      it "removes the user from the project" do
         project_response = json_response
-        expect(project_response).to have_key(:errors)
+        expect( @project.users.count ).to eql 0
       end
 
-      it "renders the json errors when there is no client present" do
+      it "renders a success message" do
         project_response = json_response
-        expect(project_response[:errors][:client]).to include "can't be blank"
+        expect( json_response ).to have_key(:success)
       end
 
-      it { should respond_with 422 }
+      it { should respond_with 200 }
     end
+
   end
 
 end

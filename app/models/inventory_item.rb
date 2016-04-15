@@ -38,9 +38,10 @@ class InventoryItem < ActiveRecord::Base
     inventory_items = InventoryItem.all
     inventory_items = inventory_items.where( 'status=?', IN_STOCK ).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
+    inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
 
     if params[:keyword]
-      inventory_items = inventory_items.where( 'name LIKE ? OR barcode LIKE ?', "%#{params[:keyword]}%", "%#{params[:keyword]}%" )
+      inventory_items = inventory_items.where( 'lower( name ) LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%" )
     end
 
     if params[:project_id].present?
@@ -95,6 +96,7 @@ class InventoryItem < ActiveRecord::Base
         'status'                    => i.status,
         'barcode'                   => i.barcode,
         'value'                     => i.value,
+        'locations'                 => i.get_locations,
         'img'                       => i.item_img(:thumb),
         'created_at'                => i.created_at,
         'validity_expiration_date'  => i.validity_expiration_date
@@ -120,6 +122,7 @@ class InventoryItem < ActiveRecord::Base
         'item_type'                 => self.item_type,
         'barcode'                   => self.barcode,
         'project'                   => project.name,
+        'project_number'            => project.litobel_id,
         'pm'                        => pm,
         'ae'                        => ae,
         'description'               => self.description,
@@ -132,6 +135,7 @@ class InventoryItem < ActiveRecord::Base
         'value'                     => self.value,
         'validity_expiration_date'  => self.validity_expiration_date,
         'locations'                 => locations,
+        'quantity'                  => self.get_quantity,
         'created_at'                => self.created_at
       }  
     }
@@ -145,7 +149,6 @@ class InventoryItem < ActiveRecord::Base
 
     if 'BulkItem' == self.actable_type
       bulk_item = BulkItem.find( self.actable_id )
-      details['inventory_item']['quantity'] = bulk_item.quantity
     end
 
     if 'BundleItem' == self.actable_type
@@ -155,6 +158,7 @@ class InventoryItem < ActiveRecord::Base
       bundle_item.bundle_item_parts.each do |part|
         details['inventory_item']['parts'].push( part.get_details )
       end
+      puts details['inventory_item']['parts'].to_yaml
     end
 
     details
@@ -206,7 +210,7 @@ class InventoryItem < ActiveRecord::Base
       locations.push({
         'rack'        => il.warehouse_location.warehouse_rack.name,
         'location_id' => il.warehouse_location.id,
-        'location'    => il.warehouse_location.name + ' - ' + il.units.to_s,
+        'location'    => il.warehouse_location.name,
         'quantity'    => il.quantity,
         'units'       => il.units
       })
@@ -261,11 +265,15 @@ class InventoryItem < ActiveRecord::Base
   end
 
   scope :recent, -> {
-    order(updated_at: :desc).limit(5)
+    order(updated_at: :desc).limit(10)
   }
 
   scope :in_stock, -> {
-    where('status IN (?)', [ IN_STOCK, PARTIAL_STOCK ])
+    where('status IN (?)', [ IN_STOCK, PARTIAL_STOCK ]).order(updated_at: :desc)
+  }
+
+  scope :out_of_stock, -> {
+    where('status = ?', OUT_OF_STOCK)
   }
 
   private
