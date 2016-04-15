@@ -102,13 +102,24 @@ class Api::V1::ProjectsController < ApplicationController
       project.users << ae
     end
     
-    if project.save
+    if project.save!
       render json: { :success => 'Usuario(s) agregado(s) con éxito.' }, status: 201, location: [:api, project]
       return
     end
 
     render json: { errors: 'No se pudo agregar el usuario al proyecto' }, status: 422
   end
+
+  def remove_user
+    project = Project.find( params[:project_id] )
+    user = User.find( params[:user_id] )
+    if project.users.delete( user )
+      render json: { :success => 'Se ha eliminado el usuario "' + user.first_name + ' ' + user.last_name + '" del proyecto.'  }, status: 200, location: [:api, project]
+      return
+    end
+
+    render json: { errors: 'No se pudo eliminar el usuario del proyecto' }, status: 422
+  end 
 
 
   private

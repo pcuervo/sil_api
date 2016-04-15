@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160405180831) do
+ActiveRecord::Schema.define(version: 20160413023730) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -96,6 +96,39 @@ ActiveRecord::Schema.define(version: 20160405180831) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  create_table "deliveries", force: :cascade do |t|
+    t.integer  "user_id",             limit: 4
+    t.integer  "delivery_user_id",    limit: 4,     null: false
+    t.string   "company",             limit: 255
+    t.string   "addressee",           limit: 255
+    t.string   "addressee_phone",     limit: 255
+    t.text     "address",             limit: 65535
+    t.string   "latitude",            limit: 255
+    t.string   "longitude",           limit: 255
+    t.string   "status",              limit: 255
+    t.text     "additional_comments", limit: 65535
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.string   "image_file_name",     limit: 255
+    t.string   "image_content_type",  limit: 255
+    t.integer  "image_file_size",     limit: 4
+    t.datetime "image_updated_at"
+  end
+
+  add_index "deliveries", ["user_id"], name: "index_deliveries_on_user_id", using: :btree
+
+  create_table "delivery_items", force: :cascade do |t|
+    t.integer  "inventory_item_id", limit: 4
+    t.integer  "delivery_id",       limit: 4
+    t.integer  "quantity",          limit: 4, default: 1
+    t.integer  "part_id",           limit: 4, default: 0
+    t.datetime "created_at",                              null: false
+    t.datetime "updated_at",                              null: false
+  end
+
+  add_index "delivery_items", ["delivery_id"], name: "index_delivery_items_on_delivery_id", using: :btree
+  add_index "delivery_items", ["inventory_item_id"], name: "index_delivery_items_on_inventory_item_id", using: :btree
 
   create_table "inventory_item_requests", force: :cascade do |t|
     t.string   "name",                     limit: 255,   default: " "
@@ -288,10 +321,13 @@ ActiveRecord::Schema.define(version: 20160405180831) do
 
   add_foreign_key "bundle_item_parts", "bundle_items"
   add_foreign_key "client_contacts", "clients"
+  add_foreign_key "deliveries", "users"
   add_foreign_key "inventory_items", "projects"
   add_foreign_key "inventory_items", "users"
   add_foreign_key "inventory_transactions", "inventory_items"
   add_foreign_key "item_locations", "inventory_items"
+  add_foreign_key "item_locations", "inventory_items"
+  add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "logs", "users"
   add_foreign_key "projects", "clients"

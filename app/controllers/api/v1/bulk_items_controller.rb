@@ -27,7 +27,7 @@ class Api::V1::BulkItemsController < ApplicationController
         send_notifications_approved_entry
         @item_request.destroy
       end
-      render json: bulk_item, status: 201, location: [:api, bulk_item]
+      render json: bulk_item.get_details, status: 201, location: [:api, bulk_item]
     else
       render json: { errors: bulk_item.errors }, status: 422
     end
@@ -80,7 +80,8 @@ class Api::V1::BulkItemsController < ApplicationController
       end
 
       log_checkout_transaction( params[:exit_date], @inventory_item.id, "Salida a granel", params[:estimated_return_date], params[:additional_comments], params[:pickup_company], params[:pickup_company_contact], params[:quantity])
-      send_notifications_withdraw
+
+      send_notifications_withdraw if InventoryItem::PENDING_WITHDRAWAL == bulk_item.status  
 
       render json: { success: '¡Has sacado ' + params[:quantity].to_s + ' existencia(s) del artículo "' +  bulk_item.name + '"!', quantity: bulk_item.quantity }, status: 201   
       return

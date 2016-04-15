@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
 
   has_many :inventory_items
   has_many :logs
+  has_many :deliveries
   has_and_belongs_to_many :projects
   has_and_belongs_to_many :notifications
 
@@ -51,5 +52,6 @@ class User < ActiveRecord::Base
   scope :pm_users, -> { where( role: PROJECT_MANAGER ) }
   scope :ae_users, -> { where( role: ACCOUNT_EXECUTIVE ) }
   scope :client_users, -> { where( role: CLIENT ) }
+  scope :delivery_users, -> { where( role: DELIVERY ) }
   scope :pm_ae_users, -> { where('role = ? OR role = ?', PROJECT_MANAGER, ACCOUNT_EXECUTIVE ) }
 end

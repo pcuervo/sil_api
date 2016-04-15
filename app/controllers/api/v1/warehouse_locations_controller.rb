@@ -24,7 +24,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     if params[:is_inventory_item]
       inventory_item = InventoryItem.find( params[:inventory_item_id] )
     else
-      inventory_item = InventoryItem.where( 'actable_type = ? AND actable_id = ?', params[:inventory_item_id], params[:inventory_item_id] ).first
+      inventory_item = InventoryItem.where( 'actable_type = ? AND actable_id = ?', params[:actable_type], params[:inventory_item_id] ).first
     end
     location = WarehouseLocation.find( params[:warehouse_location_id] )
     new_location_id = location.locate( inventory_item.id, params[:units].to_i, params[:quantity] )

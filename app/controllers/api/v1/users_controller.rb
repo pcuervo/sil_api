@@ -63,6 +63,10 @@ class Api::V1::UsersController < ApplicationController
     respond_with User.client_users
   end
 
+  def get_delivery_users
+  	respond_with User.delivery_users
+  end
+
 	private	
 
 		def user_params
