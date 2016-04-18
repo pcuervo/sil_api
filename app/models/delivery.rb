@@ -32,6 +32,8 @@ class Delivery < ActiveRecord::Base
         'latitude'            => self.latitude,
         'longitude'           => self.longitude,
         'company'             => self.company,
+        'image'               => self.image,
+        'status'              => self.status,
         'addressee'           => self.addressee,
         'addressee_phone'     => self.addressee_phone,
         'additional_comments' => self.additional_comments,

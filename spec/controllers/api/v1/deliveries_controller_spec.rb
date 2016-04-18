@@ -3,7 +3,10 @@ require 'spec_helper'
 RSpec.describe Api::V1::DeliveriesController, type: :controller do
   describe "GET #show" do
     before(:each) do
+      user = FactoryGirl.create :user
       @delivery = FactoryGirl.create :delivery
+      @delivery.delivery_user_id = user.id
+      @delivery.save
       get :show, id: @delivery.id
     end
 
@@ -89,6 +92,47 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
     #   end
 
     #   it { should respond_with 422 }
+    # end
+  end
+
+  describe "POST #update" do
+    context "when delivery is successfully updated" do
+      before(:each) do
+        @user = FactoryGirl.create :user
+        @delivery = FactoryGirl.create :delivery
+        api_authorization_header @user.auth_token
+        post :update, { id: @delivery.id,
+                          delivery: { company: 'La Nueva', status: 2 } }, format: :json
+      end
+
+      it "renders the json representation for the updated delivery" do
+        delivery_response = json_response[:delivery]
+        expect( delivery_response[:company] ).to eql "La Nueva"
+        expect( delivery_response[:status].to_i ).to eql 2
+      end
+
+      it { should respond_with 200 }
+    end
+
+    # context "when is not updated because litobel_id is already taken" do
+    #   before(:each) do
+    #     @user = FactoryGirl.create :user
+    #     @delivery = FactoryGirl.create :delivery
+    #     @invalid_delivery = FactoryGirl.create :delivery
+    #     api_authorization_header @user.auth_token
+    #     patch :update, { id: @invalid_delivery.id,
+    #                       delivery: { litobel_id: @delivery.litobel_id } }, format: :json
+    #   end
+
+    #   it "renders an errors json" do
+    #     delivery_response = json_response
+    #     expect(delivery_response).to have_key(:errors)
+    #   end
+
+    #   it "renders the json errors when the email is invalid" do
+    #     user_response = json_response
+    #     expect(user_response[:errors][:litobel_id]).to include "has already been taken"
+    #   end
     # end
   end
 

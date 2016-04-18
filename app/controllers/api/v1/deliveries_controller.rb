@@ -28,6 +28,24 @@ class Api::V1::DeliveriesController < ApplicationController
     end
   end
 
+  def update
+    delivery = Delivery.find(params[:id])
+
+    if params[:image]
+      image = Paperclip.io_adapters.for(params[:image])
+      image.original_filename = params[:filename]
+      delivery.image = image
+    end
+
+
+    if delivery.update( delivery_params )
+      render json: delivery, status: 200, location: [:api, delivery]
+      return
+    end
+
+    render json: { errors: delivery.errors }, status: 422
+  end
+
   def stats
     stats = {}
 
