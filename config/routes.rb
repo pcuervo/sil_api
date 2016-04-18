@@ -120,7 +120,8 @@ Sil::Application.routes.draw do
       end
       resources :deliveries, :only => [:show, :index, :create, :update] do
         collection do
-          get 'stats',       :action => 'stats'
+          get 'stats',    :action => 'stats'
+          post 'update',  :action => 'update'
         end
       end
     end

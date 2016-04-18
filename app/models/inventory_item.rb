@@ -132,6 +132,7 @@ class InventoryItem < ActiveRecord::Base
         'state'                     => self.state,
         'status'                     => self.status,
         'item_type'                 => self.item_type,
+        'storage_type'              => self.storage_type,
         'value'                     => self.value,
         'validity_expiration_date'  => self.validity_expiration_date,
         'locations'                 => locations,
