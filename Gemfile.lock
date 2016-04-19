@@ -109,6 +109,7 @@ GEM
       mime-types
       mimemagic (= 0.3.0)
     pg (0.18.4)
+    puma (3.4.0)
     rack (1.6.4)
     rack-cors (0.4.0)
     rack-test (0.6.3)
@@ -218,6 +219,7 @@ DEPENDENCIES
   mysql2
   paperclip (~> 4.3)
   pg
+  puma
   rack-cors
   rails (= 4.2.0)
   rails_12factor
