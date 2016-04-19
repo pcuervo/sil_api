@@ -41,6 +41,7 @@ gem 'aws-sdk', '< 2.0'
 group :production do
   gem 'rails_12factor'
   gem 'pg'
+  gem 'puma'
 end
 
 group :development, :test do
