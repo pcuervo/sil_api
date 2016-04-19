@@ -131,7 +131,6 @@ class InventoryItem < ActiveRecord::Base
         'img'                       => item_img(:medium),
         'state'                     => self.state,
         'status'                     => self.status,
-        'item_type'                 => self.item_type,
         'storage_type'              => self.storage_type,
         'value'                     => self.value,
         'validity_expiration_date'  => self.validity_expiration_date,

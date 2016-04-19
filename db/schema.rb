@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160413023730) do
+ActiveRecord::Schema.define(version: 20160418181506) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -99,17 +99,17 @@ ActiveRecord::Schema.define(version: 20160413023730) do
 
   create_table "deliveries", force: :cascade do |t|
     t.integer  "user_id",             limit: 4
-    t.integer  "delivery_user_id",    limit: 4,     null: false
+    t.integer  "delivery_user_id",    limit: 4,                 null: false
     t.string   "company",             limit: 255
     t.string   "addressee",           limit: 255
     t.string   "addressee_phone",     limit: 255
     t.text     "address",             limit: 65535
     t.string   "latitude",            limit: 255
     t.string   "longitude",           limit: 255
-    t.string   "status",              limit: 255
+    t.integer  "status",              limit: 4,     default: 1
     t.text     "additional_comments", limit: 65535
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.string   "image_file_name",     limit: 255
     t.string   "image_content_type",  limit: 255
     t.integer  "image_file_size",     limit: 4
@@ -166,6 +166,7 @@ ActiveRecord::Schema.define(version: 20160413023730) do
     t.date     "validity_expiration_date"
     t.integer  "state",                    limit: 4,                              default: 1
     t.string   "storage_type",             limit: 255
+    t.integer  "is_high_value",            limit: 4,                              default: 0
   end
 
   add_index "inventory_items", ["project_id"], name: "index_inventory_items_on_project_id", using: :btree
