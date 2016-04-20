@@ -111,7 +111,7 @@ class Api::V1::UnitItemsController < ApplicationController
   private
 
     def unit_item_params
-      params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state, :storage_type )
+      params.require( :unit_item ).permit( :serial_number, :brand, :model, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state, :storage_type, :is_high_value )
     end
 
     def send_notifications_re_entry
