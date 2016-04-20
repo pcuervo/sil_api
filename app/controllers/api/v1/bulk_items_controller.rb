@@ -115,7 +115,7 @@ class Api::V1::BulkItemsController < ApplicationController
   private
 
     def bulk_item_params
-      params.require(:bulk_item).permit(:quantity, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state)
+      params.require(:bulk_item).permit(:quantity, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :value, :state, :storage_type, :is_high_value)
     end
 
     def send_notifications_re_entry

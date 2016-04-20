@@ -24,6 +24,7 @@ class InventoryItem < ActiveRecord::Base
   EXPIRED = 4
   PENDING_ENTRY = 5
   PENDING_WITHDRAWAL = 6
+  PENDING_APPROVAL = 7
 
   # States
   NEW = 1

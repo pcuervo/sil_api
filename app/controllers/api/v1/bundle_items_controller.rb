@@ -114,7 +114,7 @@ class Api::V1::BundleItemsController < ApplicationController
   private 
 
     def bundle_item_params
-      params.require(:bundle_item).permit(:quantity, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :state, :value)
+      params.require(:bundle_item).permit(:quantity, :name, :description, :project_id, :status, :item_type, :barcode, :validity_expiration_date, :state, :storage_type, :value, :is_high_value)
     end
 
     def send_notifications_re_entry
