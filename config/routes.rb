@@ -100,6 +100,7 @@ Sil::Application.routes.draw do
           get 'show_details/:id', :action => 'show_details'
           get 'get_items/:id',    :action => 'get_items'
           post 'destroy',         :action => 'destroy'
+          get 'stats',            :action => 'stats'
         end
       end
       resources :item_locations, :only => [:show, :index, :create] do

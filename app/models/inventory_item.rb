@@ -37,7 +37,7 @@ class InventoryItem < ActiveRecord::Base
 
   def self.search( params = {} )
     inventory_items = InventoryItem.all
-    inventory_items = inventory_items.where( 'status=?', IN_STOCK ).recent if params[:recent].present?
+    inventory_items = inventory_items.where( 'status IN (?)', [ IN_STOCK, PARTIAL_STOCK ] ).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
     inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
 
@@ -275,6 +275,18 @@ class InventoryItem < ActiveRecord::Base
 
   scope :out_of_stock, -> {
     where('status = ?', OUT_OF_STOCK)
+  }
+
+  scope :this_month, -> {
+    where( 'created_at > ? AND created_at < ?', 
+            Date.today.beginning_of_month, 
+            Date.today.end_of_month )
+  }
+
+  scope :last_month, -> {
+    where( 'created_at > ? AND created_at < ?', 
+            Date.today.last_month.beginning_of_month, 
+            Date.today.beginning_of_month )
   }
 
   private
