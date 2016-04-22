@@ -8,6 +8,7 @@ class BundleItemPart < ActiveRecord::Base
     details = {
       'id'              => self.id,
       'name'            => self.name,
+      'brand'           => self.brand,
       'model'           => self.model,
       'serial_number'   => self.serial_number,
       'status'          => self.status,

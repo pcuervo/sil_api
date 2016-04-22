@@ -4,7 +4,7 @@ class Api::V1::ProjectsController < ApplicationController
   respond_to :json
 
   def index
-    respond_with Project.all
+    respond_with Project.all.order(created_at: :desc)
   end
   
   def show
@@ -73,7 +73,7 @@ class Api::V1::ProjectsController < ApplicationController
   def get_project_client
     project = Project.find( params[:id] )
     client = project.client
-    client_contact = client.client_contacts.first
+    client_contact = project.users.find_by_role( User::CLIENT )
 
 
     client_obj = { :id => client.id, :name => client.name, :contact_name => client_contact.first_name + ' ' + client_contact.last_name }

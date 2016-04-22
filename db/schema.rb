@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160418181506) do
+ActiveRecord::Schema.define(version: 20160422010733) do
 
   create_table "audits", force: :cascade do |t|
     t.integer  "auditable_id",    limit: 4
@@ -87,6 +87,7 @@ ActiveRecord::Schema.define(version: 20160418181506) do
     t.integer  "client_id",     limit: 4
     t.datetime "created_at",                              null: false
     t.datetime "updated_at",                              null: false
+    t.float    "discount",      limit: 24,  default: 1.0
   end
 
   add_index "client_contacts", ["client_id"], name: "index_client_contacts_on_client_id", using: :btree
@@ -248,6 +249,14 @@ ActiveRecord::Schema.define(version: 20160418181506) do
     t.string   "name",       limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
+  end
+
+  create_table "system_settings", force: :cascade do |t|
+    t.integer  "units_per_location", limit: 4,                         default: 50
+    t.decimal  "cost_per_location",            precision: 8, scale: 2, default: 0.0
+    t.decimal  "cost_high_value",              precision: 8, scale: 2, default: 0.0
+    t.datetime "created_at",                                                         null: false
+    t.datetime "updated_at",                                                         null: false
   end
 
   create_table "unit_items", force: :cascade do |t|
