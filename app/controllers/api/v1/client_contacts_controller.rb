@@ -16,7 +16,6 @@ class Api::V1::ClientContactsController < ApplicationController
     client_contact.role = User::CLIENT
 
     if client_contact.save
-      log_action( current_user.id, 'ClientContact', 'Created client contact: "' + client_contact.first_name + ' ' + client_contact.last_name, client_contact.id )
       render json: client_contact, status: 201, location: [:api, client_contact] 
       return 
     end
@@ -26,11 +25,10 @@ class Api::V1::ClientContactsController < ApplicationController
   end
 
   def update
-    client_contact = ClientContact.find(params[:id])
+    client_contact = ClientContact.find( params[:id] )
     client_contact.role = 4
 
     if client_contact.update(client_contact_params)
-      log_action( current_user.id, 'ClientContact', 'Updated client contact: "' + client_contact.first_name + ' ' + client_contact.last_name, client_contact.id )
       render json: client_contact, status: 201, location: [:api, client_contact]
       return
     end
@@ -40,7 +38,6 @@ class Api::V1::ClientContactsController < ApplicationController
 
   def destroy
     client_contact = ClientContact.find(params[:id])
-    log_action( current_user.id, 'ClientContact', 'Deleted client contact: "' + client_contact.first_name + ' ' + client_contact.last_name, client_contact.id )
     client_contact.destroy
     head 204
   end
@@ -59,6 +56,6 @@ class Api::V1::ClientContactsController < ApplicationController
   private 
 
   def client_contact_params
-    params.require(:client_contact).permit(:first_name, :last_name, :password, :password_confirmation, :phone, :phone_ext, :email, :business_unit, :client_id)
+    params.require(:client_contact).permit( :first_name, :last_name, :password, :password_confirmation, :phone, :phone_ext, :email, :business_unit, :client_id, :discount )
   end
 end
