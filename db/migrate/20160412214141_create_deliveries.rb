@@ -9,7 +9,7 @@ class CreateDeliveries < ActiveRecord::Migration
       t.text        :address
       t.string      :latitude
       t.string      :longitude
-      t.string      :status
+      t.integer     :status, :default => 1
       t.text        :additional_comments
       t.timestamps null: false
     end

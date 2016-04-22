@@ -5,3 +5,5 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
+
+SystemSetting.create( :units_per_location => 50, :cost_per_location => 500.00, :cost_high_value => 100.00 )

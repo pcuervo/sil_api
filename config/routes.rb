@@ -75,8 +75,9 @@ Sil::Application.routes.draw do
       resources :clients, :only => [:show, :index, :create, :update, :destroy]
       resources :client_contacts, :only => [:show, :index, :create, :update, :destroy] do
         collection do 
-          get 'get_by_client/', :action => 'get_by_client'
-          get 'inventory_items/:id', :action => 'inventory_items'
+          get 'get_by_client/',       :action => 'get_by_client'
+          get 'inventory_items/:id',  :action => 'inventory_items'
+          post 'update',              :action => 'update'
         end
       end
       resources :inventory_transactions, :only => [:show, :index] do
@@ -125,8 +126,13 @@ Sil::Application.routes.draw do
           post 'update',  :action => 'update'
         end
       end
-    end
+      resources :system_settings, :only => [:show] do
+        collection do
+          post 'update',  :action => 'update'
+        end
+      end
 
+    end
   end
 
 

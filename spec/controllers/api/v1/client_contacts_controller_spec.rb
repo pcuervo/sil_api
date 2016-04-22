@@ -71,13 +71,13 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
     end
   end
 
-  describe "PUT/PATCH #update" do
+  describe "POST #update" do
     context "when client contact is updated successfully" do
       before(:each) do
         user = FactoryGirl.create :user
         client_contact = FactoryGirl.create :client_contact
         api_authorization_header user.auth_token
-        patch :update, { id: client_contact.id, client_contact: { first_name: 'Miguel', last_name: 'Cabral' } } 
+        post :update, { id: client_contact.id, client_contact: { first_name: 'Miguel', last_name: 'Cabral' } } 
       end
 
       it "should return a JSON representation of the updated client contact" do
@@ -95,7 +95,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         client_contact = FactoryGirl.create :client_contact
         invalid_client_contact = FactoryGirl.create :client_contact
         api_authorization_header user.auth_token
-        patch :update, { id: invalid_client_contact.id, client_contact: { email: client_contact.email } }
+        post :update, { id: invalid_client_contact.id, client_contact: { email: client_contact.email } }
       end     
 
       it "should render an errors JSON" do 
@@ -116,7 +116,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         user = FactoryGirl.create :user
         client_contact = FactoryGirl.create :client_contact
         api_authorization_header user.auth_token
-        patch :update, { id: client_contact.id, client_contact: { client_id: 'invalid_id' } }
+        post :update, { id: client_contact.id, client_contact: { client_id: 'invalid_id' } }
       end     
 
       it "should render an errors JSON" do 
@@ -130,6 +130,22 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
       end
 
       it { should respond_with 422 }
+    end
+
+    context "when client contact has the discount updated" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        client_contact = FactoryGirl.create :client_contact
+        api_authorization_header user.auth_token
+        post :update, { id: client_contact.id, client_contact: { discount: 1.5 } } 
+      end
+
+      it "should return a JSON representation of the updated client contact" do
+        client_contact_response = json_response[:client_contact]
+        expect( client_contact_response[:discount] ).to eql 1.5
+      end
+
+      it { should respond_with 201 }
     end
   end
 
@@ -146,8 +162,11 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
 
   describe "GET #inventory_items" do
     before(:each) do
+      user = FactoryGirl.create :user
       @client = FactoryGirl.create :client
       @client_contact = FactoryGirl.create :client_contact
+      user.actable_id = @client_contact.id
+      user.save
       @client.client_contacts << @client_contact
       project = FactoryGirl.create :project
       3.times do |i|
@@ -156,7 +175,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
       end 
       @client.projects << project
 
-      get :inventory_items, id: @client_contact.id
+      get :inventory_items, id: user.id
     end
 
     it "returns hash containing inventory items that belong to a client contact" do
@@ -166,4 +185,5 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
 
     it { should respond_with 200 }
   end
+
 end
