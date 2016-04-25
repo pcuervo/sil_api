@@ -155,6 +155,5 @@ class Api::V1::BulkItemsController < ApplicationController
       pm.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
       ae.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
     end
-
 end
 
