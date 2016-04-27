@@ -33,6 +33,22 @@ class Api::V1::BulkItemsController < ApplicationController
     end
   end
 
+  def update
+    if params[:is_inventory_item]
+      inventory_item = InventoryItem.find( params[:id] )
+      bulk_item = BulkItem.find( inventory_item.actable_id )
+    else
+      bulk_item = BulkItem.find( params[:id] )
+    end
+
+    if bulk_item.update( bulk_item_params )
+      render json: bulk_item.get_details, status: 200, location: [:api, bulk_item]
+      return
+    end
+
+    render json: { errors: bulk_item.errors }, status: 422
+  end
+
   def withdraw
 
     bulk_item = BulkItem.find_by_id(params[:id])

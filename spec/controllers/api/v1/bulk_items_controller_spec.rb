@@ -52,15 +52,15 @@ describe Api::V1::BulkItemsController, type: :controller do
       end
 
       it "renders the json representation for the inventory item just created" do
-        bulk_item_response = json_response[:bulk_item]
+        bulk_item_response = json_response[:inventory_item]
         expect(bulk_item_response[:name]).to eql @bulk_item_attributes[:name]
         expect(bulk_item_response[:state]).to eql @bulk_item_attributes[:state]
         expect(bulk_item_response[:value].to_i).to eql @bulk_item_attributes[:value]
       end
 
       it "should record the transaction in database" do
-        bulk_item_response = json_response[:bulk_item]
-        inv_item = InventoryItem.find_by_actable_id(bulk_item_response[:id])
+        bulk_item_response = json_response[:inventory_item]
+        inv_item = InventoryItem.find(bulk_item_response[:id])
         inv_transaction = InventoryTransaction.find_by_inventory_item_id(inv_item.id)
         expect(inv_transaction.to_json.size).to be >= 1
       end
@@ -90,6 +90,26 @@ describe Api::V1::BulkItemsController, type: :controller do
 
       it { should respond_with 422 }
 
+    end
+  end
+
+  describe "POST #update" do
+    context "when bulk_item is successfully updated" do
+      before(:each) do
+        @user = FactoryGirl.create :user
+        @bulk_item = FactoryGirl.create :bulk_item
+        api_authorization_header @user.auth_token
+        post :update, { id: @bulk_item.id,
+                          bulk_item: { name: 'My new name', state: 2 } }, format: :json
+      end
+
+      it "renders the json representation for the updated bulk_item" do
+        bulk_item_response = json_response[:bulk_item]
+        expect(bulk_item_response[:state]).to eql 2
+        expect(bulk_item_response[:name]).to eql 'My new name'
+      end
+
+      it { should respond_with 200 }
     end
   end
 

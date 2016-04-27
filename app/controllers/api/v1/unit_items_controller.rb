@@ -39,6 +39,22 @@ class Api::V1::UnitItemsController < ApplicationController
     render json: { errors: unit_item.errors }, status: 422
   end
 
+  def update
+    if params[:is_inventory_item]
+      inventory_item = InventoryItem.find( params[:id] )
+      unit_item = UnitItem.find( inventory_item.actable_id )
+    else
+      unit_item = UnitItem.find( params[:id] )
+    end
+
+    if unit_item.update( unit_item_params )
+      render json: unit_item.get_details, status: 200, location: [:api, unit_item]
+      return
+    end
+
+    render json: { errors: unit_item.errors }, status: 422
+  end
+
   def withdraw
     unit_item = UnitItem.find_by_id(params[:id])
 

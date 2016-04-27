@@ -42,6 +42,22 @@ class Api::V1::BundleItemsController < ApplicationController
     end
   end
 
+  def update
+    if params[:is_inventory_item]
+      inventory_item = InventoryItem.find( params[:id] )
+      bundle_item = BundleItem.find( inventory_item.actable_id )
+    else
+      bundle_item = BundleItem.find( params[:id] )
+    end
+
+    if bundle_item.update( bundle_item_params )
+      render json: bundle_item.get_details, status: 200, location: [:api, bundle_item]
+      return
+    end
+
+    render json: { errors: bundle_item.errors }, status: 422
+  end
+
   def withdraw
 
     bundle_item = BundleItem.find_by_id(params[:id])
