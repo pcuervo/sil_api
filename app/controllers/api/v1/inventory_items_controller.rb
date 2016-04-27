@@ -44,6 +44,10 @@ class Api::V1::InventoryItemsController < ApplicationController
     respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_ENTRY )
   end
 
+  def pending_validation_entries
+    respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_APPROVAL )
+  end
+
   def pending_entry_requests
     respond_with InventoryItemRequest.details
   end
@@ -117,6 +121,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   private
+
     def inventory_item_params
       params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type, :storage_type)
     end
@@ -127,9 +132,9 @@ class Api::V1::InventoryItemsController < ApplicationController
 
     def send_notification_authorize_entry
       project = @item.project
-      users = project.users.where( 'role IN (?)', [ User::ACCOUNT_EXECUTIVE, User::CLIENT ] )
+      users = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ] )
       users.each do |u|
-        u.notifications << Notification.create( :title => 'Confirmación de entrada', :inventory_item_id => @item.id, :message => 'Se ha aprobado la entrada del artículo "' + @item.name + '" en el proyecto "' + project.name + '".' )
+        u.notifications << Notification.create( :title => 'Confirmación de entrada', :inventory_item_id => @item.id, :message => 'Se ha validado la entrada del artículo "' + @item.name + '" en el proyecto "' + project.name + '".' )
       end
     end
 

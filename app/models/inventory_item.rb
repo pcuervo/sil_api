@@ -134,6 +134,7 @@ class InventoryItem < ActiveRecord::Base
         'status'                     => self.status,
         'storage_type'              => self.storage_type,
         'value'                     => self.value,
+        'is_high_value'             => self.is_high_value,
         'validity_expiration_date'  => self.validity_expiration_date,
         'locations'                 => locations,
         'quantity'                  => self.get_quantity,

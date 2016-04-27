@@ -37,16 +37,16 @@ gem 'rack-cors', :require => 'rack/cors'
 
 gem "paperclip", "~> 4.3"
 gem 'aws-sdk', '< 2.0'
+gem 'pg'
 
 group :production do
   gem 'rails_12factor'
-  gem 'pg'
   gem 'puma'
 end
 
 group :development, :test do
   gem 'mysql2'
-  gem 'pg'
+  
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   # Access an IRB console on exception pages or by using <%= console %> in views
