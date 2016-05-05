@@ -24,6 +24,9 @@ class User < ActiveRecord::Base
   WAREHOUSE_ADMIN = 4
   DELIVERY = 5
   CLIENT = 6
+
+  has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "200x200#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
+  validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
  	
  	def generate_authentication_token!
     begin

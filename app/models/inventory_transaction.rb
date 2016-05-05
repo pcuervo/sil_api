@@ -5,7 +5,7 @@ class InventoryTransaction < ActiveRecord::Base
   validates :concept, :inventory_item, presence: true
 
   def self.search( params = {} )
-    inventory_transactions = InventoryTransaction.order(created_at: :desc).all
+    inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
 
     transaction_details = { 'inventory_transactions' => [] }
 

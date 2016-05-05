@@ -19,7 +19,7 @@ class Api::V1::BulkItemsController < ApplicationController
     bulk_item.item_img = item_img
 
     if bulk_item.save
-      @inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
+      @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', bulk_item.id, 'BulkItem').first
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity])
 
       if params[:item_request_id].to_i > 0
@@ -78,9 +78,9 @@ class Api::V1::BulkItemsController < ApplicationController
 
     bulk_item.status = InventoryItem::OUT_OF_STOCK if bulk_item.quantity.to_i == 0
     if bulk_item.save
-      @inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
+      @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', bulk_item.id, 'BulkItem').first
       
-      if bulk_item.has_location? and ! params[:locations].present?
+      if bulk_item.has_location? and ! params[:locations].present? and ! params[:any_location]
         item_locations = bulk_item.item_locations
         item_locations.each do |il|
           location = il.warehouse_location
@@ -118,7 +118,7 @@ class Api::V1::BulkItemsController < ApplicationController
     bulk_item.state = params[:state]
     bulk_item.quantity = bulk_item.quantity.to_i + params[:quantity].to_i
     if bulk_item.save
-      @inventory_item = InventoryItem.find_by_actable_id(bulk_item.id)
+      @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', bulk_item.id, 'BulkItem').first
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso granel", '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
       send_notifications_re_entry
       render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  bulk_item.name + '"!' }, status: 201  

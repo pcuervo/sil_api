@@ -37,7 +37,6 @@ class Api::V1::DeliveriesController < ApplicationController
       delivery.image = image
     end
 
-
     if delivery.update( delivery_params )
       render json: delivery, status: 200, location: [:api, delivery]
       return

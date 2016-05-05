@@ -11,11 +11,12 @@ class UnitItem < ActiveRecord::Base
 
     self.status = InventoryItem::OUT_OF_STOCK
     if self.save
-      inventory_item = InventoryItem.find_by_actable_id( self.id )
+      inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', self.id, 'UnitItem' ).first
       if self.has_location?
         item_location = self.item_locations.first
         location = item_location.warehouse_location
         location.remove_item( inventory_item.id )
+        location.update_status
       end
       CheckOutTransaction.create( :inventory_item_id => inventory_item.id, :concept => 'Salida unitaria', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => 1 )
       return true

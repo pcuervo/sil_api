@@ -27,7 +27,7 @@ class Api::V1::BundleItemsController < ApplicationController
 
     if bundle_item.save
       bundle_item.add_new_parts( params[:parts] )
-      @inventory_item = InventoryItem.find_by_actable_id(bundle_item.id)
+      @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' ).first
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada paquete", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], bundle_item.num_parts )
 
       if params[:item_request_id].to_i > 0
@@ -88,7 +88,7 @@ class Api::V1::BundleItemsController < ApplicationController
     quantity = params[:parts].count
 
     if bundle_item.save
-      @inventory_item = InventoryItem.find_by_actable_id( bundle_item.id )
+      @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' ).first
 
       if bundle_item.has_location?
         item_locations = bundle_item.item_locations
@@ -123,7 +123,7 @@ class Api::V1::BundleItemsController < ApplicationController
     bundle_item.state = params[:state]
 
     if bundle_item.save
-      @inventory_item = InventoryItem.find_by_actable_id( bundle_item.id )
+      @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' ).first
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso paquete", '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
       send_notifications_re_entry
       render json: { success: '¡Has reingresado partes del artículo  "' +  bundle_item.name + '"!' }, status: 201  

@@ -73,9 +73,10 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:* 
   #   - bool if item was removed successfully
   def remove_item( inventory_item_id )
-    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
+    item_location = self.item_locations.find_by_inventory_item_id( inventory_item_id )
+  
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
-    item_location.destroy
+    self.item_locations.delete( item_location )
     return item_location.present?
   end
 
