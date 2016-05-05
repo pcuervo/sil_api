@@ -24,8 +24,12 @@ class Api::V1::UnitItemsController < ApplicationController
     item_img.original_filename = params[:filename]
     unit_item.item_img = item_img
 
+    # if InventoryItem::IN_STOCK == unit_item.status and Date.parse( params[:entry_date] ) > Date.today
+    #   unit_item.status = InventoryItem::PENDING_ENTRY
+    # end
+
     if unit_item.save
-      @inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
+      @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).first
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada unitaria", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
       if params[:item_request_id].to_i > 0
         @item_request = InventoryItemRequest.find( params[:item_request_id] )
@@ -82,7 +86,7 @@ class Api::V1::UnitItemsController < ApplicationController
     end
     
     if unit_item.save
-      @inventory_item = InventoryItem.find_by_actable_id(unit_item.id)
+      @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).first
 
       from_location = {}
       if unit_item.has_location?
@@ -114,7 +118,7 @@ class Api::V1::UnitItemsController < ApplicationController
     unit_item.state = params[:state]
     unit_item.status = InventoryItem::IN_STOCK
     if unit_item.save
-      @inventory_item = InventoryItem.find_by_actable_id( unit_item.id )
+      @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).first
       log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso unitario", '-', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], 1)
       send_notifications_re_entry
       render json: { success: '¡Has reingresado el artículo "' +  unit_item.name + '"!' }, status: 201  

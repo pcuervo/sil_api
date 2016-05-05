@@ -19,7 +19,7 @@ describe BulkItem, type: :model do
       @bulk_item = FactoryGirl.create :bulk_item
     end
 
-    context "withdraws a BulkItem with location successfuly" do
+    context "withdraws whole quantity of BulkItem with location successfuly" do
       before(:each) do
         @warehouse_location = FactoryGirl.create :warehouse_location
         @item_location = FactoryGirl.create :item_location
@@ -28,7 +28,7 @@ describe BulkItem, type: :model do
         @bulk_item.item_locations << @item_location
         @warehouse_location.item_locations << @item_location
         @supplier = FactoryGirl.create :supplier
-        @withdraw = @bulk_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
+        @withdraw = @bulk_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test', '' )
       end
 
       it "returns true if withdrawal was sucessful" do
@@ -46,36 +46,75 @@ describe BulkItem, type: :model do
 
       it "deletes ItemLocation associated with BulkItem" do
         item_location = ItemLocation.find_by_id( @item_location.id )
-        expect( item_location.present? ).to eq false
+        expect( @warehouse_location.item_locations.count ).to eq 0
       end
     end
 
-    # context "cannot withdraw a BulkItem with location successfuly" do
-    #   before(:each) do
-    #     @warehouse_location = FactoryGirl.create :warehouse_location
-    #     @item_location = FactoryGirl.create :item_location
-    #     @bulk_item.item_locations << @item_location
-    #     @warehouse_location.item_locations << @item_location
-    #     @supplier = FactoryGirl.create :supplier
-    #   end
+    context "withdraws partial quantity of BulkItem from one location successfuly" do
+      before(:each) do
+        @warehouse_location = FactoryGirl.create :warehouse_location
+        @item_location = FactoryGirl.create :item_location
+        @item_location.quantity = @bulk_item.quantity
+        @item_location.save
+        @bulk_item.item_locations << @item_location
+        @warehouse_location.item_locations << @item_location
+        @supplier = FactoryGirl.create :supplier
+        @withdraw = @bulk_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test', 1 )
+      end
 
-    #   it "returns 2 if withdrawal was not sucessful because BulkItem is already out of stock" do
-    #     @bulk_item.status = InventoryItem::OUT_OF_STOCK
-    #     @withdraw = @bulk_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
-    #     expect( @withdraw ).to eq InventoryItem::OUT_OF_STOCK
-    #   end
+      it "returns true if withdrawal was sucessful" do
+        expect( @withdraw ).to eq true
+      end
 
-    #   it "returns 2 if withdrawal was not sucessful because BulkItem has a pending entry" do
-    #     @bulk_item.status = InventoryItem::PENDING_ENTRY
-    #     @withdraw = @bulk_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test' )
-    #     expect( @withdraw ).to eq InventoryItem::PENDING_ENTRY
-    #   end
+      it "changes BulkItem status to Out of Stock" do
+        expect( @bulk_item.status ).to eq InventoryItem::IN_STOCK
+      end
 
-    #   # it "deletes ItemLocation associated with BulkItem" do
-    #   #   item_location = ItemLocation.find_by_id( @item_location.id )
-    #   #   expect( item_location.present? ).to eq false
-    #   # end
-    # end
+      it "records the WarehouseTransaction" do
+        last_transaction = WarehouseTransaction.last
+        expect( last_transaction.quantity ).to eq 1
+      end
+
+    end
+
+    context "withdraws partial quantity of BulkItem from multiple locations successfuly" do
+      before(:each) do
+        @warehouse_location = FactoryGirl.create :warehouse_location
+        @item_location = FactoryGirl.create :item_location
+        @item_location.quantity = @bulk_item.quantity
+        @item_location.save
+
+        @warehouse_location2 = FactoryGirl.create :warehouse_location
+        @item_location2 = FactoryGirl.create :item_location
+        @item_location2.quantity = @bulk_item.quantity
+        @item_location2.save
+
+        @bulk_item.quantity = @bulk_item.quantity.to_i * 2
+        @bulk_item.save
+
+        @bulk_item.item_locations << @item_location
+        @bulk_item.item_locations << @item_location2
+        @warehouse_location.item_locations << @item_location
+        @warehouse_location2.item_locations << @item_location2
+        @supplier = FactoryGirl.create :supplier
+        @withdraw = @bulk_item.withdraw( Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test', 101 )
+      end
+
+      it "returns true if withdrawal was sucessful" do
+        expect( @withdraw ).to eq true
+      end
+
+      it "changes BulkItem status to Out of Stock" do
+        expect( @bulk_item.status ).to eq InventoryItem::IN_STOCK
+      end
+
+      it "records the WarehouseTransaction" do
+        last_transaction = WarehouseTransaction.last
+        expect( last_transaction.quantity ).to eq 1
+        expect( WarehouseTransaction.all.count ).to eq 2
+      end
+
+    end
 
   end
 

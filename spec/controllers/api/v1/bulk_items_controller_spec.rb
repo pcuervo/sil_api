@@ -104,7 +104,7 @@ describe Api::V1::BulkItemsController, type: :controller do
       end
 
       it "renders the json representation for the updated bulk_item" do
-        bulk_item_response = json_response[:bulk_item]
+        bulk_item_response = json_response[:inventory_item]
         expect(bulk_item_response[:state]).to eql 2
         expect(bulk_item_response[:name]).to eql 'My new name'
       end
@@ -195,7 +195,7 @@ describe Api::V1::BulkItemsController, type: :controller do
 
 
         api_authorization_header user.auth_token
-        post :withdraw, { id: @bulk_item.id, quantity: 80, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
+        post :withdraw, { id: @bulk_item.id, quantity: 10, :exit_date => Time.now, :storage_type => 'Permanente', :pickup_company => 'DHL' }
       end
 
       it "returns a success message about the withdrawn item" do
@@ -205,9 +205,9 @@ describe Api::V1::BulkItemsController, type: :controller do
 
       it "returns the quantity left" do
         last_warehouse_transaction = WarehouseTransaction.last
-        bulk_item_response = json_response
         expect(bulk_item_response[:quantity].to_i).to eql last_warehouse_transaction.quantity
-        expect(bulk_item_response[:quantity].to_i).to eql 40
+        expect(bulk_item_response[:quantity].to_i).to eql 110
+        expect( last_warehouse_transaction ).to eql 10
       end
 
       it { should respond_with 201 }

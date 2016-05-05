@@ -27,6 +27,12 @@ class Api::V1::UsersController < ApplicationController
 	def update
 		user = User.find(params[:id])
 
+    if params[:avatar]
+      image = Paperclip.io_adapters.for(params[:avatar])
+      image.original_filename = params[:filename]
+      user.avatar = image
+    end
+
 		if user.update(user_params)
 			render json: user, status: 200, location: [:api, user]
 		else
@@ -70,7 +76,7 @@ class Api::V1::UsersController < ApplicationController
 	private	
 
 		def user_params
-			params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :role)
+			params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :role, :avatar)
 		end
 
 		def user_password_params

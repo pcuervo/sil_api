@@ -36,7 +36,8 @@ class InventoryItem < ActiveRecord::Base
   GOOD = 7
 
   def self.search( params = {} )
-    inventory_items = InventoryItem.all
+
+    inventory_items = InventoryItem.all.order(created_at: :desc)
     inventory_items = inventory_items.where( 'status IN (?)', [ IN_STOCK, PARTIAL_STOCK ] ).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
     inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
@@ -223,14 +224,14 @@ class InventoryItem < ActiveRecord::Base
   # Withdraws InventoryItem
   # * *Returns:* 
   #   - true if successful or error code
-  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
+  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity=''
     case self.actable_type
     when 'UnitItem'
       unit_item = UnitItem.find( self.actable_id )
       return unit_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
     when 'BulkItem'
       bulk_item = BulkItem.find( self.actable_id )
-      return bulk_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
+      return bulk_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity )
     when 'BundleItem'
       bundle_item = BundleItem.find( self.actable_id )
       return bundle_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
@@ -267,7 +268,7 @@ class InventoryItem < ActiveRecord::Base
   end
 
   scope :recent, -> {
-    order(updated_at: :desc).limit(10)
+    order(created_at: :desc).limit(10)
   }
 
   scope :in_stock, -> {
