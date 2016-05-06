@@ -90,11 +90,13 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def multiple_withdrawal
-    item_ids = params[:inventory_item_ids]
 
-    item_ids.each do |id|
-      inventory_item = InventoryItem.find( id )
-      withdraw = inventory_item.withdraw( params[:exit_date], '', params[:pickup_company], params[:pickup_company_contact], params[:additional_comments] )
+    inventory_items = params[:inventory_items]
+
+    inventory_items.each do |item|
+      inventory_item = InventoryItem.find( item[:id] )
+      quantity = item[:quantity].to_i
+      withdraw = inventory_item.withdraw( params[:exit_date], '', params[:pickup_company], params[:pickup_company_contact], params[:additional_comments], quantity )
 
       if [ InventoryItem::OUT_OF_STOCK, InventoryItem::PENDING_ENTRY, InventoryItem::PENDING_WITHDRAWAL, InventoryItem::EXPIRED ].include? withdraw
         render json: { errors: 'No se pudo realizar la salida masiva', items_withdrawn: 0 }, status: 422
@@ -103,7 +105,7 @@ class Api::V1::InventoryItemsController < ApplicationController
       
     end
 
-    render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: item_ids.count }, status: 201
+    render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: inventory_items.count }, status: 201
   end
 
   def request_item_entry

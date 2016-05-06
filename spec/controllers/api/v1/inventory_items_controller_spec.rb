@@ -93,16 +93,14 @@ describe Api::V1::InventoryItemsController do
 
   describe "GET #authorize_entry" do
     before(:each) do
-      @ae = FactoryGirl.create :user
-      @ae.role = User::CLIENT
-      @ae.save
-      @client = FactoryGirl.create :user
-      @client.role = User::CLIENT
-      @client.save
+      @admin = FactoryGirl.create :user
+      @admin.role = User::ADMIN
+      @admin.save
+      @wh_admin = FactoryGirl.create :user
+      @wh_admin.role = User::WAREHOUSE_ADMIN
+      @wh_admin.save
 
       project = FactoryGirl.create :project
-      project.users << @ae
-      project.users << @client
 
       @item = FactoryGirl.create :inventory_item 
       @item.status = InventoryItem::PENDING_ENTRY
@@ -117,14 +115,16 @@ describe Api::V1::InventoryItemsController do
       expect( inventory_item_response ).to have_key(:success)
     end
 
-    it "should notify Client" do
-      notification = @client.notifications.first
+    it "should notify Admin" do
+      admin = User.find_by_role( User::ADMIN )
+      notification = admin.notifications.first
       inventory_item = InventoryItem.find( notification.inventory_item_id )
       expect( inventory_item.name ).to eq @item.name
     end
 
-    it "should notify AccountExecutive" do
-      notification = @ae.notifications.first
+    it "should notify WarehouseAdmin" do
+      wh_admin = User.find_by_role( User::WAREHOUSE_ADMIN )
+      notification = wh_admin.notifications.first
       inventory_item = InventoryItem.find( notification.inventory_item_id )
       expect( inventory_item.name ).to eq @item.name
     end
@@ -170,23 +170,40 @@ describe Api::V1::InventoryItemsController do
         user = FactoryGirl.create :user
         supplier = FactoryGirl.create :supplier
         
-        inventory_item_ids = []
+        inventory_items = []
         3.times do |t|
           inventory_item = FactoryGirl.create :inventory_item
-          bundle_item = FactoryGirl.create :bundle_item
-          inventory_item.actable_id = bundle_item.id
-          inventory_item.actable_type = 'BundleItem'
+          if t == 0
+            unit_item = FactoryGirl.create :unit_item
+            inventory_item.actable_id = unit_item.id
+            inventory_item.actable_type = 'UnitItem'
+          elsif t == 1
+            bundle_item = FactoryGirl.create :bundle_item
+            bundle_item_part = FactoryGirl.create :bundle_item_part
+            bundle_item.bundle_item_parts << bundle_item_part
+            bundle_item.update_num_parts
+            inventory_item.actable_id = bundle_item.id
+            inventory_item.actable_type = 'BundleItem'
+          else
+            bulk_item = FactoryGirl.create :bulk_item
+            inventory_item.actable_id = bulk_item.id
+            inventory_item.actable_type = 'BulkItem'
+          end
           warehouse_location = FactoryGirl.create :warehouse_location
           item_location = FactoryGirl.create :item_location
+          item_location.quantity = inventory_item.get_quantity
           inventory_item.item_locations << item_location
           warehouse_location.item_locations << item_location
           inventory_item.save
 
-          inventory_item_ids.push( inventory_item.id )
+          item_info = {}
+          item_info[:id] = inventory_item.id
+          item_info[:quantity] = inventory_item.get_quantity
+          inventory_items.push( item_info )
         end 
 
         api_authorization_header user.auth_token
-        post :multiple_withdrawal, { inventory_item_ids: inventory_item_ids, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
+        post :multiple_withdrawal, { inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
       end
 
       it "returns the number of withdrawn items along with success message" do
@@ -194,6 +211,59 @@ describe Api::V1::InventoryItemsController do
         expect( inventory_item_response[:items_withdrawn] ).to eql 3
         expect( inventory_item_response ).to have_key(:success)
         expect( WarehouseTransaction.all.count ).to eql 3
+      end
+
+      it "withdraws all existing items from system" do
+        expect( InventoryItem.where( 'status = ?', InventoryItem::OUT_OF_STOCK ).count ).to eq 3
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when multiple InventoryItems with location are partially withdrawn" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        supplier = FactoryGirl.create :supplier
+        
+        inventory_items = []
+        3.times do |t|
+          inventory_item = FactoryGirl.create :inventory_item
+
+          bulk_item = FactoryGirl.create :bulk_item
+          inventory_item.actable_id = bulk_item.id
+          inventory_item.actable_type = 'BulkItem'
+
+          warehouse_location = FactoryGirl.create :warehouse_location
+          item_location = FactoryGirl.create :item_location
+          item_location.quantity = inventory_item.get_quantity
+          inventory_item.item_locations << item_location
+          warehouse_location.item_locations << item_location
+          inventory_item.save
+
+          item_info = {}
+          item_info[:id] = inventory_item.id
+          item_info[:quantity] = inventory_item.get_quantity.to_i - 5
+          inventory_items.push( item_info )
+        end 
+
+        api_authorization_header user.auth_token
+        post :multiple_withdrawal, { inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
+      end
+
+      it "returns the number of withdrawn items along with success message" do
+        inventory_item_response = json_response
+        expect( inventory_item_response[:items_withdrawn] ).to eql 3
+        expect( inventory_item_response ).to have_key(:success)
+        expect( WarehouseTransaction.all.count ).to eql 3
+      end
+
+      it "doesn't withdraw all existing items from system" do
+        expect( BulkItem.where( 'status = ?', InventoryItem::IN_STOCK ).count ).to eq 3
+      end
+
+      it "doesn't withdraw all existing items from system" do
+        inventory_item = InventoryItem.first
+        expect( inventory_item.get_quantity.to_i ).to eq 5
       end
 
       it { should respond_with 201 }
@@ -204,7 +274,7 @@ describe Api::V1::InventoryItemsController do
         user = FactoryGirl.create :user
         supplier = FactoryGirl.create :supplier
         
-        inventory_item_ids = []
+        inventory_items = []
         3.times do 
           inventory_item = FactoryGirl.create :inventory_item
           unit_item = FactoryGirl.create :unit_item
@@ -216,11 +286,15 @@ describe Api::V1::InventoryItemsController do
           warehouse_location.item_locations << item_location
           inventory_item.status = InventoryItem::OUT_OF_STOCK
           inventory_item.save
-          inventory_item_ids.push( inventory_item.id )
+          
+          item_info = {}
+          item_info[:id] = inventory_item.id
+          item_info[:quantity] = inventory_item.get_quantity
+          inventory_items.push( item_info )
         end 
 
         api_authorization_header user.auth_token
-        post :multiple_withdrawal, { inventory_item_ids: inventory_item_ids, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
+        post :multiple_withdrawal, { inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'  }
       end
 
       it "returns the number of withdrawn items along with success message" do

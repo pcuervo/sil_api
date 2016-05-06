@@ -7,7 +7,7 @@ class BulkItem < ActiveRecord::Base
   def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity
     return self.status if cannot_withdraw?
 
-    if quantity != '' 
+    if quantity != '' and quantity < self.quantity.to_i
       self.quantity = self.quantity.to_i - quantity
       quantity_withdrawn = quantity
     else
@@ -20,7 +20,7 @@ class BulkItem < ActiveRecord::Base
       inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', self.id, 'BulkItem' ).first
       if self.has_location?
         quantity_left = quantity
-        if quantity != '' and quantity < self.quantity.to_i
+        if quantity != '' and quantity < ( self.quantity.to_i + quantity_withdrawn.to_i )
           item_location = self.item_locations.where( 'quantity >= ?', quantity ).first
           location = item_location.warehouse_location
           location.remove_quantity( inventory_item.id, quantity, 1 )
