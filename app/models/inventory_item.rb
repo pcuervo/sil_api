@@ -161,7 +161,6 @@ class InventoryItem < ActiveRecord::Base
       bundle_item.bundle_item_parts.each do |part|
         details['inventory_item']['parts'].push( part.get_details )
       end
-      puts details['inventory_item']['parts'].to_yaml
     end
 
     details
