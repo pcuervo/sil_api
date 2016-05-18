@@ -14,14 +14,20 @@ class Api::V1::DeliveriesController < ApplicationController
   end
 
   def create
-    delivery_user = User.find( params[:user_id] )
+    @delivery_user = User.find( params[:user_id] )
     delivery = Delivery.new( delivery_params )
-    delivery_user.deliveries << delivery
+    @delivery_user.deliveries << delivery
 
+    if [ User::PROJECT_MANAGER, User::ACCOUNT_EXECUTIVE, User::CLIENT ].include? @delivery_user.role
+      delivery.status = Delivery::PENDING_APPROVAL
+    end
 
     if delivery.save!
       items = params[:inventory_items]
-      delivery.add_items( items, delivery_user.first_name + ' ' + delivery_user.last_name, params[:delivery][:additional_comments] )
+      delivery.add_items( items, @delivery_user.first_name + ' ' + @delivery_user.last_name, params[:delivery][:additional_comments] )
+
+      send_delivery_request_notifications if Delivery::PENDING_APPROVAL == delivery.status
+
       render json: delivery, status: 201, location: [:api, delivery]
     else
       render json: { errors: delivery.errors }, status: 422
@@ -64,5 +70,12 @@ class Api::V1::DeliveriesController < ApplicationController
   def delivery_params
     params.require(:delivery).permit( :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments )
   end
+
+  def send_delivery_request_notifications
+    admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
+    admins.each do |admin|
+      admin.notifications << Notification.create( :title => 'Solicitud de envío', :inventory_item_id => -1, :message => @delivery_user.get_role + ' "' + @delivery_user.first_name + ' ' + @delivery_user.last_name + '" ha solicitado un envío.' )
+    end
+  end 
 end
 

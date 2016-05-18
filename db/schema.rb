@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160422010733) do
+ActiveRecord::Schema.define(version: 20160511170925) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -194,11 +194,11 @@ ActiveRecord::Schema.define(version: 20160422010733) do
 
   create_table "notifications", force: :cascade do |t|
     t.string   "message"
-    t.integer  "inventory_item"
-    t.integer  "status",         default: 1
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.string   "title",                      null: false
+    t.integer  "inventory_item_id"
+    t.integer  "status",            default: 1
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.string   "title",                         null: false
   end
 
   create_table "notifications_users", id: false, force: :cascade do |t|
@@ -311,6 +311,27 @@ ActiveRecord::Schema.define(version: 20160422010733) do
   add_index "warehouse_transactions", ["inventory_item_id"], name: "index_warehouse_transactions_on_inventory_item_id", using: :btree
   add_index "warehouse_transactions", ["warehouse_location_id"], name: "index_warehouse_transactions_on_warehouse_location_id", using: :btree
 
+  create_table "withdraw_request_items", force: :cascade do |t|
+    t.integer  "withdraw_request_id"
+    t.integer  "inventory_item_id"
+    t.integer  "quantity",            default: 1
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
+
+  add_index "withdraw_request_items", ["inventory_item_id"], name: "index_withdraw_request_items_on_inventory_item_id", using: :btree
+  add_index "withdraw_request_items", ["withdraw_request_id"], name: "index_withdraw_request_items_on_withdraw_request_id", using: :btree
+
+  create_table "withdraw_requests", force: :cascade do |t|
+    t.integer  "user_id"
+    t.date     "exit_date"
+    t.integer  "pickup_company_id"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+  end
+
+  add_index "withdraw_requests", ["user_id"], name: "index_withdraw_requests_on_user_id", using: :btree
+
   add_foreign_key "bundle_item_parts", "bundle_items"
   add_foreign_key "client_contacts", "clients"
   add_foreign_key "deliveries", "users"
@@ -327,4 +348,7 @@ ActiveRecord::Schema.define(version: 20160422010733) do
   add_foreign_key "warehouse_locations", "warehouse_racks"
   add_foreign_key "warehouse_transactions", "inventory_items"
   add_foreign_key "warehouse_transactions", "warehouse_locations"
+  add_foreign_key "withdraw_request_items", "inventory_items"
+  add_foreign_key "withdraw_request_items", "withdraw_requests"
+  add_foreign_key "withdraw_requests", "users"
 end

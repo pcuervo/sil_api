@@ -77,6 +77,7 @@ class BundleItem < ActiveRecord::Base
   # * *Returns:* 
   #   - true if successful or error code
   def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
+    puts self.status
     return self.status if cannot_withdraw?
 
     self.remove_all_parts

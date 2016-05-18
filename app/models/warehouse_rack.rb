@@ -42,7 +42,7 @@ class WarehouseRack < ActiveRecord::Base
       'rack_info' => { :rows => self.row, :columns => self.column, :name => self.name }, 
       'locations' => [] 
     }
-    self.warehouse_locations.each do |location|
+    self.warehouse_locations.order(:id).each do |location|
       rack_info['locations'].push({
         'id'              => location.id,
         'name'            => location.name,

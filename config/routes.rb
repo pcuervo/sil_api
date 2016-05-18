@@ -40,10 +40,12 @@ Sil::Application.routes.draw do
           get 'pending_entry_requests/',      :action => 'pending_entry_requests'
           get 'pending_validation_entries/',  :action => 'pending_validation_entries'
           get 'get_item_request/',            :action => 'get_item_request'
+          get 'pending_withdrawal_requests/', :action => 'pending_withdrawal_requests'
           post 'authorize_entry/',            :action => 'authorize_entry'
           post 'authorize_withdrawal/',       :action => 'authorize_withdrawal'
           post 'multiple_withdrawal/',        :action => 'multiple_withdrawal'
           post 'request_item_entry/',         :action => 'request_item_entry'
+
         end
       end
       resources :unit_items, :only => [:index, :show] do 
@@ -135,7 +137,11 @@ Sil::Application.routes.draw do
           post 'update',  :action => 'update'
         end
       end
-
+      resources :withdraw_requests, :only => [:index, :create, :show] do
+        collection do
+          post 'authorize_withdrawal',  :action => 'authorize_withdrawal'
+        end
+      end
     end
   end
 

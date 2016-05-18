@@ -5,6 +5,7 @@ class BulkItem < ActiveRecord::Base
   # * *Returns:* 
   #   - true if successful or error code
   def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity
+    
     return self.status if cannot_withdraw?
 
     if quantity != '' and quantity < self.quantity.to_i
