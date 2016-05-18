@@ -34,9 +34,11 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
   end
 
   describe "POST #create" do
-    context "when is succesfully created" do
+    context "when is succesfully created by User Admin or WarehouseAdmin" do
       before(:each) do
         @user = FactoryGirl.create :user
+        @user.role = 1
+        @user.save
         @delivery_user = FactoryGirl.create :user
         @delivery_user.save
         @delivery_user.role = User::DELIVERY
@@ -66,6 +68,48 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
       it "has at least 1 InventoryItem" do
         delivery = Delivery.last
         expect( delivery.delivery_items.count ).to eq 2
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context "when a Delivery request is succesfully created by User PM or AE" do
+      before(:each) do
+        @admin = FactoryGirl.create :user
+        @admin.role = 1
+        @admin.save
+        @warehouse_admin = FactoryGirl.create :user
+        @warehouse_admin.role = 1
+        @warehouse_admin.save
+        @user = FactoryGirl.create :user
+        @delivery_user = FactoryGirl.create :user
+        @delivery_user.save
+        @delivery_user.role = User::DELIVERY
+
+        @items = []
+        2.times do |t|
+          item_data = {}
+          item = FactoryGirl.create :inventory_item 
+          item_data[:item_id] = item.id 
+          item_data[:quantity] = 1
+          @items.push( item_data )
+        end
+        
+        @delivery_attributes = FactoryGirl.attributes_for :delivery
+        @delivery_attributes[:delivery_user_id] = @delivery_user.id
+
+        api_authorization_header @user.auth_token
+        post :create, { user_id: @user.id, delivery: @delivery_attributes, inventory_items: @items, item_img_ext: 'jpg' }
+      end
+
+      it "renders the json representation for the inventory item just created" do
+        delivery_response = json_response[:delivery]
+        expect(delivery_response[:status]).to eql Delivery::PENDING_APPROVAL
+      end
+
+      it "should send a Notification to Admin and WarehouseAdmin" do
+        expect( @admin.notifications.count ).to eql 1
+        expect( @warehouse_admin.notifications.count ).to eql 1
       end
 
       it { should respond_with 201 }

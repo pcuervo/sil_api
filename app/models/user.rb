@@ -14,6 +14,7 @@ class User < ActiveRecord::Base
   has_many :inventory_items
   has_many :logs
   has_many :deliveries
+  has_many :withdraw_requests
   has_and_belongs_to_many :projects
   has_and_belongs_to_many :notifications
 

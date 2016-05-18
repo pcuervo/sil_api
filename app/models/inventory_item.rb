@@ -12,6 +12,7 @@ class InventoryItem < ActiveRecord::Base
   has_many :inventory_transactions
   has_many :item_locations
   has_many :warehouse_transactions
+  has_many :withdraw_request_items
 
   # For item image
   has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "100x100#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
@@ -246,8 +247,8 @@ class InventoryItem < ActiveRecord::Base
       return true
     when InventoryItem::PENDING_ENTRY
       return true
-    when InventoryItem::PENDING_WITHDRAWAL
-      return true
+    # when InventoryItem::PENDING_WITHDRAWAL
+    #   return true
     when InventoryItem::EXPIRED
       return true
     end

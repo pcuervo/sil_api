@@ -52,6 +52,10 @@ class Api::V1::InventoryItemsController < ApplicationController
     respond_with InventoryItemRequest.details
   end
 
+  def pending_withdrawal_requests
+    respond_with WithdrawRequest.all
+  end
+
   def pending_withdrawal
     respond_with InventoryItem.where( 'status=?', InventoryItem::PENDING_WITHDRAWAL )
   end

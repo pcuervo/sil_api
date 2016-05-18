@@ -8,6 +8,7 @@ class Delivery < ActiveRecord::Base
   DELIVERED = 2
   REJECTED = 3
   PARTIALLY_DELIVERED = 4
+  PENDING_APPROVAL = 5
 
   has_attached_file :image, :styles => { :medium => "300x300>" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
   validates_attachment_content_type :image, content_type: /\Aimage\/.*\Z/
@@ -15,7 +16,7 @@ class Delivery < ActiveRecord::Base
   def add_items items, delivery_guy, additional_comments
     items.each do |i|
       item = InventoryItem.find( i[:item_id] )
-      item.withdraw Time.now, '', 'Envío Litobel', delivery_guy, additional_comments
+      item.withdraw Time.now, '', 'Envío Litobel', delivery_guy, additional_comments, i[:quantity].to_i
       DeliveryItem.create( :inventory_item_id => i[:item_id], :delivery_id => self.id, :quantity => i[:quantity], )
     end
   end
