@@ -77,6 +77,7 @@ class WarehouseLocation < ActiveRecord::Base
   
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
     self.item_locations.delete( item_location )
+    item_location.destroy
     return item_location.present?
   end
 
@@ -95,10 +96,15 @@ class WarehouseLocation < ActiveRecord::Base
 
     item_location.quantity -= quantity
     item_location.units -= units
+    if item_location.units <= 0
+      item_location.units = 0
+    end
+
     item_location.save
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::WITHDRAW )
 
-    if item_location.quantity == 0 or item_location.units == 0
+    if item_location.quantity == 0 
+      puts 'we ever here?'
       item_location.destroy
       return 0
     end
