@@ -4,7 +4,7 @@ class WarehouseRack < ActiveRecord::Base
 
   def available_locations
     available_locations_info = { 'available_locations' => [] }
-    self.warehouse_locations.each do |location|
+    self.warehouse_locations.order(:name).each do |location|
       if location.get_available_units > 0
         available_locations_info['available_locations'].push({
           'id'              => location.id,

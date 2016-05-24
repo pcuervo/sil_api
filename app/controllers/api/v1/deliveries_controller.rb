@@ -35,20 +35,22 @@ class Api::V1::DeliveriesController < ApplicationController
   end
 
   def update
-    delivery = Delivery.find(params[:id])
+    @delivery = Delivery.find(params[:id])
+    previous_status = @delivery.status
 
     if params[:image]
       image = Paperclip.io_adapters.for(params[:image])
       image.original_filename = params[:filename]
-      delivery.image = image
+      @delivery.image = image
     end
 
-    if delivery.update( delivery_params )
-      render json: delivery, status: 200, location: [:api, delivery]
+    if @delivery.update( delivery_params )
+      send_delivery_approval_notifications if Delivery::PENDING_APPROVAL == previous_status
+      render json: @delivery, status: 200, location: [:api, @delivery]
       return
     end
 
-    render json: { errors: delivery.errors }, status: 422
+    render json: { errors: @delivery.errors }, status: 422
   end
 
   def stats
@@ -68,7 +70,7 @@ class Api::V1::DeliveriesController < ApplicationController
   private 
 
   def delivery_params
-    params.require(:delivery).permit( :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments )
+    params.require(:delivery).permit( :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments, :date_time )
   end
 
   def send_delivery_request_notifications
@@ -76,6 +78,11 @@ class Api::V1::DeliveriesController < ApplicationController
     admins.each do |admin|
       admin.notifications << Notification.create( :title => 'Solicitud de envío', :inventory_item_id => -1, :message => @delivery_user.get_role + ' "' + @delivery_user.first_name + ' ' + @delivery_user.last_name + '" ha solicitado un envío.' )
     end
+  end 
+
+  def send_delivery_approval_notifications
+    user = @delivery.user
+    user.notifications << Notification.create( :title => 'Aprobación de envío', :inventory_item_id => -1, :message => 'Se ha aprobado tu solicitud de envío.' )
   end 
 end
 
