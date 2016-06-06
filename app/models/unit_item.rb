@@ -10,8 +10,6 @@ class UnitItem < ActiveRecord::Base
     return self.status if cannot_withdraw?
     self.status = InventoryItem::OUT_OF_STOCK
     if self.save
-      puts self.name
-      puts self.status
       inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', self.id, 'UnitItem' ).first
       if self.has_location?
         item_location = self.item_locations.first

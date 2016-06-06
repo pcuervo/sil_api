@@ -128,8 +128,9 @@ Sil::Application.routes.draw do
       end
       resources :deliveries, :only => [:show, :index, :create, :update] do
         collection do
-          get 'stats',    :action => 'stats'
-          post 'update',  :action => 'update'
+          get 'stats',                :action => 'stats'
+          get 'pending_approval',     :action => 'pending_approval'
+          post 'update',              :action => 'update'
         end
       end
       resources :system_settings, :only => [:show] do
