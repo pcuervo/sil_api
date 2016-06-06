@@ -1,5 +1,5 @@
 class Delivery < ActiveRecord::Base
-  validates :company, :addressee, :address, :delivery_user_id, presence: true
+  validates :company, :addressee, :address, presence: true
 
   belongs_to :user
   has_many :delivery_items
@@ -16,17 +16,18 @@ class Delivery < ActiveRecord::Base
   def add_items items, delivery_guy, additional_comments
     items.each do |i|
       item = InventoryItem.find( i[:item_id] )
-      item.withdraw Time.now, '', 'Envío Litobel', delivery_guy, additional_comments, i[:quantity].to_i
+      litobel_supplier = Supplier.find_by_name( 'Litobel' )
+      item.withdraw Time.now, '', litobel_supplier.id, delivery_guy, additional_comments, i[:quantity].to_i
       DeliveryItem.create( :inventory_item_id => i[:item_id], :delivery_id => self.id, :quantity => i[:quantity], )
     end
   end
 
   def get_details
-    delivery_guy = User.find( self.delivery_user_id )
+    delivery_guy = get_delivery_guy( self.delivery_user_id )
 
     details = { 'delivery' => {
         'id'                  => self.id,
-        'delivery_guy'        => delivery_guy.first_name + ' ' + delivery_guy.last_name,
+        'delivery_guy'        => delivery_guy,
         'user'                => self.user.first_name + ' ' + self.user.last_name,
         'delivery_items'      => self.delivery_items.details,
         'address'             => self.address,
@@ -35,6 +36,7 @@ class Delivery < ActiveRecord::Base
         'company'             => self.company,
         'image'               => self.image,
         'status'              => self.status,
+        'supplier'            => get_supplier( self.supplier_id ),
         'addressee'           => self.addressee,
         'addressee_phone'     => self.addressee_phone,
         'additional_comments' => self.additional_comments,
@@ -59,5 +61,27 @@ class Delivery < ActiveRecord::Base
   scope :rejected, -> {
     where( 'status = ?', REJECTED )
   }
+
+  scope :pending_approval, -> {
+   where( 'status = ?', PENDING_APPROVAL )
+  }
+
+  private
+
+    def get_delivery_guy user_id
+      delivery_guy = User.find_by_id( user_id )
+
+      return delivery_guy.first_name + ' ' + delivery_guy.last_name if delivery_guy.present?
+
+      return '-'
+    end
+
+    def get_supplier supplier_id
+      supplier = Supplier.find_by_id( self.supplier_id )
+
+      return supplier.name if supplier.present?
+
+      return '-'
+    end
 
 end

@@ -53,6 +53,10 @@ class Api::V1::DeliveriesController < ApplicationController
     render json: { errors: @delivery.errors }, status: 422
   end
 
+  def pending_approval
+    respond_with Delivery.pending_approval
+  end
+
   def stats
     stats = {}
 
@@ -70,7 +74,7 @@ class Api::V1::DeliveriesController < ApplicationController
   private 
 
   def delivery_params
-    params.require(:delivery).permit( :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments, :date_time )
+    params.require(:delivery).permit( :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments, :date_time, :supplier_id )
   end
 
   def send_delivery_request_notifications
