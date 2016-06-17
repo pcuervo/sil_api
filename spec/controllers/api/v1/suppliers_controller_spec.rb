@@ -70,13 +70,13 @@ describe Api::V1::SuppliersController do
     end
   end
 
-  describe "PUT/PATCH #update" do
+  describe "POST #update" do
     before(:each) do
       user = FactoryGirl.create :user
       supplier = FactoryGirl.create :supplier
       api_authorization_header user.auth_token
 
-      patch :update, { id: supplier.id, supplier: { name: 'new_name' } }
+      post :update, { id: supplier.id, supplier: { name: 'new_name' } }
     end
 
     context "when is successfully updated" do

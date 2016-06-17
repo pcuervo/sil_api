@@ -22,10 +22,9 @@ class Api::V1::SuppliersController < ApplicationController
   end
 
   def update
-    supplier = Supplier.find(params[:id])
+    supplier = Supplier.find( params[:id] )
 
     if supplier.update(supplier_params) 
-      log_action( current_user.id, 'Supplier', 'Updated supplier: "' + supplier.name, supplier.id )
       render json: supplier, status: 201, location: [:api, supplier ]
       return
     end

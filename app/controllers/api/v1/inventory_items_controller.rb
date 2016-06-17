@@ -78,21 +78,6 @@ class Api::V1::InventoryItemsController < ApplicationController
     respond_with InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id ').where(' item_locations.id is null AND inventory_items.status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK ]).order(updated_at: :desc)
   end
 
-  def total_number_items
-    render json: { total_number_items: InventoryItem.all.count }, status: 200
-  end
-
-  def inventory_value
-    in_stock_statuses = [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY  ]
-    render json: { inventory_value: InventoryItem.where( 'status IN (?)', in_stock_statuses ).sum( :value ) }, status: 200
-  end
-
-  def current_rent
-    in_stock_statuses = [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK  ]
-    rentable_units = InventoryItem.joins( :item_locations ).where( 'status IN (?)', in_stock_statuses ).sum( :units )
-    render json: { current_rent: rentable_units / 50.0 * 500 }, status: 200
-  end
-
   def multiple_withdrawal
 
     inventory_items = params[:inventory_items]
@@ -124,6 +109,33 @@ class Api::V1::InventoryItemsController < ApplicationController
 
   def get_item_request
     respond_with InventoryItemRequest.where( 'id = ?', params[:id] ).details
+  end
+
+  def get_stats
+    stats = {}
+    stats['total_number_items'] = InventoryItem.all.count
+    stats['inventory_value'] = InventoryItem.inventory_value
+    stats['current_rent'] = InventoryItem.estimated_current_rent
+    stats['inventory_by_type'] = InventoryItem.inventory_by_type
+    stats['occupation_by_month'] = InventoryItem.occupation_by_month
+
+    render json: { stats: stats }, status: 200
+  end
+
+  def get_stats_pm_ae
+    stats = {}
+    project_ids = []
+    current_user.projects.each do |p|
+      project_ids.push( p.id )
+    end
+
+    stats['total_number_items'] = InventoryItem.where( 'project_id IN (?)', project_ids ).count
+    stats['total_number_projects'] = current_user.projects.count
+    stats['current_rent'] = InventoryItem.estimated_current_rent( project_ids )
+    stats['inventory_by_type'] = InventoryItem.inventory_by_type( project_ids )
+    # stats['occupation_by_month'] = InventoryItem.occupation_by_month
+
+    render json: { stats: stats }, status: 200
   end
 
   private

@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_filter :allow_ajax_request_from_other_domains
 
-  I18n.locale = 'es'
+  #I18n.locale = 'es'
 
   def allow_ajax_request_from_other_domains
     headers['Access-Control-Allow-Origin'] = '*'
