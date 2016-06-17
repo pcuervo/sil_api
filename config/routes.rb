@@ -34,13 +34,12 @@ Sil::Application.routes.draw do
           get 'pending_entry/',               :action => 'pending_entry'
           get 'pending_withdrawal',           :action => 'pending_withdrawal'
           get 'with_pending_location/',       :action => 'with_pending_location'
-          get 'total_number_items/',          :action => 'total_number_items'
-          get 'inventory_value/',             :action => 'inventory_value'
-          get 'current_rent/',                :action => 'current_rent'
           get 'pending_entry_requests/',      :action => 'pending_entry_requests'
           get 'pending_validation_entries/',  :action => 'pending_validation_entries'
           get 'get_item_request/',            :action => 'get_item_request'
           get 'pending_withdrawal_requests/', :action => 'pending_withdrawal_requests'
+          get 'get_stats/',                   :action => 'get_stats'
+          get 'get_stats_pm_ae/',             :action => 'get_stats_pm_ae'
           post 'authorize_entry/',            :action => 'authorize_entry'
           post 'authorize_withdrawal/',       :action => 'authorize_withdrawal'
           post 'multiple_withdrawal/',        :action => 'multiple_withdrawal'
@@ -115,7 +114,11 @@ Sil::Application.routes.draw do
           post 'get_item_location_details/', :action => 'get_details'
         end
       end
-      resources :suppliers, :only => [:show, :index, :create, :update, :destroy]
+      resources :suppliers, :only => [:show, :index, :create, :update, :destroy] do
+        collection do
+          post 'update/', :action => 'update'
+        end
+      end
       resources :warehouse_transactions, :only => [:index]
       resources :notifications, :only => [:index, :show] do
         collection do

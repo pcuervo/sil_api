@@ -6,7 +6,11 @@ class Api::V1::NotificationsController < ApplicationController
   end
 
   def get_num_unread
-    render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
+    if user_signed_in?
+      render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
+      return
+    end
+    render json: { error: 'La sesión ha caducado.' }, status: 200
   end
 
   def get_unread

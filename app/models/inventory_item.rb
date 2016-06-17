@@ -283,6 +283,20 @@ class InventoryItem < ActiveRecord::Base
     return false
   end
 
+  def self.estimated_current_rent project_ids=-1
+
+    if -1 != project_ids
+      current_occupied_units = InventoryItem.joins( :item_locations ).where( 'status IN (?) AND project_id IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY ], project_ids ).sum( :units )
+    else
+      current_occupied_units = InventoryItem.joins( :item_locations ).where( 'status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY ] ).sum( :units )
+    end
+
+    settings = SystemSetting.select(:units_per_location, :cost_per_location).first
+    rounded_units = current_occupied_units / settings.units_per_location * settings.units_per_location + settings.units_per_location
+
+    return rounded_units / settings.units_per_location.to_f  * settings.cost_per_location 
+  end
+
   scope :recent, -> {
     order(created_at: :desc).limit(10)
   }
@@ -305,6 +319,30 @@ class InventoryItem < ActiveRecord::Base
     where( 'created_at > ? AND created_at < ?', 
             Date.today.last_month.beginning_of_month, 
             Date.today.beginning_of_month )
+  }
+
+  scope :inventory_value, -> {
+    where(  'status IN (?)', 
+            [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY ] )
+            .sum( :value )
+  }
+
+  scope :inventory_by_type, -> ( project_ids = nil  ){
+    if( project_ids != nil )
+      where( 'project_id IN (?)', project_ids ).group(:item_type).count
+    else
+      group(:item_type).count
+    end
+  }
+
+  scope :occupation_by_month, -> { 
+    find_by_sql(" SELECT to_char(created_at, 'MM-YY') as mon, count(created_at) 
+                  FROM warehouse_transactions 
+                  WHERE concept = 1 
+                  GROUP BY 1 
+                  ORDER BY to_char(created_at, 'MM-YY') 
+                  LIMIT 12"
+                )
   }
 
   private
