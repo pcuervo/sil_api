@@ -7,7 +7,7 @@ class Api::V1::ClientContactsController < ApplicationController
   end
 
   def index
-    respond_with ClientContact.all
+    respond_with ClientContact.all.order(:created_at)
   end
 
   def create
