@@ -297,6 +297,8 @@ class InventoryItem < ActiveRecord::Base
     return rounded_units / settings.units_per_location.to_f  * settings.cost_per_location 
   end
 
+  # Scopes 
+  
   scope :recent, -> {
     order(created_at: :desc).limit(10)
   }
@@ -343,6 +345,10 @@ class InventoryItem < ActiveRecord::Base
                   ORDER BY to_char(created_at, 'MM-YY') 
                   LIMIT 12"
                 )
+  }
+
+  scope :total_high_value_items, -> {
+    where( 'is_high_value = ?', 1).count
   }
 
   private

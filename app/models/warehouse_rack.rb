@@ -94,5 +94,9 @@ class WarehouseRack < ActiveRecord::Base
     end
     true
   end
+
+  def update_locations
+    self.warehouse_locations.each { |location| location.update_status }
+  end
   
 end

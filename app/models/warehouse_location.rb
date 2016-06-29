@@ -104,7 +104,6 @@ class WarehouseLocation < ActiveRecord::Base
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::WITHDRAW )
 
     if item_location.quantity == 0 
-      puts 'we ever here?'
       item_location.destroy
       return 0
     end
@@ -116,7 +115,7 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:* 
   #   - number of available units
   def get_available_units
-    return 0 if self.status == NO_SPACE
+    #return 0 if self.status == NO_SPACE
     
     units = 0
     self.item_locations.each { |il| units += il.units }

@@ -118,6 +118,7 @@ class Api::V1::InventoryItemsController < ApplicationController
     stats['current_rent'] = InventoryItem.estimated_current_rent
     stats['inventory_by_type'] = InventoryItem.inventory_by_type
     stats['occupation_by_month'] = InventoryItem.occupation_by_month
+    stats['total_high_value_items'] = InventoryItem.total_high_value_items
 
     render json: { stats: stats }, status: 200
   end

@@ -11,6 +11,7 @@ class Api::V1::WarehouseRacksController < ApplicationController
 
   def show_details
     rack = WarehouseRack.find( params[:id] )
+    rack.update_locations
     respond_with rack.details
   end
 
@@ -58,8 +59,10 @@ class Api::V1::WarehouseRacksController < ApplicationController
     total_locations = WarehouseLocation.all.count
     total_occupied_locations = ItemLocation.all.count
     total_items_in_warehouse = ItemLocation.select("inventory_item_id").distinct.count
+    total_occupied_locations = ItemLocation.select('warehouse_location_id').distinct.count
     total_items_with_pending_location = InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id ').where(' item_locations.id is null AND inventory_items.status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK ]).count
     warehouse_occupation_percentage = ( total_occupied_locations.to_i / total_locations.to_f * 100 ).round
+    current_month_rent = ClientContact.get_clients_current_rent
 
     stats['total_racks'] = total_racks 
     stats['total_locations'] = total_locations 
@@ -67,6 +70,8 @@ class Api::V1::WarehouseRacksController < ApplicationController
     stats['total_items_in_warehouse'] = total_items_in_warehouse 
     stats['total_items_with_pending_location'] = total_items_with_pending_location 
     stats['warehouse_occupation_percentage'] = warehouse_occupation_percentage 
+    stats['current_month_rent'] = current_month_rent 
+    stats['rent_by_month'] = ClientContact.get_rent_history
 
     render json: { stats: stats }, status: 200
   end
