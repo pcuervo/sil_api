@@ -75,6 +75,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def with_pending_location
+    pending_bulk = InventoryItem.where('actable_type = ?', 'BulkItem')
     respond_with InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id ').where(' item_locations.id is null AND inventory_items.status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK ]).order(updated_at: :desc)
   end
 

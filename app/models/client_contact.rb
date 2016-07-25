@@ -13,6 +13,15 @@ class ClientContact < ActiveRecord::Base
     items
   end
 
+  def total_high_value_items
+    projects = self.client.projects
+    total = 0
+    projects.each do |project| 
+      total = total + project.inventory_items.total_high_value_items
+    end
+    total
+  end
+
   # Get the rent of current month from all ClientContacts
   # * *Returns:* 
   #   - decimal current_rent
@@ -94,6 +103,33 @@ class ClientContact < ActiveRecord::Base
       ClientContact.all.each do |c| 
         current_month_rent = current_month_rent + c.get_rent( month.to_i, year.to_i )
       end
+      monthly_rent['date'] = o.month_year
+      monthly_rent['rent'] = current_month_rent
+      monthly_rents.push( monthly_rent )
+    end
+
+    monthly_rents
+  end
+
+  # Get the past and current rent per month for all clients
+  # * *Params:* 
+  #   - +month+ -> Number of month
+  # * *Returns:* 
+  #   - integer occuppied_units
+  def get_contact_rent_history
+    monthly_rents = []
+    occupied_units_per_month = WarehouseTransaction.select("to_char(created_at, 'MM-YYYY') as month_year, sum(units) as units").where( 'concept = 1' ).group('month_year').order("to_char(created_at, 'MM-YYYY') ")
+
+    return 0 if ! occupied_units_per_month.present?
+
+    occupied_units_per_month.each do |o| 
+      monthly_rent = {}
+      month = o.month_year.split('-').first
+      year = o.month_year.split('-').last
+      current_month_rent = 0
+      current_month_rent = current_month_rent + self.get_rent( month.to_i, year.to_i )
+      next if current_month_rent == 0
+      
       monthly_rent['date'] = o.month_year
       monthly_rent['rent'] = current_month_rent
       monthly_rents.push( monthly_rent )

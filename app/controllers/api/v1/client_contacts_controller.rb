@@ -53,6 +53,23 @@ class Api::V1::ClientContactsController < ApplicationController
     respond_with client_contact.inventory_items
   end
 
+  def stats
+    stats = {}
+
+    project_ids = []
+    client_contact = ClientContact.find( params[:id] )
+    client_contact.projects.each do |p|
+      project_ids.push( p.id )
+    end
+
+    stats['inventory_by_type'] = InventoryItem.inventory_by_type( project_ids )
+    stats['rent_by_month'] = client_contact.get_contact_rent_history
+    stats['total_number_items'] = client_contact.inventory_items.count
+    stats['total_high_value_items'] = client_contact.total_high_value_items
+
+    render json: { stats: stats }, status: 200
+  end
+
   private 
 
   def client_contact_params
