@@ -82,6 +82,7 @@ Sil::Application.routes.draw do
         collection do 
           get 'get_by_client/',       :action => 'get_by_client'
           get 'inventory_items/:id',  :action => 'inventory_items'
+          get 'stats/:id',               :action => 'stats'
           post 'update',              :action => 'update'
         end
       end
