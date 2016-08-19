@@ -27,10 +27,17 @@ class WarehouseLocation < ActiveRecord::Base
   def locate( inventory_item_id, units, quantity, part_id = 0 )
     return IS_FULL if get_available_units < units 
 
-    inventory_item = InventoryItem.find( inventory_item_id )
-    item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
-    self.item_locations << item_location
-    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
+    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
+    if item_location.present?
+      item_location.quantity = item_location.quantity + quantity
+      item_location.units = item_location.units + units
+      item_location.save
+      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::ENTRY )
+    else
+      item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
+      self.item_locations << item_location
+      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
+    end
 
     self.update_status
     return item_location.id if part_id == 0
@@ -96,7 +103,9 @@ class WarehouseLocation < ActiveRecord::Base
 
     item_location.quantity -= quantity
     item_location.units -= units
-    if item_location.units <= 0
+    if item_location.units <= 0 && item_location.quantity > 0
+      item_location.units = 1
+    elsif item_location.units <= 0 
       item_location.units = 0
     end
 

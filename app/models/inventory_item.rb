@@ -47,7 +47,7 @@ class InventoryItem < ActiveRecord::Base
       inventory_items = inventory_items.where( 'lower( name ) LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%" )
     end
 
-    if params[:serial_number]
+    if params[:serial_number].present?
 
       unit_item = UnitItem.find_by_serial_number( params[:serial_number] )
       if unit_item.present?
@@ -61,6 +61,7 @@ class InventoryItem < ActiveRecord::Base
         inventory_items = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' )
         puts inventory_items.to_yaml
       end
+      puts 'we are here'
     end
 
     if params[:project_id].present?
@@ -140,7 +141,7 @@ class InventoryItem < ActiveRecord::Base
         'actable_type'              => self.actable_type,
         'item_type'                 => self.item_type,
         'barcode'                   => self.barcode,
-        'project'                   => project.name,
+        'project'                   => project.litobel_id + ' / ' + project.name,
         'project_number'            => project.litobel_id,
         'pm'                        => pm,
         'ae'                        => ae,

@@ -29,21 +29,23 @@ Sil::Application.routes.draw do
       end
       resources :inventory_items, :only => [:index, :show] do
         collection do
-          get 'by_barcode/',                  :action => 'by_barcode'
-          get 'by_type/',                     :action => 'by_type'
-          get 'pending_entry/',               :action => 'pending_entry'
-          get 'pending_withdrawal',           :action => 'pending_withdrawal'
-          get 'with_pending_location/',       :action => 'with_pending_location'
-          get 'pending_entry_requests/',      :action => 'pending_entry_requests'
-          get 'pending_validation_entries/',  :action => 'pending_validation_entries'
-          get 'get_item_request/',            :action => 'get_item_request'
-          get 'pending_withdrawal_requests/', :action => 'pending_withdrawal_requests'
-          get 'get_stats/',                   :action => 'get_stats'
-          get 'get_stats_pm_ae/',             :action => 'get_stats_pm_ae'
-          post 'authorize_entry/',            :action => 'authorize_entry'
-          post 'authorize_withdrawal/',       :action => 'authorize_withdrawal'
-          post 'multiple_withdrawal/',        :action => 'multiple_withdrawal'
-          post 'request_item_entry/',         :action => 'request_item_entry'
+          get 'by_barcode/',                    :action => 'by_barcode'
+          get 'by_type/',                       :action => 'by_type'
+          get 'pending_entry/',                 :action => 'pending_entry'
+          get 'pending_withdrawal',             :action => 'pending_withdrawal'
+          get 'with_pending_location/',         :action => 'with_pending_location'
+          get 'reentry_with_pending_location/', :action => 'reentry_with_pending_location'
+          get 'is_reentry_with_pending_location/', :action => 'is_reentry_with_pending_location'
+          get 'pending_entry_requests/',        :action => 'pending_entry_requests'
+          get 'pending_validation_entries/',    :action => 'pending_validation_entries'
+          get 'get_item_request/',              :action => 'get_item_request'
+          get 'pending_withdrawal_requests/',   :action => 'pending_withdrawal_requests'
+          get 'get_stats/',                     :action => 'get_stats'
+          get 'get_stats_pm_ae/',               :action => 'get_stats_pm_ae'
+          post 'authorize_entry/',              :action => 'authorize_entry'
+          post 'authorize_withdrawal/',         :action => 'authorize_withdrawal'
+          post 'multiple_withdrawal/',          :action => 'multiple_withdrawal'
+          post 'request_item_entry/',           :action => 'request_item_entry'
 
         end
       end
