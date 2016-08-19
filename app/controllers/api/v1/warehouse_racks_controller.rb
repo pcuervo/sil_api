@@ -61,6 +61,7 @@ class Api::V1::WarehouseRacksController < ApplicationController
     total_items_in_warehouse = ItemLocation.select("inventory_item_id").distinct.count
     total_occupied_locations = ItemLocation.select('warehouse_location_id').distinct.count
     total_items_with_pending_location = InventoryItem.joins('LEFT JOIN item_locations ON inventory_items.id = item_locations.inventory_item_id ').where(' item_locations.id is null AND inventory_items.status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK ]).count
+    total_items_with_pending_reentry_location = InventoryItem.select('inventory_items.id, SUM(item_locations.quantity) AS quantity_locations, SUM(bulk_items.quantity) AS quantity_bulk').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ?', 'BulkItem').group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity').pluck('inventory_items.id').count
     warehouse_occupation_percentage = ( total_occupied_locations.to_i / total_locations.to_f * 100 ).round
     current_month_rent = ClientContact.get_clients_current_rent
 
@@ -68,7 +69,7 @@ class Api::V1::WarehouseRacksController < ApplicationController
     stats['total_locations'] = total_locations 
     stats['total_occupied_locations'] = total_occupied_locations 
     stats['total_items_in_warehouse'] = total_items_in_warehouse 
-    stats['total_items_with_pending_location'] = total_items_with_pending_location 
+    stats['total_items_with_pending_location'] = total_items_with_pending_location + total_items_with_pending_reentry_location
     stats['warehouse_occupation_percentage'] = warehouse_occupation_percentage 
     stats['current_month_rent'] = current_month_rent 
     stats['rent_by_month'] = ClientContact.get_rent_history

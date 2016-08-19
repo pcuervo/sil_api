@@ -100,6 +100,23 @@ describe WarehouseLocation, type: :model do
       end
     end
 
+    context "relocates existing BulkItems in existing location combining them" do
+      it "return a hash containing the information of the item location" do
+        bulk_item = FactoryGirl.create :bulk_item
+        bulk_item.actable_id = @inventory_item.id
+        # create multiple locations
+        wh_location1 = FactoryGirl.create :warehouse_location
+        wh_location2 = FactoryGirl.create :warehouse_location
+        # locate itemss
+        item_location1 = ItemLocation.find( wh_location1.locate( bulk_item.actable_id, 5, 70 ) )
+        wh_location1.locate( bulk_item.actable_id, 5, 30 )
+
+        new_item_location = ItemLocation.find( item_location1.id )
+        expect(new_item_location.units).to eq 10
+
+      end
+    end
+
     context "locates inventory item unsuccesfully" do
       it "return an error code when WarehouseLocation is full" do
         item_location = FactoryGirl.create :item_location

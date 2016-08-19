@@ -7,10 +7,17 @@ class Api::V1::DeliveriesController < ApplicationController
 
   def index
     if params[:recent]
-      respond_with Delivery.recent
-      return
+      deliveries = Delivery.recent
+    else
+      deliveries = Delivery.all
     end
-    respond_with Delivery.all
+
+    if 1 != params[:user_role].to_i && 4 != params[:user_role].to_i
+      puts params[:user_role].to_i
+      puts 'role'
+      deliveries = deliveries.where( 'user_id = ?', current_user.id )
+    end
+    respond_with deliveries
   end
 
   def create

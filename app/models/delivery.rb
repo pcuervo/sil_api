@@ -9,6 +9,7 @@ class Delivery < ActiveRecord::Base
   REJECTED = 3
   PARTIALLY_DELIVERED = 4
   PENDING_APPROVAL = 5
+  SCHEDULED_DELIVERY = 6
 
   has_attached_file :image, :styles => { :medium => "300x300>" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
   validates_attachment_content_type :image, content_type: /\Aimage\/.*\Z/

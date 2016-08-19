@@ -1,4 +1,5 @@
 class Api::V1::NotificationsController < ApplicationController
+  before_action :authenticate_with_token!, only: [:get_unread, :get_read]
   respond_to :json
 
   def index 

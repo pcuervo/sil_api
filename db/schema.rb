@@ -11,15 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160603181056) do
+ActiveRecord::Schema.define(version: 20160802000339) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "bulk_items", force: :cascade do |t|
-    t.string   "quantity",   default: "0"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.integer  "quantity",   default: 0
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
   end
 
   create_table "bundle_item_parts", force: :cascade do |t|
@@ -112,6 +112,33 @@ ActiveRecord::Schema.define(version: 20160603181056) do
 
   add_index "delivery_items", ["delivery_id"], name: "index_delivery_items_on_delivery_id", using: :btree
   add_index "delivery_items", ["inventory_item_id"], name: "index_delivery_items_on_inventory_item_id", using: :btree
+
+  create_table "delivery_request_items", force: :cascade do |t|
+    t.integer  "inventory_item_id"
+    t.integer  "delivery_request_id"
+    t.integer  "quantity",            default: 1
+    t.integer  "part_id",             default: 0
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
+  end
+
+  add_index "delivery_request_items", ["delivery_request_id"], name: "index_delivery_request_items_on_delivery_request_id", using: :btree
+  add_index "delivery_request_items", ["inventory_item_id"], name: "index_delivery_request_items_on_inventory_item_id", using: :btree
+
+  create_table "delivery_requests", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "company"
+    t.string   "addressee"
+    t.string   "addressee_phone"
+    t.text     "address"
+    t.string   "latitude"
+    t.string   "longitude"
+    t.text     "additional_comments"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+  end
+
+  add_index "delivery_requests", ["user_id"], name: "index_delivery_requests_on_user_id", using: :btree
 
   create_table "inventory_item_requests", force: :cascade do |t|
     t.string   "name",                     default: " "
@@ -337,6 +364,9 @@ ActiveRecord::Schema.define(version: 20160603181056) do
   add_foreign_key "bundle_item_parts", "bundle_items"
   add_foreign_key "client_contacts", "clients"
   add_foreign_key "deliveries", "users"
+  add_foreign_key "delivery_request_items", "delivery_requests"
+  add_foreign_key "delivery_request_items", "inventory_items"
+  add_foreign_key "delivery_requests", "users"
   add_foreign_key "inventory_items", "clients"
   add_foreign_key "inventory_items", "projects"
   add_foreign_key "inventory_items", "users"

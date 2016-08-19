@@ -57,7 +57,11 @@ class Api::V1::ClientContactsController < ApplicationController
     stats = {}
 
     project_ids = []
-    client_contact = ClientContact.find( params[:id] )
+    if 6 == current_user.role
+      client_contact = ClientContact.find( current_user.actable_id )
+    else
+      client_contact = ClientContact.find( params[:id] )
+    end
     client_contact.projects.each do |p|
       project_ids.push( p.id )
     end
