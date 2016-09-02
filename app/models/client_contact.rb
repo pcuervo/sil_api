@@ -43,6 +43,8 @@ class ClientContact < ActiveRecord::Base
   def get_rent month, year
     occupied_units = self.get_occuppied_units( month, year )
     return 0 if occupied_units == 0
+
+    return 0 if self.discount.nil?
     
     settings = SystemSetting.select(:units_per_location, :cost_per_location).first
     rounded_units = occupied_units / settings.units_per_location * settings.units_per_location + settings.units_per_location
