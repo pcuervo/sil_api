@@ -21,12 +21,10 @@ class Api::V1::ClientContactsController < ApplicationController
     end
 
     render json: { errors: client_contact.errors }, status: 422
-    
   end
 
   def update
     client_contact = ClientContact.find( params[:id] )
-    client_contact.role = 4
 
     if client_contact.update(client_contact_params)
       render json: client_contact, status: 201, location: [:api, client_contact]
