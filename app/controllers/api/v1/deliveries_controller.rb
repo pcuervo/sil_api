@@ -13,8 +13,6 @@ class Api::V1::DeliveriesController < ApplicationController
     end
 
     if 1 != params[:user_role].to_i && 4 != params[:user_role].to_i
-      puts params[:user_role].to_i
-      puts 'role'
       deliveries = deliveries.where( 'user_id = ?', current_user.id )
     end
     respond_with deliveries

@@ -39,7 +39,7 @@ class Api::V1::WithdrawRequestsController < ApplicationController
     @withdraw_request = WithdrawRequest.find( params[:id] )
     @approved = @withdraw_request.authorize( params[:pickup_company_contact], params[:additional_comments], params[:quantities] )
     if @approved
-      render json: { success: '¡Se ha autorizad la salida! Se le enviará una notificación al usuario que la solicitó.' }, status: 201
+      render json: { success: '¡Se ha autorizado la salida! Se le enviará una notificación al usuario que la solicitó.' }, status: 201
       return
     end
 

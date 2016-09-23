@@ -13,6 +13,7 @@ class InventoryItem < ActiveRecord::Base
   has_many :item_locations
   has_many :warehouse_transactions
   has_many :withdraw_request_items
+  has_many :delivery_request_items
 
   # For item image
   has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "100x100#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
@@ -26,6 +27,7 @@ class InventoryItem < ActiveRecord::Base
   PENDING_ENTRY = 5
   PENDING_WITHDRAWAL = 6
   PENDING_APPROVAL = 7
+  PENDING_DELIVERY = 8
 
   # States
   NEW = 1
