@@ -149,10 +149,14 @@ Sil::Application.routes.draw do
           post 'authorize_withdrawal',  :action => 'authorize_withdrawal'
         end
       end
+      resources :delivery_requests, :only => [:show, :index, :create] do
+        collection do
+          post 'authorize_delivery/', :action => 'authorize_delivery'
+          post 'reject_delivery/', :action => 'reject_delivery'
+          post 'cancel_delivery/', :action => 'cancel_delivery'
+        end
+      end
     end
   end
-
-
-  #get '/users', to: 'api/v1/users#index'
   
 end
