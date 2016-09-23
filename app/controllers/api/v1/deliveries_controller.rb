@@ -7,6 +7,7 @@ class Api::V1::DeliveriesController < ApplicationController
 
   def index
     if params[:recent]
+      puts 'recent'
       deliveries = Delivery.recent
     else
       deliveries = Delivery.all

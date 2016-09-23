@@ -5,7 +5,8 @@ class Api::V1::DeliveryRequestsController < ApplicationController
   respond_to :json
 
   def index
-    respond_with DeliveryRequest.all
+    #respond_with DeliveryRequest.all
+    render json: DeliveryRequest.all, :include => { :delivery_request_items => { :only => [:inventory_item_id] } }, :except => [:updated_at]
   end
 
   def show
