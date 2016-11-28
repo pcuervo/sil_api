@@ -3,7 +3,7 @@ class UnitItemSerializer < ActiveModel::Serializer
   has_one :project
 
   def inventory_item_id
-    item = InventoryItem.where('actable_id = ? and actable_type = "UnitItem"', object.id )
+    item = InventoryItem.where('actable_id = ? and actable_type = "UnitItem"', object.id ).first
     item.id
   end
 end
