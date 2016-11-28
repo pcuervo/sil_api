@@ -37,6 +37,10 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def by_type
+    if 'UnitItem' == params[:type]
+      respond_with UnitItem.where( 'status = ?', params[:status] )
+      return
+    end
     respond_with InventoryItem.where( 'actable_type=? AND status = ?', params[:type], params[:status] )
   end
 

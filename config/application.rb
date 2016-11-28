@@ -42,6 +42,14 @@ module Sil
     end
 
     config.autoload_paths += %W(\#{config.root}/lib)
+
+    # Set language to Spanish by default
+    config.i18n.enforce_available_locales = false
+    config.i18n.default_locale = :es
+
+    # Set timezone to Mexico City
+    config.time_zone = 'America/Mexico_City'
+    config.active_record.default_timezone = :local
     
   end
 end
