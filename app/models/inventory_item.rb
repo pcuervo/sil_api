@@ -54,16 +54,14 @@ class InventoryItem < ActiveRecord::Base
       unit_item = UnitItem.find_by_serial_number( params[:serial_number] )
       if unit_item.present?
         inventory_items = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' )
-        puts inventory_items.to_yaml
       end
 
       bundle_item_part = BundleItemPart.find_by_serial_number( params[:serial_number] )
       if bundle_item_part.present?
         bundle_item = bundle_item_part.bundle_item
         inventory_items = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' )
-        puts inventory_items.to_yaml
       end
-      puts 'we are here'
+
     end
 
     if params[:project_id].present?
