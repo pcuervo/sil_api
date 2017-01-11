@@ -119,7 +119,8 @@ class InventoryItem < ActiveRecord::Base
         'locations'                 => i.get_locations,
         'img'                       => i.item_img(:thumb),
         'created_at'                => i.created_at,
-        'validity_expiration_date'  => i.validity_expiration_date
+        'validity_expiration_date'  => i.validity_expiration_date,
+        'serial_number'             => i.get_serial_number
       })
     end
 
@@ -236,6 +237,12 @@ class InventoryItem < ActiveRecord::Base
       })
     end
     locations
+  end
+
+  def get_serial_number
+    return '-' if self.actable_type != 'UnitItem'
+    unit_item = UnitItem.where( 'actable_id = ?', self.actable_id )
+    return self.serial_number
   end
 
   # Withdraws InventoryItem
