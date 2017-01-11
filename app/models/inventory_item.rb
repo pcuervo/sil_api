@@ -242,7 +242,7 @@ class InventoryItem < ActiveRecord::Base
   def get_serial_number
     return '-' if self.actable_type != 'UnitItem'
     unit_item = UnitItem.where( 'actable_id = ?', self.actable_id ).first
-    return self.serial_number
+    return unit_item.serial_number
   end
 
   # Withdraws InventoryItem
