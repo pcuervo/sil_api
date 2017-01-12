@@ -1,7 +1,7 @@
 class UnitItem < ActiveRecord::Base
   acts_as :inventory_item
 
-  #validates :serial_number, uniqueness: true
+  validates :serial_number, uniqueness: true
 
   # Withdraws UnitItem and remove from WarehouseLocation if it has any
   # * *Returns:* 
