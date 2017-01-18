@@ -247,7 +247,7 @@ class InventoryItem < ActiveRecord::Base
   end
 
   def get_model
-    return '-' if self.actable_type != 'UnitItem'
+    return '' if self.actable_type != 'UnitItem'
     unit_item = UnitItem.where( 'actable_id = ?', self.actable_id ).first
     return unit_item.model
   end
