@@ -120,7 +120,7 @@ class InventoryItem < ActiveRecord::Base
         'img'                       => i.item_img(:thumb),
         'created_at'                => i.created_at,
         'validity_expiration_date'  => i.validity_expiration_date,
-        'serial_number'             => i.get_serial_number
+        'serial_number'             => i.get_serial_number,
         'model'                     => i.get_model
       })
     end
