@@ -121,6 +121,7 @@ class InventoryItem < ActiveRecord::Base
         'created_at'                => i.created_at,
         'validity_expiration_date'  => i.validity_expiration_date,
         'serial_number'             => i.get_serial_number
+        'model'                     => i.get_model
       })
     end
 
@@ -243,6 +244,12 @@ class InventoryItem < ActiveRecord::Base
     return '-' if self.actable_type != 'UnitItem'
     unit_item = UnitItem.where( 'actable_id = ?', self.actable_id ).first
     return unit_item.serial_number
+  end
+
+  def get_model
+    return '-' if self.actable_type != 'UnitItem'
+    unit_item = UnitItem.where( 'actable_id = ?', self.actable_id ).first
+    return unit_item.model
   end
 
   # Withdraws InventoryItem
