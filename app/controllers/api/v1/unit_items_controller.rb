@@ -24,9 +24,6 @@ class Api::V1::UnitItemsController < ApplicationController
     item_img.original_filename = params[:filename]
     unit_item.item_img = item_img
 
-    # if InventoryItem::IN_STOCK == unit_item.status and Date.parse( params[:entry_date] ) > Date.today
-    #   unit_item.status = InventoryItem::PENDING_ENTRY
-    # end
 
     if unit_item.save
       @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).first
@@ -36,6 +33,10 @@ class Api::V1::UnitItemsController < ApplicationController
         send_notifications_approved_entry
         @item_request.destroy
       end
+      
+      PmItem.create( :user_id => params[:pm_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+      AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+        
       render json: unit_item.get_details, status: 201, location: [:api, unit_item]
       return
     end
