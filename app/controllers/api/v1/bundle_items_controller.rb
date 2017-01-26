@@ -36,6 +36,9 @@ class Api::V1::BundleItemsController < ApplicationController
         @item_request.destroy
       end
 
+      PmItem.create( :user_id => params[:pm_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+      AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+
       render json: bundle_item.get_details, status: 201, location: [:api, bundle_item]
     else
       render json: { errors: bundle_item.errors }, status: 422

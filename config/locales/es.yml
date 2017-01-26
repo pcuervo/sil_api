@@ -48,6 +48,6 @@ es:
             upc:
               blank: "El upc no puede estar vacío"
             mid:
-              blank: "El mid no puede estar vacío"s
+              blank: "El mid no puede estar vacío"
       messages:
           record_invalid: "es inválido"

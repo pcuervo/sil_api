@@ -28,4 +28,8 @@ class InventoryItemRequest < ActiveRecord::Base
     inventory_item_requests_details
   end
 
+  def cancel
+    return self.destroy
+  end
+
 end

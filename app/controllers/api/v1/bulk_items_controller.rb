@@ -27,6 +27,10 @@ class Api::V1::BulkItemsController < ApplicationController
         send_notifications_approved_entry
         @item_request.destroy
       end
+      
+      PmItem.create( :user_id => params[:pm_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+      AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+      
       render json: bulk_item.get_details, status: 201, location: [:api, bulk_item]
     else
       render json: { errors: bulk_item.errors }, status: 422

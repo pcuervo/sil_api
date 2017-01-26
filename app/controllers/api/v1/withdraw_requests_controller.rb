@@ -1,6 +1,8 @@
 class Api::V1::WithdrawRequestsController < ApplicationController
+  before_action :authenticate_with_token!, only: [:create, :authorize_withdrawal, :cancel_withdrawal]
   after_action :send_withdrawal_request_notifications, only: [:create]
   after_action :send_withdrawal_approve_notifications, only: [:authorize_withdrawal]
+  after_action :send_withdrawal_cancel_notifications, only: [:cancel_withdrawal]
   respond_to :json
 
   def show
@@ -46,6 +48,17 @@ class Api::V1::WithdrawRequestsController < ApplicationController
     render json: { errors: 'Ha ocurrido un error, no se pudo realizar la salida en este momento.' }, status: 201
   end
 
+  def cancel_withdrawal
+    @withdraw_request = WithdrawRequest.find( params[:id] )
+    @cancelled = @withdraw_request.cancel
+    if @cancelled
+      render json: { success: '¡Se ha cancelado la salida!' }, status: 201
+      return
+    end
+
+    render json: { errors: 'Ha ocurrido un error, no se pudo realizar la cancelación en este momento.' }, status: 201
+  end
+
   private
 
     def withdraw_request_params
@@ -65,4 +78,13 @@ class Api::V1::WithdrawRequestsController < ApplicationController
         user.notifications << Notification.create( :title => 'Aprobación de salida', :inventory_item_id => -1, :message => 'Se ha aprobado la salida que solicitaste para el día ' + @withdraw_request.exit_date.strftime("%d/%m/%Y") + '.' )
       end
     end 
+
+
+    def send_withdrawal_cancel_notifications
+      if @cancelled && ( 1 == current_user.role || 4 == current_user.role )
+        user = @withdraw_request.user
+        user.notifications << Notification.create( :title => 'Cancelación de solicitud salida', :inventory_item_id => -1, :message => 'Se ha cancelado la salida que solicitaste para el día ' + @withdraw_request.exit_date.strftime("%d/%m/%Y") + ', ponte en contacto con el jefe de almacén para conocer el motivo.' )
+      end
+    end 
+
 end

@@ -11,10 +11,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160920230149) do
+ActiveRecord::Schema.define(version: 20170125051745) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "ae_items", id: false, force: :cascade do |t|
+    t.integer "user_id",           null: false
+    t.integer "inventory_item_id", null: false
+  end
+
+  add_index "ae_items", ["user_id", "inventory_item_id"], name: "index_ae_items_on_user_id_and_inventory_item_id", unique: true, using: :btree
 
   create_table "bulk_items", force: :cascade do |t|
     t.integer  "quantity",   default: 0
@@ -87,7 +94,6 @@ ActiveRecord::Schema.define(version: 20160920230149) do
     t.text     "address"
     t.string   "latitude"
     t.string   "longitude"
-    t.integer  "status",              default: 1
     t.text     "additional_comments"
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
@@ -95,6 +101,7 @@ ActiveRecord::Schema.define(version: 20160920230149) do
     t.string   "image_content_type"
     t.integer  "image_file_size"
     t.datetime "image_updated_at"
+    t.integer  "status",              default: 1
     t.datetime "date_time"
     t.integer  "supplier_id"
   end
@@ -225,10 +232,10 @@ ActiveRecord::Schema.define(version: 20160920230149) do
   create_table "notifications", force: :cascade do |t|
     t.string   "message"
     t.integer  "inventory_item_id"
-    t.integer  "status",            default: 1
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
     t.string   "title",                         null: false
+    t.integer  "status",            default: 1
   end
 
   create_table "notifications_users", id: false, force: :cascade do |t|
@@ -238,6 +245,13 @@ ActiveRecord::Schema.define(version: 20160920230149) do
 
   add_index "notifications_users", ["notification_id", "user_id"], name: "index_notifications_users_on_notification_id_and_user_id", using: :btree
   add_index "notifications_users", ["user_id", "notification_id"], name: "index_notifications_users_on_user_id_and_notification_id", using: :btree
+
+  create_table "pm_items", id: false, force: :cascade do |t|
+    t.integer "user_id",           null: false
+    t.integer "inventory_item_id", null: false
+  end
+
+  add_index "pm_items", ["user_id", "inventory_item_id"], name: "index_pm_items_on_user_id_and_inventory_item_id", unique: true, using: :btree
 
   create_table "projects", force: :cascade do |t|
     t.string   "name"
