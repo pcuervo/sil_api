@@ -46,7 +46,7 @@ Sil::Application.routes.draw do
           post 'authorize_withdrawal/',         :action => 'authorize_withdrawal'
           post 'multiple_withdrawal/',          :action => 'multiple_withdrawal'
           post 'request_item_entry/',           :action => 'request_item_entry'
-
+          post 'cancel_item_entry_request/',    :action => 'cancel_item_entry_request'
         end
       end
       resources :unit_items, :only => [:index, :show] do 
@@ -147,6 +147,7 @@ Sil::Application.routes.draw do
       resources :withdraw_requests, :only => [:index, :create, :show] do
         collection do
           post 'authorize_withdrawal',  :action => 'authorize_withdrawal'
+          post 'cancel_withdrawal',     :action => 'cancel_withdrawal'
         end
       end
       resources :delivery_requests, :only => [:show, :index, :create] do

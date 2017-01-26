@@ -31,6 +31,10 @@ class WithdrawRequest < ActiveRecord::Base
     return true
   end
 
+  def cancel
+    return self.destroy
+  end
+
   def remove_items
     self.withdraw_request_items.each do |item|
       item.destroy

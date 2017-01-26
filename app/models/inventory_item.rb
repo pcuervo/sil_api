@@ -14,6 +14,8 @@ class InventoryItem < ActiveRecord::Base
   has_many :warehouse_transactions
   has_many :withdraw_request_items
   has_many :delivery_request_items
+  has_many :pm_items
+  has_many :ae_items
 
   # For item image
   has_attached_file :item_img, :styles => { :medium => "300x300>", :thumb => "100x100#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
@@ -130,8 +132,9 @@ class InventoryItem < ActiveRecord::Base
 
   def get_details
     project = Project.find(self.project_id)
-    pm = project.get_pm
-    ae = project.get_ae
+    pm = self.get_pm( project )
+    ae = self.get_ae( project )
+
     client = project.get_client
     client_contact = project.get_client_contact
     locations = get_locations
@@ -310,6 +313,24 @@ class InventoryItem < ActiveRecord::Base
     rounded_units = current_occupied_units / settings.units_per_location * settings.units_per_location + settings.units_per_location
 
     return rounded_units / settings.units_per_location.to_f  * settings.cost_per_location 
+  end
+
+  def get_ae project
+    ae_items = self.ae_items
+    return project.get_ae if ! ae_items.present? 
+    puts 'si hay usuarios ae'
+
+    ae = ae_items.first.user
+    return ae.first_name + ' ' + ae.last_name
+  end
+
+  def get_pm project
+    pm_items = self.pm_items
+    return project.get_pm if ! pm_items.present? 
+    puts 'si hay usuarios pm'
+
+    pm = pm_items.first.user
+    return pm.first_name + ' ' + pm.last_name
   end
 
   # Scopes 

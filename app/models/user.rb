@@ -17,6 +17,8 @@ class User < ActiveRecord::Base
   has_many :withdraw_requests
   has_and_belongs_to_many :projects
   has_and_belongs_to_many :notifications
+  has_many :pm_items
+  has_many :ae_items
 
   # AVAILABLE ROLES
   ADMIN = 1

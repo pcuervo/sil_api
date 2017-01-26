@@ -1,8 +1,9 @@
 class Api::V1::InventoryItemsController < ApplicationController
-  before_action :authenticate_with_token!, only: [:create]
+  before_action :authenticate_with_token!, only: [:create, :authorize_entry, :authorize_withdrawal, :request_item_entry, :cancel_item_entry_request ]
   after_action :send_notification_authorize_entry, only: [:authorize_entry]
   after_action :send_notification_authorize_withdrawal, only: [:authorize_withdrawal]
   after_action :send_entry_request_notifications, only: [:request_item_entry]
+  after_action :send_cancelled_entry_request_notifications, only: [:cancel_item_entry_request]
   respond_to :json
 
   def index
@@ -130,6 +131,17 @@ class Api::V1::InventoryItemsController < ApplicationController
     end
   end
 
+  def cancel_item_entry_request
+    @inventory_item_request = InventoryItemRequest.find( params[:id] )
+    @cancelled = @inventory_item_request.cancel
+    if @cancelled
+      render json: { success: '¡Se ha cancelado la entrada!' }, status: 201
+      return
+    end
+
+    render json: { errors: 'Ha ocurrido un error, no se pudo realizar la cancelación en este momento.' }, status: 201
+  end
+
   def get_item_request
     respond_with InventoryItemRequest.where( 'id = ?', params[:id] ).details
   end
@@ -192,6 +204,15 @@ class Api::V1::InventoryItemsController < ApplicationController
       admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
       admins.each do |admin|
         admin.notifications << Notification.create( :title => 'Solicitud de entrada', :inventory_item_id => -1, :message => current_user.get_role + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado el ingreso del artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + '.' )
+      end
+    end 
+
+    def send_cancelled_entry_request_notifications
+      if @cancelled
+        users = User.where('id IN (?)', [ @inventory_item_request.pm_id, @inventory_item_request.ae_id ])
+        users.each do |admin|
+          admin.notifications << Notification.create( :title => 'Solicitud de entrada rechazada', :inventory_item_id => -1, :message => 'Se ha rechazado tu solicitud de entrada para el artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + ', ponte en contacto con el jefe de almacén para conocer el motivo.' )
+        end
       end
     end 
 
