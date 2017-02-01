@@ -59,6 +59,10 @@ class Api::V1::WithdrawRequestsController < ApplicationController
     render json: { errors: 'Ha ocurrido un error, no se pudo realizar la cancelación en este momento.' }, status: 201
   end
 
+  def by_user
+    respond_with WithdrawRequest.where( 'user_id = ?', params[:id] )
+  end
+
   private
 
     def withdraw_request_params

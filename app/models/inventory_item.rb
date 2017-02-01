@@ -94,6 +94,15 @@ class InventoryItem < ActiveRecord::Base
       inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
     end
 
+    if params[:client_id].present?
+      user = User.find( params[:client_id] )
+      client_user = ClientContact.find( user.actable_id )
+      projects = client_user.client.projects
+      projects_id = []
+      projects.each {|p| projects_id.push(p.id) }
+      inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
+    end
+
     if params[:client_contact_id].present?
       user = User.find( params[:client_contact_id] )
       projects = user.projects
@@ -148,6 +157,9 @@ class InventoryItem < ActiveRecord::Base
         'barcode'                   => self.barcode,
         'project'                   => project.litobel_id + ' / ' + project.name,
         'project_number'            => project.litobel_id,
+        'project_id'                => self.project_id,
+        'pm_id'                     => self.pm_id,
+        'ae_id'                     => self.ae_id,
         'pm'                        => pm,
         'ae'                        => ae,
         'description'               => self.description,
@@ -318,7 +330,6 @@ class InventoryItem < ActiveRecord::Base
   def get_ae project
     ae_items = self.ae_items
     return project.get_ae if ! ae_items.present? 
-    puts 'si hay usuarios ae'
 
     ae = ae_items.first.user
     return ae.first_name + ' ' + ae.last_name
@@ -327,10 +338,25 @@ class InventoryItem < ActiveRecord::Base
   def get_pm project
     pm_items = self.pm_items
     return project.get_pm if ! pm_items.present? 
-    puts 'si hay usuarios pm'
 
     pm = pm_items.first.user
     return pm.first_name + ' ' + pm.last_name
+  end
+
+  def pm_id
+    project = Project.find( self.project_id )
+    return project.get_pm_id if ! pm_items.present? 
+
+    pm = pm_items.first.user
+    return pm.id
+  end
+
+  def ae_id
+    project = Project.find( self.project_id )
+    return project.get_ae_id if ! ae_items.present? 
+
+    ae = ae_items.first.user
+    return ae.id
   end
 
   # Scopes 

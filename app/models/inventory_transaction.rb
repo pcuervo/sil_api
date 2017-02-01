@@ -97,6 +97,29 @@ class InventoryTransaction < ActiveRecord::Base
     return check_outs
   end
 
+  def self.check_outs_by_client client_user, limit=100
+    client_projects = client_user.client.projects.pluck(:id)
+    client_items_ids = InventoryItem.where('project_id IN (?)', client_projects).pluck(:id)
+
+    transactions = CheckOutTransaction.where('inventory_item_id IN (?)', client_items_ids).order(updated_at: :desc).limit( limit )
+    check_outs = { 'inventory_transactions' => [] }
+
+    transactions.each do |t|
+      item = InventoryItem.find(t.inventory_item_id)
+      inventory_transaction = InventoryTransaction.where('actable_type = ? AND actable_id = ?', 'CheckOutTransaction', t.id).first
+      check_outs['inventory_transactions'].push({ 
+        'id'              => inventory_transaction.id,
+        'concept'         => inventory_transaction.concept,
+        'actable_type'    => item.actable_type,
+        'exit_date'       => t.exit_date,
+        'name'            => item.name,
+        'item_type'       => item.item_type
+      })
+    end
+
+    return check_outs
+  end
+
   def self.get_by_type id, type
     if 'CheckInTransaction' == type 
       return CheckInTransaction.find( id )

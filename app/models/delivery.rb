@@ -4,6 +4,7 @@ class Delivery < ActiveRecord::Base
   belongs_to :user
   has_many :delivery_items
 
+  READY_TO_SHIP = 0
   SHIPPED = 1
   DELIVERED = 2
   REJECTED = 3

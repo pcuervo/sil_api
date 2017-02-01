@@ -83,7 +83,7 @@ Sil::Application.routes.draw do
       resources :client_contacts, :only => [:show, :index, :create, :update, :destroy] do
         collection do 
           get 'get_by_client/',       :action => 'get_by_client'
-          get 'inventory_items/:id',  :action => 'inventory_items'
+          post 'inventory_items',  :action => 'inventory_items'
           get 'stats/:id',               :action => 'stats'
           post 'update',              :action => 'update'
         end
@@ -92,6 +92,7 @@ Sil::Application.routes.draw do
         collection do 
           get 'get_check_ins',  :action => 'get_check_ins'
           get 'get_check_outs', :action => 'get_check_outs'
+          get 'get_check_outs_by_client/:id', :action => 'get_check_outs_by_client'
         end
       end
       resources :warehouse_locations, :only => [:show, :index] do
@@ -148,6 +149,7 @@ Sil::Application.routes.draw do
         collection do
           post 'authorize_withdrawal',  :action => 'authorize_withdrawal'
           post 'cancel_withdrawal',     :action => 'cancel_withdrawal'
+          get 'by_user/:id',               :action => 'by_user'
         end
       end
       resources :delivery_requests, :only => [:show, :index, :create] do

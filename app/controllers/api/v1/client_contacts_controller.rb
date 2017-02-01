@@ -2,8 +2,8 @@ class Api::V1::ClientContactsController < ApplicationController
   respond_to :json
 
   def show
-    c = ClientContact.find(params[:id])
-    respond_with c
+    user = User.find(params[:id])
+    respond_with ClientContact.find(user.actable_id)
   end
 
   def index
@@ -48,7 +48,7 @@ class Api::V1::ClientContactsController < ApplicationController
   def inventory_items
     user = User.find( params[:id] )
     client_contact = ClientContact.find( user.actable_id )
-    respond_with client_contact.inventory_items
+    render json: client_contact.inventory_items( params[:in_stock] ), status: 200
   end
 
   def stats

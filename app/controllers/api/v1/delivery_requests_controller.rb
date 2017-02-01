@@ -46,7 +46,7 @@ class Api::V1::DeliveryRequestsController < ApplicationController
       return
     end
 
-    render json: { errors: 'Ha ocurrido un error, no se pudo realizar el envío en este momento.' }, status: 201
+    render json: { errors: 'Ha ocurrido un error, no se pudo realizar el envío en este momento.' }, status: 422
   end
 
   def reject_delivery
