@@ -11,15 +11,23 @@ class Api::V1::NotificationsController < ApplicationController
       render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
       return
     end
-    render json: { error: 'La sesión ha caducado.' }, status: 200
+    render json: { error: 'La sesión ha caducado.' }, status: 401
   end
 
   def get_unread
-    respond_with current_user.notifications.unread
+    if user_signed_in?
+      respond_with current_user.notifications.unread
+      return
+    end
+    render json: { error: 'La sesión ha caducado.' }, status: 401
   end
 
   def get_read
-    respond_with current_user.notifications.read
+    if user_signed_in?
+      respond_with current_user.notifications.read
+      return
+    end
+    render json: { error: 'La sesión ha caducado.' }, status: 401
   end
 
   def mark_as_read

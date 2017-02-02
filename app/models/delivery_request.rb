@@ -14,7 +14,7 @@ class DeliveryRequest < ActiveRecord::Base
 
   def authorize delivery_user_id, supplier_id, additional_comments, quantities=[]
 
-    delivery = Delivery.create( :company => self.company, :address => self.address, :latitude => self.latitude, :longitude => self.longitude, :status => Delivery::SHIPPED, :addressee => :addressee, :addressee_phone => self.addressee_phone, :date_time => self.date_time, :delivery_user_id => delivery_user_id, :supplier_id => supplier_id )
+    delivery = Delivery.create( :company => self.company, :address => self.address, :latitude => self.latitude, :longitude => self.longitude, :status => Delivery::SHIPPED, :addressee => self.addressee, :addressee_phone => self.addressee_phone, :date_time => self.date_time, :delivery_user_id => delivery_user_id, :supplier_id => supplier_id )
     self.user.deliveries << delivery
 
     items = []
@@ -25,7 +25,7 @@ class DeliveryRequest < ActiveRecord::Base
       items.push( item )
     end
 
-    if -1 == delivery_user_id
+    if -1 == delivery_user_id.to_i
       delivery_user_name = 'Sin repartidor'
     else
       delivery_user = User.find( delivery_user_id )

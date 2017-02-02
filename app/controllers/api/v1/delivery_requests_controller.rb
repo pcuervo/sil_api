@@ -46,7 +46,7 @@ class Api::V1::DeliveryRequestsController < ApplicationController
       return
     end
 
-    render json: { errors: 'Ha ocurrido un error, no se pudo realizar el envío en este momento.' }, status: 201
+    render json: { errors: 'Ha ocurrido un error, no se pudo realizar el envío en este momento.' }, status: 422
   end
 
   def reject_delivery
@@ -62,6 +62,10 @@ class Api::V1::DeliveryRequestsController < ApplicationController
     @delivery_request.set_items_in_stock
     @delivery_request.destroy
     render json: { success: '¡Se ha cancelado el envío!' }, status: 201
+  end
+
+  def by_user
+    render json: DeliveryRequest.where('user_id = ?', params[:id]).order(created_at: :desc), :include => { :delivery_request_items => { :only => [:inventory_item_id] } }, :except => [:updated_at]
   end
 
   private

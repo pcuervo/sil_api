@@ -4,11 +4,18 @@ class ClientContact < ActiveRecord::Base
 
   validates :client, presence: true
 
-  def inventory_items
+  def inventory_items in_stock_only=false
     projects = self.client.projects
     items = []
     projects.each do |project| 
-      project.inventory_items.each_with_index { |item| items.push(item)}
+      project.inventory_items.each_with_index do |item| 
+        if in_stock_only
+          next if item.status != InventoryItem::IN_STOCK && item.status != InventoryItem::PARTIAL_STOCK
+          items.push(item)
+        else
+          items.push(item)
+        end
+      end
     end
     items
   end

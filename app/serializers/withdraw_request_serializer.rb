@@ -1,5 +1,5 @@
 class WithdrawRequestSerializer < ActiveModel::Serializer
-  attributes :id, :exit_date, :pickup_company_id, :user, :withdraw_request_items
+  attributes :id, :exit_date, :pickup_company_id, :user, :withdraw_request_items, :pickup_company
 
   def withdraw_request_items
     withdraw_request_items = []
@@ -13,5 +13,12 @@ class WithdrawRequestSerializer < ActiveModel::Serializer
       withdraw_request_items.push( withdraw_request_item )
     end
     withdraw_request_items
+  end
+
+  def pickup_company
+    supplier = Supplier.find( object.pickup_company_id )
+    return '-' if ! supplier.present?
+
+    supplier.name
   end
 end

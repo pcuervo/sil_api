@@ -7,10 +7,9 @@ class Api::V1::DeliveriesController < ApplicationController
 
   def index
     if params[:recent]
-      puts 'recent'
       deliveries = Delivery.recent
     else
-      deliveries = Delivery.all
+      deliveries = Delivery.all.order(updated_at: :desc)
     end
 
     if 1 != params[:user_role].to_i && 4 != params[:user_role].to_i

@@ -13,11 +13,25 @@ class Project < ActiveRecord::Base
     pm.first_name + ' ' + pm.last_name
   end
 
+  def get_pm_id
+    pm = self.users.where('role=?', User::PROJECT_MANAGER).first
+
+    return unless pm.present?
+    pm.id
+  end
+
   def get_ae
     ae = self.users.where('role=?', User::ACCOUNT_EXECUTIVE).first
 
     return unless ae.present?
     ae.first_name + ' ' + ae.last_name
+  end
+
+  def get_ae_id
+    ae = self.users.where('role=?', User::ACCOUNT_EXECUTIVE).first
+
+    return unless ae.present?
+    ae.id
   end
 
   def get_client

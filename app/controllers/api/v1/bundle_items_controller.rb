@@ -54,6 +54,29 @@ class Api::V1::BundleItemsController < ApplicationController
     end
 
     if bundle_item.update( bundle_item_params )
+
+      if params[:pm_id].present?
+        pm_item = PmItem.where( :inventory_item_id => inventory_item.id ).first
+        if pm_item.present?          
+          sql = "DELETE from pm_items WHERE inventory_item_id = " + inventory_item.id.to_s
+          ActiveRecord::Base.connection.execute(sql)
+          PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
+        else
+          PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
+        end
+      end
+
+      if params[:ae_id].present?
+        ae_item = AeItem.where( :inventory_item_id => inventory_item.id ).first
+        if ae_item.present?          
+          sql = "DELETE from ae_items WHERE inventory_item_id = " + inventory_item.id.to_s
+          ActiveRecord::Base.connection.execute(sql)
+          AeItem.create( :user_id => params[:ae_id], :inventory_item_id => inventory_item.id ) 
+        else
+          AeItem.create( :user_id => params[:ae_id], :inventory_item_id => inventory_item.id ) 
+        end
+      end
+      
       render json: bundle_item.get_details, status: 200, location: [:api, bundle_item]
       return
     end

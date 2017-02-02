@@ -1,6 +1,6 @@
 class Api::V1::InventoryItemsController < ApplicationController
 
-  before_action :authenticate_with_token!, only: [:create, :authorize_entry, :authorize_withdrawal, :request_item_entry, :cancel_item_entry_request ]
+  before_action :authenticate_with_token!, only: [:create, :authorize_entry, :authorize_withdrawal, :request_item_entry, :cancel_item_entry_request, :destroy ]
   after_action :send_notification_authorize_entry, only: [:authorize_entry]
   after_action :send_notification_authorize_withdrawal, only: [:authorize_withdrawal]
   after_action :send_entry_request_notifications, only: [:request_item_entry]
@@ -174,6 +174,12 @@ class Api::V1::InventoryItemsController < ApplicationController
     # stats['occupation_by_month'] = InventoryItem.occupation_by_month
 
     render json: { stats: stats }, status: 200
+  end
+
+  def destroy
+    item = InventoryItem.find( params[:id] )
+    item.destroy
+    head 204
   end
 
   private

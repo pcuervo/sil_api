@@ -1,6 +1,13 @@
 class InventoryItem < ActiveRecord::Base
   after_create :send_notification_to_account_executives, if: :belongs_to_client?
   after_create :send_entry_request_notifications, if: :has_pending_entry?
+  before_destroy :delete_transactions
+  before_destroy :delete_warehouse_transactions
+  before_destroy :delete_item_locations
+  before_destroy :delete_withdraw_request_items
+  before_destroy :delete_delivery_request_items
+  before_destroy :delete_pm_items
+  before_destroy :delete_ae_items
 
   actable
 
@@ -94,6 +101,15 @@ class InventoryItem < ActiveRecord::Base
       inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
     end
 
+    if params[:client_id].present?
+      user = User.find( params[:client_id] )
+      client_user = ClientContact.find( user.actable_id )
+      projects = client_user.client.projects
+      projects_id = []
+      projects.each {|p| projects_id.push(p.id) }
+      inventory_items = inventory_items.where( 'project_id IN (?)', projects_id )
+    end
+
     if params[:client_contact_id].present?
       user = User.find( params[:client_contact_id] )
       projects = user.projects
@@ -148,6 +164,9 @@ class InventoryItem < ActiveRecord::Base
         'barcode'                   => self.barcode,
         'project'                   => project.litobel_id + ' / ' + project.name,
         'project_number'            => project.litobel_id,
+        'project_id'                => self.project_id,
+        'pm_id'                     => self.pm_id,
+        'ae_id'                     => self.ae_id,
         'pm'                        => pm,
         'ae'                        => ae,
         'description'               => self.description,
@@ -318,7 +337,6 @@ class InventoryItem < ActiveRecord::Base
   def get_ae project
     ae_items = self.ae_items
     return project.get_ae if ! ae_items.present? 
-    puts 'si hay usuarios ae'
 
     ae = ae_items.first.user
     return ae.first_name + ' ' + ae.last_name
@@ -327,10 +345,25 @@ class InventoryItem < ActiveRecord::Base
   def get_pm project
     pm_items = self.pm_items
     return project.get_pm if ! pm_items.present? 
-    puts 'si hay usuarios pm'
 
     pm = pm_items.first.user
     return pm.first_name + ' ' + pm.last_name
+  end
+
+  def pm_id
+    project = Project.find( self.project_id )
+    return project.get_pm_id if ! pm_items.present? 
+
+    pm = pm_items.first.user
+    return pm.id
+  end
+
+  def ae_id
+    project = Project.find( self.project_id )
+    return project.get_ae_id if ! ae_items.present? 
+
+    ae = ae_items.first.user
+    return ae.id
   end
 
   # Scopes 
@@ -403,5 +436,35 @@ class InventoryItem < ActiveRecord::Base
       admin.notifications << Notification.create( :title => 'Solicitud de entrada', :inventory_item_id => self.id, :message => self.user.get_role + ' "' + self.user.first_name + ' ' + self.user.last_name + '" ha solicitado el ingreso del artículo "' + self.name + '".' )
     end
   end 
+
+  def delete_transactions
+    self.inventory_transactions.delete_all
+  end
+
+  def delete_warehouse_transactions
+    self.warehouse_transactions.delete_all
+  end
+
+  def delete_item_locations
+    self.item_locations.delete_all
+  end
+
+  def delete_withdraw_request_items
+    self.withdraw_request_items.delete_all
+  end
+
+  def delete_delivery_request_items
+    self.delivery_request_items.delete_all
+  end
+
+  def delete_pm_items
+    sql = "DELETE from pm_items WHERE inventory_item_id = " + self.id.to_s
+    ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def delete_ae_items
+    sql = "DELETE from ae_items WHERE inventory_item_id = " + self.id.to_s
+    ActiveRecord::Base.connection.execute(sql)
+  end
 
 end
