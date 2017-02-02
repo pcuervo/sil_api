@@ -10,6 +10,8 @@ class InventoryTransaction < ActiveRecord::Base
     transaction_details = { 'inventory_transactions' => [] }
 
     inventory_transactions.each do |i|
+      next if i.inventory_item_id.nil?
+
       inventory_item = InventoryItem.find( i.inventory_item_id )
       transaction = InventoryTransaction.get_by_type( i.actable_id, i.actable_type )
       entry_exit_date = "CheckInTransaction" == i.actable_type ? transaction.entry_date : transaction.exit_date

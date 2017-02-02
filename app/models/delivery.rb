@@ -49,7 +49,7 @@ class Delivery < ActiveRecord::Base
   end
 
   scope :recent, -> {
-    order(created_at: :desc).limit(10)
+    order(updated_at: :desc).limit(10)
   }
 
   scope :shipped, -> {

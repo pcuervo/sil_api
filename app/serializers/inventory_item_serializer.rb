@@ -1,8 +1,23 @@
 class InventoryItemSerializer < ActiveModel::Serializer
-  attributes :id, :name, :item_type, :actable_type, :validity_expiration_date, :status, :value, :created_at, :item_img_thumb, :quantity, :project_data, :owner
+  attributes :id, :name, :item_type, :actable_type, :validity_expiration_date, :status, :value, :created_at, :item_img_thumb, :quantity, :project_data, :owner, :serial_number
 
   def item_img_thumb
     object.item_img(:thumb)
+  end
+
+  def serial_number
+    if object.actable_type == 'UnitItem'
+      unit_item = UnitItem.find( object.actable_id )
+      return unit_item.serial_number
+    end
+    return '-'
+  end
+
+  def model
+    if object.actable_type == 'UnitItem'
+      unit_item = UnitItem.find( object.actable_id )
+      return unit_item.model
+    end
   end
 
   def quantity

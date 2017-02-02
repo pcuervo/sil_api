@@ -64,6 +64,10 @@ class Api::V1::DeliveryRequestsController < ApplicationController
     render json: { success: '¡Se ha cancelado el envío!' }, status: 201
   end
 
+  def by_user
+    render json: DeliveryRequest.where('user_id = ?', params[:id]).order(created_at: :desc), :include => { :delivery_request_items => { :only => [:inventory_item_id] } }, :except => [:updated_at]
+  end
+
   private
 
     def delivery_request_params

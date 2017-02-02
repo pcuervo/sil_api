@@ -1,6 +1,13 @@
 class InventoryItem < ActiveRecord::Base
   after_create :send_notification_to_account_executives, if: :belongs_to_client?
   after_create :send_entry_request_notifications, if: :has_pending_entry?
+  before_destroy :delete_transactions
+  before_destroy :delete_warehouse_transactions
+  before_destroy :delete_item_locations
+  before_destroy :delete_withdraw_request_items
+  before_destroy :delete_delivery_request_items
+  before_destroy :delete_pm_items
+  before_destroy :delete_ae_items
 
   actable
 
@@ -429,5 +436,35 @@ class InventoryItem < ActiveRecord::Base
       admin.notifications << Notification.create( :title => 'Solicitud de entrada', :inventory_item_id => self.id, :message => self.user.get_role + ' "' + self.user.first_name + ' ' + self.user.last_name + '" ha solicitado el ingreso del artículo "' + self.name + '".' )
     end
   end 
+
+  def delete_transactions
+    self.inventory_transactions.delete_all
+  end
+
+  def delete_warehouse_transactions
+    self.warehouse_transactions.delete_all
+  end
+
+  def delete_item_locations
+    self.item_locations.delete_all
+  end
+
+  def delete_withdraw_request_items
+    self.withdraw_request_items.delete_all
+  end
+
+  def delete_delivery_request_items
+    self.delivery_request_items.delete_all
+  end
+
+  def delete_pm_items
+    sql = "DELETE from pm_items WHERE inventory_item_id = " + self.id.to_s
+    ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def delete_ae_items
+    sql = "DELETE from ae_items WHERE inventory_item_id = " + self.id.to_s
+    ActiveRecord::Base.connection.execute(sql)
+  end
 
 end
