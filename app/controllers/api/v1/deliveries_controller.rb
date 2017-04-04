@@ -1,4 +1,7 @@
 class Api::V1::DeliveriesController < ApplicationController
+  before_action only: [:index] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   respond_to :json
 
   def show

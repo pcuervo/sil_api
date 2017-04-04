@@ -1,5 +1,7 @@
 class Api::V1::UsersController < ApplicationController
-	before_action :authenticate_with_token!, only: [:update, :create, :destroy]
+  before_action only: [:update, :create, :destroy, :change_password] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
 	before_action :cors_preflight_check
   after_action :cors_set_access_control_headers
 
@@ -17,7 +19,6 @@ class Api::V1::UsersController < ApplicationController
 		user = User.new(user_params)
 		if user.save
 			render json: user, status: 201, location: [:api, user]
-			log_action( current_user.id, 'User', 'Created user "' + user.first_name + ' ' + user.last_name + '" with role ' + user.get_role , user.id )
 			return
 		end
 

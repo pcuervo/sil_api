@@ -1,5 +1,7 @@
 class Api::V1::ClientsController < ApplicationController
-  before_action :authenticate_with_token!, only: [:update, :create, :destroy]
+  before_action only: [:update, :create, :destroy] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   respond_to :json
 
   def show
@@ -13,7 +15,6 @@ class Api::V1::ClientsController < ApplicationController
   def create
     client = Client.new(client_params)
     if client.save
-      log_action( current_user.id, 'Client', 'Created client: "' + client.name, client.id )
       render json: client, status: 201, location: [:api, client]
       return
     end
@@ -25,7 +26,6 @@ class Api::V1::ClientsController < ApplicationController
     client = Client.find(params[:id])
 
     if client.update(client_params) 
-      log_action( current_user.id, 'Client', 'Updated client: "' + client.name, client.id )
       render json: client, status: 201, location: [:api, client ]
       return
     end
@@ -36,7 +36,6 @@ class Api::V1::ClientsController < ApplicationController
   def destroy
     client = Client.find(params[:id])
     client.destroy
-    log_action( current_user.id, 'Client', 'Deleted client: "' + client.name, client.id )
     head 204
   end
 

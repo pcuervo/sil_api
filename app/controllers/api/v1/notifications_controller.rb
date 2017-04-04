@@ -1,5 +1,7 @@
 class Api::V1::NotificationsController < ApplicationController
-  before_action :authenticate_with_token!, only: [:get_unread, :get_read]
+  before_action only: [:get_unread, :get_read, :get_num_unread, :mark_as_read] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   respond_to :json
 
   def index 
@@ -7,27 +9,18 @@ class Api::V1::NotificationsController < ApplicationController
   end
 
   def get_num_unread
-    if user_signed_in?
-      render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
-      return
-    end
-    render json: { error: 'La sesión ha caducado.' }, status: 401
+    render json: { unread_notifications: current_user.notifications.unread.count }, status: 200
+    return
   end
 
   def get_unread
-    if user_signed_in?
-      respond_with current_user.notifications.unread
-      return
-    end
-    render json: { error: 'La sesión ha caducado.' }, status: 401
+    respond_with current_user.notifications.unread
+    return
   end
 
   def get_read
-    if user_signed_in?
-      respond_with current_user.notifications.read
-      return
-    end
-    render json: { error: 'La sesión ha caducado.' }, status: 401
+    respond_with current_user.notifications.read
+    return
   end
 
   def mark_as_read
