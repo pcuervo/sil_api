@@ -6,7 +6,6 @@ class Api::V1::InventoryItemsController < ApplicationController
   after_action :send_notification_authorize_withdrawal, only: [:authorize_withdrawal]
   after_action :send_entry_request_notifications, only: [:request_item_entry]
   after_action :send_cancelled_entry_request_notifications, only: [:cancel_item_entry_request]
-
   respond_to :json
 
   def index
@@ -224,5 +223,4 @@ class Api::V1::InventoryItemsController < ApplicationController
         end
       end
     end 
-
 end
