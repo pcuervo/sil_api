@@ -1,5 +1,7 @@
 class Api::V1::WarehouseLocationsController < ApplicationController
-  before_action :authenticate_with_token!, only: [:update, :locate_item, :locate_bundle]
+  before_action only: [:update, :locate_item, :locate_bundle] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   respond_to :json
 
   def show

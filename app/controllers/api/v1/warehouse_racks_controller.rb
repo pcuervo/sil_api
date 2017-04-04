@@ -25,7 +25,6 @@ class Api::V1::WarehouseRacksController < ApplicationController
 
     if warehouse_rack.save
       warehouse_rack.add_initial_locations( params[:units].to_i )
-      log_action( current_user.id, 'WarehouseRack', 'Se ha creado el Rack: "' + warehouse_rack.name + '" con ' + warehouse_rack.warehouse_locations.count.to_s + ' ubicaciones.', warehouse_rack.id )
       render json: warehouse_rack, status: 201, location: [:api, warehouse_rack]
       return
     end

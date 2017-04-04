@@ -1,5 +1,7 @@
 class Api::V1::UnitItemsController < ApplicationController
-
+  before_action only: [:create, :withdraw] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   respond_to :json
   
   def show

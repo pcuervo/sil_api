@@ -1,5 +1,7 @@
 class Api::V1::WithdrawRequestsController < ApplicationController
-  before_action :authenticate_with_token!, only: [:create, :authorize_withdrawal, :cancel_withdrawal]
+  before_action only: [:create, :authorize_withdrawal, :cancel_withdrawal] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   after_action :send_withdrawal_request_notifications, only: [:create]
   after_action :send_withdrawal_approve_notifications, only: [:authorize_withdrawal]
   after_action :send_withdrawal_cancel_notifications, only: [:cancel_withdrawal]

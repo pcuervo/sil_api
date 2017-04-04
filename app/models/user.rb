@@ -19,6 +19,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :notifications
   has_many :pm_items
   has_many :ae_items
+  has_many :user_tokens
 
   # AVAILABLE ROLES
   ADMIN = 1
@@ -30,10 +31,12 @@ class User < ActiveRecord::Base
 
   has_attached_file :avatar, :styles => { :medium => "300x300>", :thumb => "200x200#" }, default_url: "/images/:style/missing.png", :path => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :url => ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", :s3_credentials => S3_CREDENTIALS
   validates_attachment_content_type :avatar, content_type: /\Aimage\/.*\Z/
- 	
- 	def generate_authentication_token!
+ 
+
+  def generate_authentication_token!
     begin
       self.auth_token = Devise.friendly_token
+      UserToken.create( :user_id => self.id, :auth_token => self.auth_token )
     end while self.class.exists?(auth_token: auth_token)
   end
 

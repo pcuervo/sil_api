@@ -1,4 +1,7 @@
 class Api::V1::DeliveryRequestsController < ApplicationController
+  before_action only: [:create] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   after_action :send_delivery_request_notifications, only: [:create]
   after_action :send_delivery_approved_notifications, only: [:authorize_delivery]
   after_action :send_delivery_rejected_notifications, only: [:reject_delivery]
