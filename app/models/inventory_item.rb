@@ -55,7 +55,7 @@ class InventoryItem < ActiveRecord::Base
     inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
 
     if params[:keyword]
-      inventory_items = inventory_items.where( 'lower( name ) LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%" )
+      inventory_items = inventory_items.where( 'name LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword]}%", "%#{params[:keyword].downcase}%" )
     end
 
     if params[:serial_number].present?
@@ -181,7 +181,8 @@ class InventoryItem < ActiveRecord::Base
         'validity_expiration_date'  => self.validity_expiration_date,
         'locations'                 => locations,
         'quantity'                  => self.get_quantity,
-        'created_at'                => self.created_at
+        'created_at'                => self.created_at,
+        'ramd'                      => self.pm_id
       }  
     }
 
@@ -352,6 +353,7 @@ class InventoryItem < ActiveRecord::Base
 
   def pm_id
     project = Project.find( self.project_id )
+    pm_items = self.pm_items
     return project.get_pm_id if ! pm_items.present? 
 
     pm = pm_items.first.user
@@ -360,6 +362,7 @@ class InventoryItem < ActiveRecord::Base
 
   def ae_id
     project = Project.find( self.project_id )
+    ae_items = self.ae_items
     return project.get_ae_id if ! ae_items.present? 
 
     ae = ae_items.first.user

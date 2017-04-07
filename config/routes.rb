@@ -139,6 +139,7 @@ Sil::Application.routes.draw do
           get 'stats',                :action => 'stats'
           get 'pending_approval',     :action => 'pending_approval'
           post 'update',              :action => 'update'
+          post 'by_delivery_man/',    :action => 'by_delivery_man'
         end
       end
       resources :system_settings, :only => [:show] do

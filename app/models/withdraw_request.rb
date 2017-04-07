@@ -22,6 +22,7 @@ class WithdrawRequest < ActiveRecord::Base
       else
         quantity_to_withdraw = quantities[i].to_i
       end
+      puts 'q: ' + quantity_to_withdraw.to_s
       withdrawn = inventory_item.withdraw( self.exit_date, '', self.pickup_company_id, pickup_company_contact, additional_comments, quantity_to_withdraw )
       if withdrawn != true
         return false

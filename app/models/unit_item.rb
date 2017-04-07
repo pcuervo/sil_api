@@ -8,6 +8,8 @@ class UnitItem < ActiveRecord::Base
   #   - true if successful or error code
   def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
     return self.status if cannot_withdraw?
+
+    puts 'we ever here?'
     self.status = InventoryItem::OUT_OF_STOCK
     if self.save
       inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', self.id, 'UnitItem' ).first

@@ -1,7 +1,8 @@
 class Api::V1::DeliveriesController < ApplicationController
-  before_action only: [:index] do 
+  before_action only: [:index, :by_delivery_man] do 
     authenticate_with_token! request.headers['Authorization']
   end
+  after_action :send_new_delivery_notifications, only: [:create]
   respond_to :json
 
   def show
@@ -21,24 +22,29 @@ class Api::V1::DeliveriesController < ApplicationController
     respond_with deliveries
   end
 
+  def by_delivery_man
+    deliveries = Delivery.where('delivery_user_id = ?', current_user.id ).order(updated_at: :desc)
+    render json: deliveries, status: 200
+  end
+
   def create
     @delivery_user = User.find( params[:user_id] )
-    delivery = Delivery.new( delivery_params )
-    @delivery_user.deliveries << delivery
+    @delivery = Delivery.new( delivery_params )
+    @delivery_user.deliveries << @delivery
 
     if [ User::PROJECT_MANAGER, User::ACCOUNT_EXECUTIVE, User::CLIENT ].include? @delivery_user.role
-      delivery.status = Delivery::PENDING_APPROVAL
+      @delivery.status = Delivery::PENDING_APPROVAL
     end
 
-    if delivery.save!
+    if @delivery.save!
       items = params[:inventory_items]
-      delivery.add_items( items, @delivery_user.first_name + ' ' + @delivery_user.last_name, params[:delivery][:additional_comments] )
+      @delivery.add_items( items, @delivery_user.first_name + ' ' + @delivery_user.last_name, params[:delivery][:additional_comments] )
 
-      send_delivery_request_notifications if Delivery::PENDING_APPROVAL == delivery.status
+      send_delivery_request_notifications if Delivery::PENDING_APPROVAL == @delivery.status
 
-      render json: delivery, status: 201, location: [:api, delivery]
+      render json: @delivery, status: 201, location: [:api, @delivery]
     else
-      render json: { errors: delivery.errors }, status: 422
+      render json: { errors: @delivery.errors }, status: 422
     end
   end
 
@@ -54,6 +60,8 @@ class Api::V1::DeliveriesController < ApplicationController
 
     if @delivery.update( delivery_params )
       send_delivery_approval_notifications if Delivery::PENDING_APPROVAL == previous_status
+      send_delivered_notifications if Delivery::DELIVERED == @delivery.status
+      send_rejected_notifications if Delivery::REJECTED == @delivery.status
       render json: @delivery, status: 200, location: [:api, @delivery]
       return
     end
@@ -95,6 +103,31 @@ class Api::V1::DeliveriesController < ApplicationController
   def send_delivery_approval_notifications
     user = @delivery.user
     user.notifications << Notification.create( :title => 'Aprobación de envío', :inventory_item_id => -1, :message => 'Se ha aprobado tu solicitud de envío.' )
+  end 
+
+  def send_delivered_notifications
+    user = @delivery.user
+    user.notifications << Notification.create( :title => 'Envío entregado', :inventory_item_id => -1, :message => 'Se ha entregado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '.' )
+    admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
+    admins.each do |admin|
+      admin.notifications << Notification.create( :title => 'Envío entregado', :inventory_item_id => -1, :message => 'Se ha entregado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '.' )
+    end
+  end
+
+  def send_rejected_notifications
+    user = @delivery.user
+    user.notifications << Notification.create( :title => 'Envío rechazado', :inventory_item_id => -1, :message => 'Se ha rechazado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '. Por favor ponte en contacto con el jefe de almacén para conocer el motivo.' )
+    admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
+    admins.each do |admin|
+      admin.notifications << Notification.create( :title => 'Envío rechazado', :inventory_item_id => -1, :message => 'Se ha rechazado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '. Por favor ponte en contacto con el repartidor para conocer el motivo.' )
+    end
+  end 
+
+  def send_new_delivery_notifications
+    return if @delivery.delivery_user_id == '-1'
+
+    delivery_guy = User.find( @delivery.delivery_user_id )
+    delivery_guy.notifications << Notification.create( :title => 'Nuevo envío', :inventory_item_id => -1, :message => 'Te han asignado un envío para el día ' + @delivery.date_time.strftime("%d/%m/%Y") + '. Por favor ponte en contacto con el jefe de almacén.' )
   end 
 end
 
