@@ -1,5 +1,5 @@
 class Api::V1::InventoryItemsController < ApplicationController
-  before_action only: [:create, :authorize_entry, :authorize_withdrawal, :request_item_entry, :cancel_item_entry_request, :destroy ] do 
+  before_action only: [:create, :authorize_entry, :authorize_withdrawal, :request_item_entry, :cancel_item_entry_request, :destroy, :get_stats_pm_ae ] do 
     authenticate_with_token! request.headers['Authorization']
   end
   after_action :send_notification_authorize_entry, only: [:authorize_entry]
@@ -13,6 +13,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def show
+    puts InventoryItem.find(params[:id]).get_details.to_yaml
     respond_with InventoryItem.find(params[:id]).get_details
   end
 
