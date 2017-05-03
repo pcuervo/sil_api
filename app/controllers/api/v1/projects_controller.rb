@@ -1,5 +1,7 @@
 class Api::V1::ProjectsController < ApplicationController
-  before_action :authenticate_with_token!, only: [:create]
+  before_action only: [:create] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
 
   respond_to :json
 
