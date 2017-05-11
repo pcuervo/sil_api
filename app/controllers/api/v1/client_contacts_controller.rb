@@ -63,14 +63,15 @@ class Api::V1::ClientContactsController < ApplicationController
     else
       client_contact = ClientContact.find( params[:id] )
     end
-    client_contact.projects.each do |p|
-      project_ids.push( p.id )
+    client_contact.client.projects.each do |p|
+      project_ids.push( p.id ) 
     end
 
     stats['inventory_by_type'] = InventoryItem.inventory_by_type( project_ids )
     stats['rent_by_month'] = client_contact.get_contact_rent_history
     stats['total_number_items'] = client_contact.inventory_items.count
     stats['total_high_value_items'] = client_contact.total_high_value_items
+    stats['occupied_units'] = client_contact.get_occuppied_units( Time.now.month, Time.now.year )
 
     render json: { stats: stats }, status: 200
   end
