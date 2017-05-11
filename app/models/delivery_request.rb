@@ -7,6 +7,7 @@ class DeliveryRequest < ActiveRecord::Base
   def update_items_status_to_pending
     delivery_request_items.each do |dri|
       inventory_item = dri.inventory_item
+      return if 'BulkItem' == inventory_item.actable_type 
       inventory_item.status = InventoryItem::PENDING_DELIVERY
       inventory_item.save
     end
