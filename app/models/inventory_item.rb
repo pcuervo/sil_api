@@ -441,23 +441,25 @@ class InventoryItem < ActiveRecord::Base
   end 
 
   def delete_transactions
-    self.inventory_transactions.delete_all
+    puts 'delete_transactions'
+    self.inventory_transactions.destroy_all
   end
 
   def delete_warehouse_transactions
-    self.warehouse_transactions.delete_all
+    self.warehouse_transactions.destroy_all
   end
 
   def delete_item_locations
-    self.item_locations.delete_all
+    puts 'delete_item_locations'
+    self.item_locations.destroy_all
   end
 
   def delete_withdraw_request_items
-    self.withdraw_request_items.delete_all
+    self.withdraw_request_items.destroy_all
   end
 
   def delete_delivery_request_items
-    self.delivery_request_items.delete_all
+    self.delivery_request_items.destroy_all
   end
 
   def delete_pm_items
