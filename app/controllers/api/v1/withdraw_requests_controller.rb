@@ -85,10 +85,12 @@ class Api::V1::WithdrawRequestsController < ApplicationController
       end
     end 
 
+
     def send_withdrawal_cancel_notifications
       if @cancelled && ( 1 == current_user.role || 4 == current_user.role )
         user = @withdraw_request.user
         user.notifications << Notification.create( :title => 'Cancelación de solicitud salida', :inventory_item_id => -1, :message => 'Se ha cancelado la salida que solicitaste para el día ' + @withdraw_request.exit_date.strftime("%d/%m/%Y") + ', ponte en contacto con un ejecutivo de cuenta para conocer el motivo.' )
       end
     end 
+
 end
