@@ -16,6 +16,12 @@ class Api::V1::DeliveriesController < ApplicationController
       deliveries = Delivery.all.order(updated_at: :desc)
     end
 
+    if 'pending' == params[:status]
+      deliveries = Delivery.where('status NOT IN (?)', [Delivery::DELIVERED, Delivery::REJECTED, Delivery::PARTIALLY_DELIVERED] ).order(updated_at: :desc)
+    else
+      deliveries = Delivery.where('status IN (?)', [Delivery::DELIVERED, Delivery::REJECTED, Delivery::PARTIALLY_DELIVERED] ).order(updated_at: :desc)
+    end
+
     if 1 != params[:user_role].to_i && 4 != params[:user_role].to_i
       deliveries = deliveries.where( 'user_id = ?', current_user.id )
     end
@@ -23,8 +29,13 @@ class Api::V1::DeliveriesController < ApplicationController
   end
 
   def by_delivery_man
-    deliveries = Delivery.where('delivery_user_id = ?', current_user.id ).order(updated_at: :desc)
-    render json: deliveries, status: 200
+    if 'pending' == params[:status]
+      deliveries = Delivery.where('delivery_user_id = ? AND status NOT IN (?)', current_user.id, [Delivery::DELIVERED, Delivery::REJECTED, Delivery::PARTIALLY_DELIVERED]  ).order(updated_at: :desc)
+    else
+      deliveries = Delivery.where('delivery_user_id = ? AND status IN (?)', current_user.id, [Delivery::DELIVERED, Delivery::REJECTED, Delivery::PARTIALLY_DELIVERED]  ).order(updated_at: :desc)
+    end
+
+    render json: deliveries.order(date_time: :desc), status: 200
   end
 
   def create
