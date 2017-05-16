@@ -121,6 +121,8 @@ class Api::V1::DeliveriesController < ApplicationController
     user.notifications << Notification.create( :title => 'Envío entregado', :inventory_item_id => -1, :message => 'Se ha entregado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '.' )
     admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
     admins.each do |admin|
+      next if admin.email == user.email
+      
       admin.notifications << Notification.create( :title => 'Envío entregado', :inventory_item_id => -1, :message => 'Se ha entregado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '.' )
     end
   end
@@ -130,6 +132,8 @@ class Api::V1::DeliveriesController < ApplicationController
     user.notifications << Notification.create( :title => 'Envío rechazado', :inventory_item_id => -1, :message => 'Se ha rechazado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '. Por favor ponte en contacto con el jefe de almacén para conocer el motivo.' )
     admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
     admins.each do |admin|
+      next if admin.email == user.email
+
       admin.notifications << Notification.create( :title => 'Envío rechazado', :inventory_item_id => -1, :message => 'Se ha rechazado el envío de ' + @delivery.delivery_items.count.to_s + ' artículo(s) que solicitaste para "' + @delivery.company + '" el día ' + @delivery.date_time.strftime("%d/%m/%Y")  + '. Por favor ponte en contacto con el repartidor para conocer el motivo.' )
     end
   end 
