@@ -5,8 +5,8 @@ class Api::V1::ClientContactsController < ApplicationController
   respond_to :json
 
   def show
-    user = User.find(params[:id])
-    respond_with ClientContact.find(user.actable_id)
+    #user = User.find(params[:id])
+    respond_with ClientContact.find(params[:id])
   end
 
   def index
