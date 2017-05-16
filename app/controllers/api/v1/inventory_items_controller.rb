@@ -217,11 +217,17 @@ class Api::V1::InventoryItemsController < ApplicationController
     end 
 
     def send_cancelled_entry_request_notifications
-      if @cancelled
+      return if ! @cancelled
+
+      if current_user.role == User::PROJECT_MANAGER || current_user.role == User::ACCOUNT_EXECUTIVE || current_user.role == User::CLIENT
+        users = User.where('id IN (?)', [ current_user.id ] )
+        message = 'El usuario ' + current_user.first_name + ' ' + current_user.last_name + ' ha cancelado la solicitud de entrada para el artículo "' + @inventory_item_request.name + '" del día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + '.'
+      else
         users = User.where('id IN (?)', [ @inventory_item_request.pm_id, @inventory_item_request.ae_id ])
-        users.each do |admin|
-          admin.notifications << Notification.create( :title => 'Solicitud de entrada rechazada', :inventory_item_id => -1, :message => 'Se ha rechazado tu solicitud de entrada para el artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + ', ponte en contacto con el jefe de almacén para conocer el motivo.' )
-        end
+        message = 'Se ha rechazado tu solicitud de entrada para el artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + ', ponte en contacto con el jefe de almacén para conocer el motivo.'
+      end
+      users.each do |admin|
+        admin.notifications << Notification.create( :title => 'Solicitud de entrada rechazada', :inventory_item_id => -1, :message => message )
       end
     end 
 end
