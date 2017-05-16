@@ -220,7 +220,7 @@ class Api::V1::InventoryItemsController < ApplicationController
       return if ! @cancelled
 
       if current_user.role == User::PROJECT_MANAGER || current_user.role == User::ACCOUNT_EXECUTIVE || current_user.role == User::CLIENT
-        users = User.where('id IN (?)', [ current_user.id ] )
+        users = User.where('role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ] )
         message = 'El usuario ' + current_user.first_name + ' ' + current_user.last_name + ' ha cancelado la solicitud de entrada para el artículo "' + @inventory_item_request.name + '" del día ' + @inventory_item_request.entry_date.strftime("%d/%m/%Y") + '.'
       else
         users = User.where('id IN (?)', [ @inventory_item_request.pm_id, @inventory_item_request.ae_id ])
