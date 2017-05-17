@@ -10,6 +10,7 @@ Sil::Application.routes.draw do
         collection do 
           post 'update/', :action => 'update'
           post 'change_password/', :action => 'change_password'
+          post 'delete/', :action => 'delete'
         end
         resources :inventory_items, :only => [:create] 
         resources :unit_items, :only => [:create]

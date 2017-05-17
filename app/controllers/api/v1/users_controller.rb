@@ -1,5 +1,5 @@
 class Api::V1::UsersController < ApplicationController
-  before_action only: [:update, :create, :destroy, :change_password] do 
+  before_action only: [:update, :create, :destroy, :change_password, :delete] do 
     authenticate_with_token! request.headers['Authorization']
   end
 	before_action :cors_preflight_check
@@ -52,6 +52,30 @@ class Api::V1::UsersController < ApplicationController
 
 		render json: { errors: user.errors }, status: 422
 	end
+
+  def delete
+    user = User.find(params[:id])
+    if params[:pm].present?
+      user.transfer_inventory_to( params[:pm] )
+      user.transfer_deliveries_to( params[:pm] )
+      user.transfer_requests_to( params[:pm] )
+      user.destroy
+      render json: { success: 'Se ha eliminado el usuario y se ha transferido su inventario con éxito' }
+      return
+    end
+
+    if params[:ae].present?
+      user.transfer_inventory_to( params[:ae] )
+      user.transfer_deliveries_to( params[:ae] )
+      user.transfer_requests_to( params[:ae] )
+      user.destroy
+      render json: { success: 'Se ha eliminado el usuario y se ha transferido su inventario con éxito' }
+      return
+    end
+
+    user.destroy
+    render json: user, status: 200
+  end
 
 	def destroy
 	  current_user.destroy
