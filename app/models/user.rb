@@ -76,8 +76,8 @@ class User < ActiveRecord::Base
       end
     elsif self.role == WAREHOUSE_ADMIN
       self.inventory_items do |item|
-        item.user = new_user
-        item.save
+        new_user.inventory_items << item
+        new_user.save
       end
     end
   end
