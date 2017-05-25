@@ -76,8 +76,7 @@ class User < ActiveRecord::Base
         ActiveRecord::Base.connection.execute(sql)
       end
     elsif self.role == WAREHOUSE_ADMIN
-      puts 'we ever here?'
-      self.inventory_items do |item|
+      self.inventory_items.each do |item|
         new_user.inventory_items << item
         new_user.save
       end
