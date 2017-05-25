@@ -73,6 +73,15 @@ class Api::V1::UsersController < ApplicationController
       return
     end
 
+    if params[:wh_admin].present?
+      user.transfer_inventory_to( params[:wh_admin] )
+      user.transfer_deliveries_to( params[:wh_admin] )
+      user.transfer_requests_to( params[:wh_admin] )
+      user.destroy
+      render json: { success: 'Se ha eliminado el usuario y se ha transferido su inventario con éxito' }
+      return
+    end
+
     user.destroy
     render json: user, status: 200
   end
@@ -96,6 +105,10 @@ class Api::V1::UsersController < ApplicationController
 
   def get_delivery_users
   	respond_with User.delivery_users
+  end
+
+  def get_warehouse_admins
+    respond_with User.warehouse_admins
   end
 
 	private	

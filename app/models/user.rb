@@ -74,6 +74,11 @@ class User < ActiveRecord::Base
         sql = "DELETE from ae_items WHERE inventory_item_id = " + item.inventory_item_id.to_s + " AND user_id = " + self.id.to_s
         ActiveRecord::Base.connection.execute(sql)
       end
+    elsif self.role == WAREHOUSE_ADMIN
+      self.inventory_items do |item|
+        item.user = new_user
+        item.save
+      end
     end
   end
 
@@ -104,6 +109,7 @@ class User < ActiveRecord::Base
   scope :ae_users, -> { where( role: ACCOUNT_EXECUTIVE ) }
   scope :client_users, -> { where( role: CLIENT ) }
   scope :delivery_users, -> { where( role: DELIVERY ) }
+  scope :warehouse_admins, -> { where( role: WAREHOUSE_ADMIN ) }
   scope :pm_ae_users, -> { where('role = ? OR role = ?', PROJECT_MANAGER, ACCOUNT_EXECUTIVE ) }
 
   private
