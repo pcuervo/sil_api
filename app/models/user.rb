@@ -62,6 +62,7 @@ class User < ActiveRecord::Base
 
   def transfer_inventory_to new_user_id
     new_user = User.find( new_user_id )
+    puts 'ik we here...' + new_user.role.to_s
     if self.role == PROJECT_MANAGER
       self.pm_items.each do |item|
         PmItem.create( :user_id => new_user_id, :inventory_item_id => item.inventory_item_id )
@@ -75,6 +76,7 @@ class User < ActiveRecord::Base
         ActiveRecord::Base.connection.execute(sql)
       end
     elsif self.role == WAREHOUSE_ADMIN
+      puts 'we ever here?'
       self.inventory_items do |item|
         new_user.inventory_items << item
         new_user.save
