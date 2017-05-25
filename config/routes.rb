@@ -17,6 +17,7 @@ Sil::Application.routes.draw do
           collection do 
             get 'get_project_managers/', :action => 'get_project_managers'
             get 'get_account_executives/', :action => 'get_account_executives'
+            get 'get_warehouse_admins/', :action => 'get_warehouse_admins'
             get 'get_client_contacts/', :action => 'get_client_contacts'
             get 'get_delivery_users/', :action => 'get_delivery_users'
           end
