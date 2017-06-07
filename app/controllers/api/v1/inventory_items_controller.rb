@@ -96,8 +96,7 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def is_reentry_with_pending_location
-    pending_location_item = InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ?', 'BulkItem').group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
-    puts pending_location_item.to_yaml
+    pending_location_item = InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', params[:id]).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
     if pending_location_item.present?
       render json: { quantity: pending_location_item.first.quantity }, status: 201
       return
