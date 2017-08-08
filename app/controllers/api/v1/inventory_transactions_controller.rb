@@ -1,4 +1,7 @@
 class Api::V1::InventoryTransactionsController < ApplicationController
+  before_action only: [:index, :get_check_ins, :get_check_outs] do 
+    authenticate_with_token! request.headers['Authorization']
+  end
   respond_to :json
   
   def show
@@ -6,7 +9,7 @@ class Api::V1::InventoryTransactionsController < ApplicationController
   end
 
   def index
-    respond_with InventoryTransaction.search( params )
+    respond_with InventoryTransaction.search( params, current_user )
   end
 
   def get_check_ins

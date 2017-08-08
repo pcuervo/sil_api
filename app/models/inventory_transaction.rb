@@ -4,8 +4,13 @@ class InventoryTransaction < ActiveRecord::Base
   belongs_to :inventory_item
   validates :concept, :inventory_item, presence: true
 
-  def self.search( params = {} )
-    inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
+  def self.search( params = {}, user )
+    if( User::CLIENT == user.role )
+      client_user = ClientContact.find( user.actable_id )
+      inventory_transactions = InventoryTransaction.where('inventory_item_id IN (?)', client_user.inventory_items_id ).order(created_at: :desc)
+    else
+      inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
+    end
 
     transaction_details = { 'inventory_transactions' => [] }
 
@@ -60,11 +65,14 @@ class InventoryTransaction < ActiveRecord::Base
   end
 
   def self.check_ins
-    transactions = CheckInTransaction.all.order(updated_at: :desc)
+    transactions = CheckInTransaction.all.order(updated_at: :desc).limit(10)
     check_ins = { 'inventory_transactions' => [] }
 
     transactions.each do |t|
       inventory_transaction = InventoryTransaction.find_by_actable_id( t.id )
+      next if ! inventory_transaction.present?
+      next if ! t.inventory_item_id.present?
+
       item = InventoryItem.find(t.inventory_item_id)
       check_ins['inventory_transactions'].push({
         'id'              => inventory_transaction.id,

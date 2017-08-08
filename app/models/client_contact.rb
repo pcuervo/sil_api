@@ -20,6 +20,16 @@ class ClientContact < ActiveRecord::Base
     items
   end
 
+  def inventory_items_id
+    projects = self.client.projects
+    ids = []
+    projects.each do |project| 
+      projects_ids = project.inventory_items.pluck(:id)
+      ids = ids + projects_ids
+    end
+    ids
+  end
+
   def total_high_value_items
     projects = self.client.projects
     total = 0
