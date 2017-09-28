@@ -1,3 +1,4 @@
+# ELIMINAR PRODUCTO DE TODOS LADOS
 DELETE FROM item_locations
 WHERE inventory_item_id IN (752, 750, 749);
 
@@ -57,9 +58,13 @@ DELETE FROM bundle_items WHERE id IN (
 	AND actable_type = 'BundleItem'
 );
 
-
 DELETE FROM inventory_items
 WHERE id IN (752, 750, 749);
 
-SELECT * FROM inventory_items
-WHERE id IN (752, 750, 749);
+## MAS EN UBICACION QUE EN INVENTARIO
+SELECT i.id, SUM(il.quantity), b.quantity FROM inventory_items i
+INNER JOIN item_locations il ON il.inventory_item_id = i.id
+INNER JOIN bulk_items b ON b.id = i.actable_id
+WHERE i.actable_type = 'BulkItem'
+GROUP BY i.id, b.quantity
+HAVING SUM(il.quantity) > b.quantity

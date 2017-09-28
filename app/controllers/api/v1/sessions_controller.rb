@@ -29,4 +29,8 @@ class Api::V1::SessionsController < ApplicationController
   	user.save
   	head 204
   end
+
+  def is_active
+    render json: current_user
+  end
 end

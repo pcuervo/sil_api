@@ -27,6 +27,7 @@ Sil::Application.routes.draw do
       resources :sessions, :only => [:create, :destroy] do
         collection do
           post 'destroy/', :action => 'destroy'
+          post 'is_active', :action => 'is_active'
         end
       end
       resources :inventory_items, :only => [:index, :show] do
