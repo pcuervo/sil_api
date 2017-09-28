@@ -15,6 +15,7 @@ class WarehouseLocation < ActiveRecord::Base
   IS_FULL = -1
   NOT_ENOUGH_STOCKS = -2
   NOT_ENOUGH_UNITS = -3
+  ITEM_ALREADY_LOCATED = -4
 
   # Locates an InventoryItem in current WarehouseLocation
   # * *Params:* 
@@ -29,11 +30,30 @@ class WarehouseLocation < ActiveRecord::Base
 
     item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
     if item_location.present?
-      item_location.quantity = item_location.quantity + quantity
-      item_location.units = item_location.units + units
+
+      inventory_item = item_location.inventory_item 
+      if( 'BulkItem' == inventory_item.actable_type )
+        bulk_item = BulkItem.find( inventory_item.actable_id )
+        return ITEM_ALREADY_LOCATED if ( item_location.quantity + quantity ) > bulk_item.quantity
+
+        item_location.quantity = item_location.quantity + quantity
+        item_location.units = item_location.units + units
+        if item_location.quantity > bulk_item.quantity 
+          item_location.quantity = bulk_item.quantity 
+        end
+      end
+
       item_location.save
       w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::ENTRY )
     else
+      inventory_item = InventoryItem.find( inventory_item_id )
+      if( 'BulkItem' == inventory_item.actable_type )
+        bulk_item = BulkItem.find( inventory_item.actable_id )
+        if quantity > bulk_item.quantity 
+          quantity = bulk_item.quantity 
+        end
+      end
+
       item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
       self.item_locations << item_location
       w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
