@@ -1,18 +1,18 @@
-# ELIMINAR PRODUCTO DE TODOS LADOS
+--ELIMINAR PRODUCTO DE TODOS LADOS
 DELETE FROM item_locations
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM  warehouse_transactions
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM ae_items
-WHERE inventory_item_id IN (752, 750, 749); 
+WHERE inventory_item_id IN (171, 746); 
 
 DELETE FROM pm_items
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM inventory_transactions
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM check_in_transactions
 WHERE id IN ( SELECT ct.id from check_in_transactions ct 
@@ -25,43 +25,43 @@ LEFT JOIN inventory_transactions it   ON ct.id = it.actable_id
 WHERE it.id is null );
 
 DELETE FROM delivery_items
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM delivery_request_items
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM withdraw_request_items
-WHERE inventory_item_id IN (752, 750, 749);
+WHERE inventory_item_id IN (171, 746);
 
 DELETE FROM bulk_items WHERE id IN (
 	SELECT actable_id FROM inventory_items
-	WHERE id IN (752, 750, 749)
+	WHERE id IN (171, 746)
 	AND actable_type = 'BulkItem'
 );
 
 DELETE FROM unit_items WHERE id IN (
 	SELECT actable_id FROM inventory_items
-	WHERE id IN (752, 750, 749)
+	WHERE id IN (171, 746)
 	AND actable_type = 'UnitItem'
 );
 
 DELETE FROM bundle_item_parts
 WHERE bundle_item_id IN (
 	SELECT actable_id FROM inventory_items
-	WHERE id IN (752, 750, 749)
+	WHERE id IN (171, 746)
 	AND actable_type = 'BundleItem'
 );
 
 DELETE FROM bundle_items WHERE id IN (
 	SELECT actable_id FROM inventory_items
-	WHERE id IN (752, 750, 749)
+	WHERE id IN (171, 746)
 	AND actable_type = 'BundleItem'
 );
 
 DELETE FROM inventory_items
-WHERE id IN (752, 750, 749);
+WHERE id IN (171, 746);
 
-## MAS EN UBICACION QUE EN INVENTARIO
+--MAS EN UBICACION QUE EN INVENTARIO
 SELECT i.id, SUM(il.quantity), b.quantity FROM inventory_items i
 INNER JOIN item_locations il ON il.inventory_item_id = i.id
 INNER JOIN bulk_items b ON b.id = i.actable_id

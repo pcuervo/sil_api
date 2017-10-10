@@ -72,6 +72,11 @@ class WarehouseRack < ActiveRecord::Base
       l.item_locations.order(created_at: :desc).each do |il|
         #next if rack_items['items'].any?{ |i| i['name'] == il.inventory_item.name }
 
+        unless il.inventory_item.present?
+          puts 'borra alv'
+          puts il.to_yaml
+        end
+
         rack_items['items'].push({
           'id'            => il.inventory_item.id,
           'img'           => il.inventory_item.item_img(:thumb),
