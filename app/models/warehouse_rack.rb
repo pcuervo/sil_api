@@ -74,7 +74,8 @@ class WarehouseRack < ActiveRecord::Base
 
         unless il.inventory_item.present?
           puts 'borra alv'
-          puts il.to_yaml
+          puts il.destroy
+          next
         end
 
         rack_items['items'].push({
