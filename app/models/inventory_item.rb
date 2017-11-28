@@ -462,7 +462,7 @@ class InventoryItem < ActiveRecord::Base
   def delete_bundle_item_parts
     return if self.actable_type != 'BundleItem'
 
-    sql = "DELETE from bundle_item_parts WHERE bundle_item_id = " + self.actiable_id.to_s
+    sql = "DELETE from bundle_item_parts WHERE bundle_item_id = " + self.actable_id.to_s
     ActiveRecord::Base.connection.execute(sql)
   end
 
