@@ -8,6 +8,7 @@ class InventoryItem < ActiveRecord::Base
   before_destroy :delete_delivery_request_items
   before_destroy :delete_pm_items
   before_destroy :delete_ae_items
+  before_destroy :delete_bundle_item_parts
 
   actable
 
@@ -456,6 +457,13 @@ class InventoryItem < ActiveRecord::Base
 
   def delete_withdraw_request_items
     self.withdraw_request_items.destroy_all
+  end
+
+  def delete_bundle_item_parts
+    return if self.actable_type != 'BundleItem'
+
+    sql = "DELETE from bundle_item_parts WHERE bundle_item_id = " + self.actiable_id.to_s
+    ActiveRecord::Base.connection.execute(sql)
   end
 
   def delete_delivery_request_items

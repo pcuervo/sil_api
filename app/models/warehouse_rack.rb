@@ -73,8 +73,7 @@ class WarehouseRack < ActiveRecord::Base
         #next if rack_items['items'].any?{ |i| i['name'] == il.inventory_item.name }
 
         unless il.inventory_item.present?
-          puts 'borra alv'
-          puts il.destroy
+          il.destroy
           next
         end
 
