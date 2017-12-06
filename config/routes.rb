@@ -81,6 +81,7 @@ Sil::Application.routes.draw do
           get 'by_user/:id',            :action => 'by_user'
           post 'add_users',             :action => 'add_users'
           post 'remove_user',           :action => 'remove_user'
+          post 'update',           :action => 'update'
         end
       end
       resources :clients, :only => [:show, :index, :create, :update, :destroy]

@@ -68,3 +68,5 @@ INNER JOIN bulk_items b ON b.id = i.actable_id
 WHERE i.actable_type = 'BulkItem'
 GROUP BY i.id, b.quantity
 HAVING SUM(il.quantity) > b.quantity
+
+
