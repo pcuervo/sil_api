@@ -84,7 +84,11 @@ Sil::Application.routes.draw do
           post 'update',           :action => 'update'
         end
       end
-      resources :clients, :only => [:show, :index, :create, :update, :destroy]
+      resources :clients, :only => [:show, :index, :create,  :destroy] do
+        collection do 
+          post 'update', :action => 'update'
+        end
+      end
       resources :client_contacts, :only => [:show, :index, :create, :update, :destroy] do
         collection do 
           get 'get_by_client/',       :action => 'get_by_client'
