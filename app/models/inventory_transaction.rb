@@ -5,9 +5,10 @@ class InventoryTransaction < ActiveRecord::Base
   validates :concept, :inventory_item, presence: true
 
   def self.search( params = {}, user )
+    puts 'WE ARE HEREEEE'
     if( User::CLIENT == user.role )
       client_user = ClientContact.find( user.actable_id )
-      inventory_transactions = InventoryTransaction.where('inventory_item_id IN (?)', client_user.inventory_items_id ).order(created_at: :desc)
+      inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', client_user.inventory_items_id ).order(created_at: :desc)
     else
       inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
     end
