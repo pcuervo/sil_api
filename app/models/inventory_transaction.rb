@@ -5,7 +5,6 @@ class InventoryTransaction < ActiveRecord::Base
   validates :concept, :inventory_item, presence: true
 
   def self.search( params = {}, user )
-    puts 'WE ARE HEREEEE'
     if( User::CLIENT == user.role )
       client_user = ClientContact.find( user.actable_id )
       inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', client_user.inventory_items_id ).order(created_at: :desc)
@@ -24,6 +23,58 @@ class InventoryTransaction < ActiveRecord::Base
       deliver_pickup_contact = "CheckInTransaction" == i.actable_type ? transaction.delivery_company_contact : transaction.pickup_company_contact
       transaction_details['inventory_transactions'].push({
         'inventory_item'  => {
+            'name'          => inventory_item.name,
+            'actable_type'  => inventory_item.actable_type,
+            'status'        => inventory_item.get_status,
+            'img'           => inventory_item.item_img(:medium)
+        },
+        'id'                      => i.id,
+        'actable_type'            => i.actable_type,
+        'quantity'                => i.quantity,
+        'entry_exit_date'         => entry_exit_date,
+        'deliver_pickup_contact'  => deliver_pickup_contact
+      })
+    end
+
+    transaction_details
+  end
+
+  def self.better_search( keyword, user )
+    puts 'KEYWORD'
+    puts keyword.to_yaml
+    unit_item = UnitItem.find_by_serial_number( keyword )
+    if unit_item.present?
+      inventory_items_id = InventoryItem.select(:id).where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).pluck(:id)
+      inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', inventory_items_id).order(created_at: :desc)
+      return get_formatted_transactions( inventory_transactions )
+    end
+
+
+    bundle_item_part = BundleItemPart.find_by_serial_number( keyword )
+    if bundle_item_part.present?
+      bundle_item = bundle_item_part.bundle_item
+      inventory_items_id = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' ).pluck(:id)
+      inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', inventory_items_id).order(created_at: :desc)
+      return get_formatted_transactions( inventory_transactions )
+    end
+
+    inventory_items_id = InventoryItem.where( 'name LIKE ? OR lower( barcode ) LIKE ?', "%#{keyword}%", "%#{keyword.downcase}%" ).pluck(:id)
+    inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', inventory_items_id).order(created_at: :desc)
+    return get_formatted_transactions( inventory_transactions )
+  end
+
+  def self.get_formatted_transactions( transactions )
+    transaction_details = { 'inventory_transactions' => [] }
+    transactions.each do |i|
+      next if i.inventory_item_id.nil?
+
+      inventory_item = InventoryItem.find( i.inventory_item_id )
+      transaction = InventoryTransaction.get_by_type( i.actable_id, i.actable_type )
+      entry_exit_date = "CheckInTransaction" == i.actable_type ? transaction.entry_date : transaction.exit_date
+      deliver_pickup_contact = "CheckInTransaction" == i.actable_type ? transaction.delivery_company_contact : transaction.pickup_company_contact
+      transaction_details['inventory_transactions'].push({
+        'inventory_item'  => {
+            'id'            => inventory_item.id,
             'name'          => inventory_item.name,
             'actable_type'  => inventory_item.actable_type,
             'status'        => inventory_item.get_status,

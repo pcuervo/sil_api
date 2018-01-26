@@ -102,6 +102,7 @@ Sil::Application.routes.draw do
           get 'get_check_ins',  :action => 'get_check_ins'
           get 'get_check_outs', :action => 'get_check_outs'
           get 'get_check_outs_by_client/:id', :action => 'get_check_outs_by_client'
+          post 'search',        :action => 'search'
         end
       end
       resources :warehouse_locations, :only => [:show, :index] do

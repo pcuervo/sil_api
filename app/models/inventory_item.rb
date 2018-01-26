@@ -49,18 +49,17 @@ class InventoryItem < ActiveRecord::Base
   GOOD = 7
 
   def self.search( params = {} )
-
     inventory_items = InventoryItem.all.order(created_at: :desc)
     inventory_items = inventory_items.where( 'status IN (?)', [ IN_STOCK, PARTIAL_STOCK ] ).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
     inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
+    inventory_items_details = { 'inventory_items' => [] }
 
     if params[:keyword]
       inventory_items = inventory_items.where( 'name LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword]}%", "%#{params[:keyword].downcase}%" )
     end
 
     if params[:serial_number].present?
-
       unit_item = UnitItem.find_by_serial_number( params[:serial_number] )
       if unit_item.present?
         inventory_items = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' )
@@ -70,6 +69,10 @@ class InventoryItem < ActiveRecord::Base
       if bundle_item_part.present?
         bundle_item = bundle_item_part.bundle_item
         inventory_items = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' )
+      end
+
+      if ! unit_item.present? && ! bundle_item_part.present?
+        return inventory_items_details
       end
 
     end
@@ -123,7 +126,6 @@ class InventoryItem < ActiveRecord::Base
       inventory_items = inventory_items.where( 'storage_type = ?', params[:storage_type] )
     end
 
-    inventory_items_details = { 'inventory_items' => [] }
     inventory_items.each do |i|
       inventory_items_details['inventory_items'].push({
         'id'                        => i.id,

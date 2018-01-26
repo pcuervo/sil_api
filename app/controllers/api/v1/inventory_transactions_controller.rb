@@ -12,6 +12,12 @@ class Api::V1::InventoryTransactionsController < ApplicationController
     respond_with InventoryTransaction.search( params, current_user )
   end
 
+  def search 
+    puts params.to_yaml
+    transactions = InventoryTransaction.better_search( params[:keyword], current_user )
+    render json: transactions, status: 200
+  end
+
   def get_check_ins
     respond_with InventoryTransaction.check_ins
   end
