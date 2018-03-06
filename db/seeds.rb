@@ -11,16 +11,16 @@ if SystemSetting.count == 0
 end
 
 if ItemType.count == 0 
-  ItemType.create('Laptop')
-  ItemType.create('Desktop')
-  ItemType.create('Impresora')
-  ItemType.create('Celular')
-  ItemType.create('Pantalla')
-  ItemType.create('POP')
-  ItemType.create('POS')
-  ItemType.create('Promocional')
-  ItemType.create('Mobiliario')
-  ItemType.create('Perecedero')
-  ItemType.create('Dispositivos de red')
+  ItemType.create( name: 'Laptop')
+  ItemType.create( name: 'Desktop')
+  ItemType.create( name: 'Impresora')
+  ItemType.create( name: 'Celular')
+  ItemType.create( name: 'Pantalla')
+  ItemType.create( name: 'POP')
+  ItemType.create( name: 'POS')
+  ItemType.create( name: 'Promocional')
+  ItemType.create( name: 'Mobiliario')
+  ItemType.create( name: 'Perecedero')
+  ItemType.create( name: 'Dispositivos de red')
 end
 
