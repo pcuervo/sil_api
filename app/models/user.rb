@@ -1,6 +1,7 @@
 class User < ActiveRecord::Base
   actable
   before_create :generate_authentication_token!
+  after_create :assign_token
   #before_destroy :remove_from_projects
 
 	validates :auth_token, uniqueness: true
@@ -42,6 +43,12 @@ class User < ActiveRecord::Base
     end while self.class.exists?(auth_token: auth_token)
   end
 
+  def assign_token
+    token = UserToken.last
+    token.user_id = self.id
+    token.save
+  end
+
   def get_role 
     case self.role
     when ADMIN
@@ -61,7 +68,6 @@ class User < ActiveRecord::Base
 
   def transfer_inventory_to new_user_id
     new_user = User.find( new_user_id )
-    puts 'ik we here...' + new_user.role.to_s
     if self.role == PROJECT_MANAGER
       self.pm_items.each do |item|
         PmItem.create( :user_id => new_user_id, :inventory_item_id => item.inventory_item_id )

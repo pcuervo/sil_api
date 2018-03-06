@@ -172,6 +172,12 @@ Sil::Application.routes.draw do
           get 'by_user/:id',          :action => 'by_user'
         end
       end
+      resources :item_types, :only => [:create, :index, :show] do
+        collection do
+          post 'update/', :action => 'update'
+          post 'destroy', :action => 'destroy'
+        end
+      end
     end
   end
   

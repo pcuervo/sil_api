@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170404161557) do
+ActiveRecord::Schema.define(version: 20180306011829) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -217,6 +217,12 @@ ActiveRecord::Schema.define(version: 20170404161557) do
 
   add_index "item_locations", ["inventory_item_id"], name: "index_item_locations_on_inventory_item_id", using: :btree
   add_index "item_locations", ["warehouse_location_id"], name: "index_item_locations_on_warehouse_location_id", using: :btree
+
+  create_table "item_types", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "logs", force: :cascade do |t|
     t.integer  "user_id"
