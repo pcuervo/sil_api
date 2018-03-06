@@ -54,7 +54,6 @@ GEM
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
     builder (3.2.3)
-    byebug (6.0.2)
     case_transform (0.2)
       activesupport
     climate_control (0.0.3)
@@ -215,7 +214,6 @@ DEPENDENCIES
   active_model_serializers
   active_record-acts_as (= 1.0.7)
   aws-sdk (< 2.0)
-  byebug
   coffee-rails (~> 4.1.0)
   devise
   factory_girl_rails
