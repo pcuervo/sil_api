@@ -19,7 +19,7 @@ gem 'jquery-rails'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 #Api gems
-gem 'active_model_serializers'
+gem 'active_model_serializers', '0.9.3'
 
 # Used of MTI
 gem 'active_record-acts_as', '1.0.7'
@@ -37,7 +37,7 @@ gem 'rack-cors', :require => 'rack/cors'
 
 gem "paperclip", "~> 4.3"
 gem 'aws-sdk', '< 2.0'
-gem 'pg'
+gem "pg", "< 1.0"
 
 group :production do
   gem 'rails_12factor'
@@ -50,7 +50,7 @@ group :development, :test do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  gem 'factory_girl_rails'
+  gem 'factory_bot'
   gem 'ffaker'
 
 end
