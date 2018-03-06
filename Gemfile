@@ -22,7 +22,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'active_model_serializers'
 
 # Used of MTI
-gem 'active_record-acts_as'
+gem 'active_record-acts_as', '1.0.7'
 
 gem 'rack-cors', :require => 'rack/cors'
 
