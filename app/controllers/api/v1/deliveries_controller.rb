@@ -139,9 +139,12 @@ class Api::V1::DeliveriesController < ApplicationController
   end 
 
   def send_new_delivery_notifications
-    return if @delivery.delivery_user_id == '-1'
+    return if @delivery.delivery_user_id.to_i == -1
 
     delivery_guy = User.find( @delivery.delivery_user_id )
+
+    return if ! delivery_guy.present?
+
     delivery_guy.notifications << Notification.create( :title => 'Nuevo envío', :inventory_item_id => -1, :message => 'Te han asignado un envío para el día ' + @delivery.date_time.strftime("%d/%m/%Y") + '. Por favor ponte en contacto con el jefe de almacén.' )
   end 
 end
