@@ -13,7 +13,6 @@ class Api::V1::InventoryTransactionsController < ApplicationController
   end
 
   def search 
-    puts params.to_yaml
     transactions = InventoryTransaction.better_search( params[:keyword], current_user )
     render json: transactions, status: 200
   end

@@ -74,14 +74,15 @@ Sil::Application.routes.draw do
           post 'update/',   :action => 'update'
         end
       end
-      resources :projects, :only => [:index, :show, :create, :update, :destroy] do
+      resources :projects, :only => [:index, :show, :create, :update] do
         collection do 
           get 'get_project_users/:id',  :action => 'get_project_users'
           get 'get_project_client/:id', :action => 'get_project_client'
           get 'by_user/:id',            :action => 'by_user'
           post 'add_users',             :action => 'add_users'
           post 'remove_user',           :action => 'remove_user'
-          post 'update',           :action => 'update'
+          post 'update',                :action => 'update'
+          post 'destroy',               :action => 'destroy'
         end
       end
       resources :clients, :only => [:show, :index, :create,  :destroy] do

@@ -1,4 +1,6 @@
 class Project < ActiveRecord::Base
+  before_destroy :check_if_has_inventory
+
   validates :litobel_id, uniqueness: true
   validates :name, :litobel_id, :client, presence: true
 
@@ -43,6 +45,10 @@ class Project < ActiveRecord::Base
 
     return unless client_contact.present?
     client_contact.first_name + ' ' + client_contact.last_name
+  end
+
+  def check_if_has_inventory
+    return false if self.inventory_items.count > 0
   end
 
 end

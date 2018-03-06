@@ -10,6 +10,10 @@ class Api::V1::ProjectsController < ApplicationController
   end
   
   def show
+    if ! Project.exists?( params[:id] )
+      render json: { errors: "No se encontró el proyecto." }, status: 422
+      return
+    end
     respond_with Project.find( params[:id] )
   end
 
@@ -55,8 +59,12 @@ class Api::V1::ProjectsController < ApplicationController
 
   def destroy
     project = Project.find(params[:id])
-    project.destroy
-    head 204
+    if project.destroy
+      render json: project, status: 201, location: [:api, project]
+      return
+    end
+    
+    render json: { errors: ['No se puede eliminar un proyecto con inventario.'] }, status: 422
   end 
 
   def get_project_users
