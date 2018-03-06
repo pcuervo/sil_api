@@ -69,4 +69,57 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
       it { should respond_with 422 }
     end
   end
+
+  describe "POST #update" do
+    context "when item_type is successfully updated" do
+      before(:each) do
+        @user = FactoryGirl.create :user
+        @item_type = FactoryGirl.create :item_type
+        api_authorization_header @user.auth_token
+        post :update, { id: @item_type.id,
+                        item_type: { name: 'new_name' } }, 
+                        format: :json
+      end
+
+      it "renders the json representation for the updated item_type" do
+        item_type_response = json_response[:item_type]
+        expect(item_type_response[:name]).to eql "new_name"
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context "when is not updated because name is not present" do
+      before(:each) do
+        @user = FactoryGirl.create :user
+        @item_type = FactoryGirl.create :item_type
+        api_authorization_header @user.auth_token
+        patch :update, { id: @item_type.id,
+                          item_type: { name: '' } }, format: :json
+      end
+
+      it "renders an errors json" do
+        item_type_response = json_response
+        expect(item_type_response).to have_key(:errors)
+      end
+
+      it "renders the json errors when the name is invalid" do
+        user_response = json_response
+        expect(user_response[:errors][:name]).to include "El tipo de mercancía es obligatorio"
+      end
+    end
+  end
+
+  describe "DELETE #destroy" do
+    context "when is destroyed correctly" do
+      before(:each) do
+        user = FactoryGirl.create :user
+        item_type = FactoryGirl.create :item_type
+        api_authorization_header user.auth_token
+        delete :destroy, { user_id: user.id, id: item_type.id }
+      end
+
+      it { should respond_with 201 }
+    end
+  end
 end
