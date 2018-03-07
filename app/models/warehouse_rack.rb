@@ -70,23 +70,24 @@ class WarehouseRack < ActiveRecord::Base
     rack_items = { 'items' => [] }
     self.warehouse_locations.order(updated_at: :desc).each do |l|
       l.item_locations.order(created_at: :desc).each do |il|
-        #next if rack_items['items'].any?{ |i| i['name'] == il.inventory_item.name }
 
         unless il.inventory_item.present?
           il.destroy
           next
         end
 
+        item = il.inventory_item
         rack_items['items'].push({
-          'id'            => il.inventory_item.id,
-          'img'           => il.inventory_item.item_img(:thumb),
-          'name'          => il.inventory_item.name,
+          'id'            => item.id,
+          'img'           => item.item_img(:thumb),
+          'name'          => item.name,
           'location_id'   => il.warehouse_location_id,
           'location'      => il.warehouse_location.name,
-          'units'         => il.units,
+          'quantity'      => il.quantity,
           'created_at'    => il.created_at,
-          'item_type'     => il.inventory_item.item_type,
-          'actable_type'  => il.inventory_item.actable_type
+          'item_type'     => item.item_type,
+          'actable_type'  => item.actable_type,
+          'serial_number' => item.get_serial_number
         })
       end
     end
