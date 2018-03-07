@@ -95,7 +95,8 @@ class WarehouseRack < ActiveRecord::Base
 
   def is_empty?
     self.warehouse_locations.each do |location|
-      return false if location.get_available_units < location.units
+      return false if location.item_locations.count > 0
+      #return false if location.get_available_units < location.units
     end
     true
   end
@@ -104,4 +105,11 @@ class WarehouseRack < ActiveRecord::Base
     self.warehouse_locations.each { |location| location.update_status }
   end
   
+  def empty
+    self.warehouse_locations.each do |warehouse_location|  
+      warehouse_location.empty()
+    end
+
+    true
+  end
 end

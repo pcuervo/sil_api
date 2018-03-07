@@ -6,6 +6,7 @@ class WarehouseTransaction < ActiveRecord::Base
   ENTRY = 1
   RELOCATION = 2
   WITHDRAW = 3
+  EMPTIED = 4
 
   def self.get_details
     warehouse_transactions = WarehouseTransaction.all.order(created_at: :desc).limit(50)

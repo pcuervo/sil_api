@@ -76,6 +76,17 @@ class Api::V1::WarehouseRacksController < ApplicationController
     render json: { stats: stats }, status: 200
   end
 
+  def empty
+    warehouse_rack = WarehouseRack.find( params[:id] )
+
+    if warehouse_rack.empty()
+      render json: { success: 'El rack fue vaciado correctamente.' }, status: 201, location: [:api, warehouse_rack]
+      return
+    end
+
+    render json: { errors: 'No se pudo vaciar el rack.' }, status: 201 
+  end
+
   private
 
     def warehouse_rack_params

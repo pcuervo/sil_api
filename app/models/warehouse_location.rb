@@ -26,7 +26,6 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:* 
   #   - ID of created ItemLocation
   def locate( inventory_item_id, units, quantity, part_id = 0 )
-    return IS_FULL if get_available_units < units 
 
     item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
     if item_location.present?
@@ -37,14 +36,14 @@ class WarehouseLocation < ActiveRecord::Base
         return ITEM_ALREADY_LOCATED if ( item_location.quantity + quantity ) > bulk_item.quantity
 
         item_location.quantity = item_location.quantity + quantity
-        item_location.units = item_location.units + units
+        item_location.units = item_location.quantity
         if item_location.quantity > bulk_item.quantity 
           item_location.quantity = bulk_item.quantity 
         end
       end
 
       item_location.save
-      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::ENTRY )
+      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.quantity, :quantity => item_location.quantity, :concept => WarehouseTransaction::ENTRY )
     else
       inventory_item = InventoryItem.find( inventory_item_id )
       if( 'BulkItem' == inventory_item.actable_type )
@@ -54,9 +53,9 @@ class WarehouseLocation < ActiveRecord::Base
         end
       end
 
-      item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity )
+      item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => quantity, :quantity => quantity )
       self.item_locations << item_location
-      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
+      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => quantity, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
     end
 
     self.update_status
@@ -76,8 +75,6 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:* 
   #   - ID of new ItemLocation
   def relocate( item_location_id, units, quantity, part_id = 0 )
-    return IS_FULL if get_available_units < units 
-
     item_location = ItemLocation.find( item_location_id )
     inventory_item = InventoryItem.find( item_location.inventory_item_id )
     old_location = item_location.warehouse_location
@@ -108,29 +105,30 @@ class WarehouseLocation < ActiveRecord::Base
     return item_location.present?
   end
 
-  # Remove a quantity of an item from current location
+  # Remove a quantity of an item from current location. By default
+  # the concept is WITHDRAWAL (3).
   # * *Params:* 
   #   - +inventory_item_id+ -> ID of ItemLocation to relocate
   #   - +quantity+ -> quantity to remove
   # * *Returns:* 
   #   - current quantity or error
-  def remove_quantity( inventory_item_id, quantity, units )
+  def remove_quantity( inventory_item_id, quantity, units, concept=3 )
 
     item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
     
     return NOT_ENOUGH_STOCKS if quantity > item_location.quantity 
-    return NOT_ENOUGH_UNITS if units > item_location.units 
+    #return NOT_ENOUGH_UNITS if units > item_location.units 
 
     item_location.quantity -= quantity
     item_location.units -= units
     if item_location.units <= 0 && item_location.quantity > 0
-      item_location.units = 1
+      item_location.units = item_location.quantity
     elsif item_location.units <= 0 
       item_location.units = 0
     end
 
     item_location.save
-    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => WarehouseTransaction::WITHDRAW )
+    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => concept )
 
     if item_location.quantity == 0 
       item_location.destroy
@@ -145,10 +143,10 @@ class WarehouseLocation < ActiveRecord::Base
   #   - number of available units
   def get_available_units
     #return 0 if self.status == NO_SPACE
-    
-    units = 0
-    self.item_locations.each { |il| units += il.units }
-    return self.units - units
+    return 999
+    # units = 0
+    # self.item_locations.each { |il| units += il.units }
+    # return self.units - units
   end
 
   def update_status
@@ -176,6 +174,15 @@ class WarehouseLocation < ActiveRecord::Base
         'inventory_items'           => inventory_items,
       }  
     }
+  end
+
+  def empty
+    self.item_locations.each do |item_location|  
+      quantity_to_remove = item_location.quantity
+      self.remove_quantity(item_location.inventory_item_id, quantity_to_remove, quantity_to_remove, WarehouseTransaction::EMPTIED)
+    end
+
+    true
   end
 
 end
