@@ -160,6 +160,7 @@ class InventoryItem < ActiveRecord::Base
 
     details = { 'inventory_item' => {
         'id'                        => self.id,
+        'serial_number'             => self.get_serial_number,
         'actable_id'                => self.actable_id,
         'name'                      => self.name,
         'actable_type'              => self.actable_type,
