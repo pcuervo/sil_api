@@ -92,10 +92,11 @@ Sil::Application.routes.draw do
       end
       resources :client_contacts, :only => [:show, :index, :create, :update, :destroy] do
         collection do 
-          get 'get_by_client/',       :action => 'get_by_client'
+          get 'get_by_client/',    :action => 'get_by_client'
           post 'inventory_items',  :action => 'inventory_items'
-          get 'stats/:id',               :action => 'stats'
-          post 'update',              :action => 'update'
+          get 'stats/:id',         :action => 'stats'
+          post 'update',           :action => 'update'
+          post 'destroy',          :action => 'destroy'
         end
       end
       resources :inventory_transactions, :only => [:show, :index] do

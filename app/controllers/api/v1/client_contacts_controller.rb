@@ -39,8 +39,11 @@ class Api::V1::ClientContactsController < ApplicationController
 
   def destroy
     client_contact = ClientContact.find(params[:id])
+    client_contact.delivery_requests.destroy_all
+    client_contact.deliveries.destroy_all
+
     client_contact.destroy
-    head 204
+    render json: client_contact, status: 200
   end
 
   def get_by_client
