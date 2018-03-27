@@ -32,7 +32,8 @@ class InventoryTransaction < ActiveRecord::Base
         'actable_type'            => i.actable_type,
         'quantity'                => i.quantity,
         'entry_exit_date'         => entry_exit_date,
-        'deliver_pickup_contact'  => deliver_pickup_contact
+        'deliver_pickup_contact'  => deliver_pickup_contact,
+        'additional_comments'     => i.additional_comments
       })
     end
 
@@ -40,8 +41,6 @@ class InventoryTransaction < ActiveRecord::Base
   end
 
   def self.better_search( keyword, user )
-    puts 'KEYWORD'
-    puts keyword.to_yaml
     unit_item = UnitItem.find_by_serial_number( keyword )
     if unit_item.present?
       inventory_items_id = InventoryItem.select(:id).where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).pluck(:id)
@@ -84,7 +83,8 @@ class InventoryTransaction < ActiveRecord::Base
         'actable_type'            => i.actable_type,
         'quantity'                => i.quantity,
         'entry_exit_date'         => entry_exit_date,
-        'deliver_pickup_contact'  => deliver_pickup_contact
+        'deliver_pickup_contact'  => deliver_pickup_contact,
+        'additional_comments'     => i.additional_comments
       })
     end
 

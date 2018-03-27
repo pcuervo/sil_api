@@ -97,26 +97,46 @@ class Api::V1::ProjectsController < ApplicationController
   end
 
   def add_users
-    if ! params[:new_pm_id].present? and ! params[:new_ae_id].present? 
-      render json: { errors: 'Necesitas agregar al menos un Project Manager o Ejecutivo de Cuenta' }, status: 422
+    success_msg = 'Usuario(s) agregado(s) con éxito.'
+
+    if ! params[:new_pm_id].present? and ! params[:new_ae_id].present?  and ! params[:client_contact_id]
+      render json: { errors: ['Necesitas agregar al menos un Project Manager, Ejecutivo de Cuenta o Contato Cliente'] }, status: 422
       return
     end     
+
     project = Project.find( params[:project_id] )
     if params[:new_pm_id].present? 
-      pm = User.find( params[:new_pm_id] )
-      project.users << pm
+      if project.users.where('user_id = ?', params[:new_pm_id]).count == 0 
+        pm = User.find( params[:new_pm_id] )
+        project.users << pm
+      else
+        
+        success_msg = 'Ya existe el usuario en el proyecto.'
+      end
     end
     if params[:new_ae_id].present? 
-      ae = User.find( params[:new_ae_id] )
-      project.users << ae
+      if project.users.where('user_id = ?', params[:new_ae_id]).count == 0 
+        ae = User.find( params[:new_ae_id] )
+        project.users << ae
+      else
+        success_msg = 'Ya existe el usuario en el proyecto.'
+      end
     end
-    
+    if params[:client_contact_id].present? 
+      if project.users.where('user_id = ?', params[:client_contact_id]).count == 0 
+        client_contact = User.find( params[:client_contact_id] )
+        project.users << client_contact
+      else
+        success_msg = 'Ya existe el usuario en el proyecto.'
+      end
+    end
+
     if project.save!
-      render json: { :success => 'Usuario(s) agregado(s) con éxito.' }, status: 201, location: [:api, project]
+      render json: { :success => success_msg }, status: 201, location: [:api, project]
       return
     end
 
-    render json: { errors: 'No se pudo agregar el usuario al proyecto' }, status: 422
+    render json: { errors: ['No se pudo agregar el usuario al proyecto'] }, status: 422
   end
 
   def remove_user
