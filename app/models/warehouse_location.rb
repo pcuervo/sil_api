@@ -142,7 +142,7 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:* 
   #   - number of available units
   def get_available_units
-    #return 0 if self.status == NO_SPACE
+    return 0 if self.status == NO_SPACE
     return 999
     # units = 0
     # self.item_locations.each { |il| units += il.units }
@@ -150,10 +150,9 @@ class WarehouseLocation < ActiveRecord::Base
   end
 
   def update_status
-    available_units = get_available_units
-    if 0 == available_units
-      self.status = NO_SPACE
-    elsif available_units == self.units
+    return if self.status == NO_SPACE
+
+    if self.item_locations.count == 0
       self.status = EMPTY
     else
       self.status = PARTIAL_SPACE
@@ -183,6 +182,22 @@ class WarehouseLocation < ActiveRecord::Base
     end
 
     true
+  end
+
+  def mark_as_full
+    puts 'marking as full...'
+    self.status = NO_SPACE
+    puts self.status.to_yaml
+    self.save
+  end
+
+  def mark_as_available
+    if self.item_locations.count == 0
+      self.status = EMPTY
+    else
+      self.status = PARTIAL_SPACE
+    end
+    self.save
   end
 
 end

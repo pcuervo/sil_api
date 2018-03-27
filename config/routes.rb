@@ -109,11 +109,13 @@ Sil::Application.routes.draw do
       end
       resources :warehouse_locations, :only => [:show, :index] do
         collection do
-          post 'locate_item',   :action => 'locate_item'
-          post 'locate_bundle', :action => 'locate_bundle'
-          post 'locate_bulk',   :action => 'locate_bulk'
-          post 'relocate_item', :action => 'relocate_item'
-          post 'update',        :action => 'update'
+          post 'locate_item',       :action => 'locate_item'
+          post 'locate_bundle',     :action => 'locate_bundle'
+          post 'locate_bulk',       :action => 'locate_bulk'
+          post 'relocate_item',     :action => 'relocate_item'
+          post 'update',            :action => 'update'
+          post 'mark_as_full',      :action => 'mark_as_full'
+          post 'mark_as_available', :action => 'mark_as_available'
         end
       end
       resources :warehouse_racks, :only => [:show, :index, :create] do

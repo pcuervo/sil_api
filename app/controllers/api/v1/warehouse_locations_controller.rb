@@ -105,6 +105,19 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     render json: { errors: 'No se pudo ubicar el artículo, la ubicación "' + location.name + '" se encuentra llena.' }, status: 422
   end
 
+  def mark_as_full 
+    location = WarehouseLocation.find( params[:location_id] )
+    puts location.to_yaml
+    location.mark_as_full
+    render json: { success: 'Ubiación marcada como llena.' }, status: 200
+  end
+
+  def mark_as_available 
+    location = WarehouseLocation.find( params[:location_id] )
+    location.mark_as_available
+    render json: { success: 'Ubiación marcada como disponible.' }, status: 200
+  end
+
   private
 
     def warehouse_location_params
