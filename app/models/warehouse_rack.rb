@@ -87,7 +87,7 @@ class WarehouseRack < ActiveRecord::Base
           'created_at'    => il.created_at,
           'item_type'     => item.item_type,
           'actable_type'  => item.actable_type,
-          'serial_number' => item.get_serial_number
+          'serial_number' => item.serial_number
         })
       end
     end

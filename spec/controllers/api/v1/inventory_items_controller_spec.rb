@@ -191,14 +191,14 @@ describe Api::V1::InventoryItemsController do
           end
           warehouse_location = FactoryGirl.create :warehouse_location
           item_location = FactoryGirl.create :item_location
-          item_location.quantity = inventory_item.get_quantity
+          item_location.quantity = inventory_item.quantity
           inventory_item.item_locations << item_location
           warehouse_location.item_locations << item_location
           inventory_item.save
 
           item_info = {}
           item_info[:id] = inventory_item.id
-          item_info[:quantity] = inventory_item.get_quantity
+          item_info[:quantity] = inventory_item.quantity
           inventory_items.push( item_info )
         end 
 
@@ -235,14 +235,14 @@ describe Api::V1::InventoryItemsController do
 
           warehouse_location = FactoryGirl.create :warehouse_location
           item_location = FactoryGirl.create :item_location
-          item_location.quantity = inventory_item.get_quantity
+          item_location.quantity = inventory_item.quantity
           inventory_item.item_locations << item_location
           warehouse_location.item_locations << item_location
           inventory_item.save
 
           item_info = {}
           item_info[:id] = inventory_item.id
-          item_info[:quantity] = inventory_item.get_quantity.to_i - 5
+          item_info[:quantity] = inventory_item.quantity.to_i - 5
           inventory_items.push( item_info )
         end 
 
@@ -263,7 +263,7 @@ describe Api::V1::InventoryItemsController do
 
       it "doesn't withdraw all existing items from system" do
         inventory_item = InventoryItem.first
-        expect( inventory_item.get_quantity.to_i ).to eq 5
+        expect( inventory_item.quantity.to_i ).to eq 5
       end
 
       it { should respond_with 201 }
@@ -289,7 +289,7 @@ describe Api::V1::InventoryItemsController do
           
           item_info = {}
           item_info[:id] = inventory_item.id
-          item_info[:quantity] = inventory_item.get_quantity
+          item_info[:quantity] = inventory_item.quantity
           inventory_items.push( item_info )
         end 
 

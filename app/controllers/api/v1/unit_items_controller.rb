@@ -114,7 +114,7 @@ class Api::V1::UnitItemsController < ApplicationController
       @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem' ).first
 
       from_location = {}
-      if unit_item.has_location?
+      if unit_item.warehouse_locations?
         item_location = unit_item.item_locations.first
         location = item_location.warehouse_location
         location.remove_item( @inventory_item.id )

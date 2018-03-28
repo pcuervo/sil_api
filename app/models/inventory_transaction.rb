@@ -25,7 +25,7 @@ class InventoryTransaction < ActiveRecord::Base
         'inventory_item'  => {
             'name'          => inventory_item.name,
             'actable_type'  => inventory_item.actable_type,
-            'status'        => inventory_item.get_status,
+            'status'        => inventory_item.status_name,
             'img'           => inventory_item.item_img(:medium)
         },
         'id'                      => i.id,
@@ -76,7 +76,7 @@ class InventoryTransaction < ActiveRecord::Base
             'id'            => inventory_item.id,
             'name'          => inventory_item.name,
             'actable_type'  => inventory_item.actable_type,
-            'status'        => inventory_item.get_status,
+            'status'        => inventory_item.status_name,
             'img'           => inventory_item.item_img(:medium)
         },
         'id'                      => i.id,
@@ -101,7 +101,7 @@ class InventoryTransaction < ActiveRecord::Base
         'inventory_item'  => {
             'name'          => inventory_item.name,
             'actable_type'  => inventory_item.actable_type,
-            'status'        => inventory_item.get_status,
+            'status'        => inventory_item.status_name,
             'img'           => inventory_item.item_img(:medium)
         },
         'actable_type'            => self.actable_type,

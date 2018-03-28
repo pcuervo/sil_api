@@ -4,7 +4,7 @@ class BundleItemPart < ActiveRecord::Base
   validates :name, presence: true
 
   def get_details
-    locations = get_locations
+    locations = warehouse_locations
     details = {
       'id'              => self.id,
       'name'            => self.name,
@@ -18,13 +18,13 @@ class BundleItemPart < ActiveRecord::Base
     details
   end
 
-  def get_locations
+  def warehouse_locations
     locations = []
     item_locations = ItemLocation.where( 'part_id = ?', self.id )
 
     if item_locations.empty?
       bundle_item = BundleItem.find( self.bundle_item_id )
-      return bundle_item.get_locations
+      return bundle_item.warehouse_locations
     end
 
     item_locations.each do |il|

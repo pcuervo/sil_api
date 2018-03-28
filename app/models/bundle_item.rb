@@ -84,7 +84,7 @@ class BundleItem < ActiveRecord::Base
     quantity_withdrawn = self.bundle_item_parts.count
     if self.save
       inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', self.id, 'BundleItem' ).first
-      if self.has_location?
+      if self.warehouse_locations?
         item_location = self.item_locations.first
         location = item_location.warehouse_location
         location.remove_item( inventory_item.id )

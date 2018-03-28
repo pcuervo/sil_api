@@ -20,10 +20,6 @@ class InventoryItemSerializer < ActiveModel::Serializer
     end
   end
 
-  def quantity
-    object.get_quantity
-  end
-
   def project_data
     project_data = {}
     project = Project.find( object.project_id )

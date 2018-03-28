@@ -119,7 +119,7 @@ class Api::V1::BundleItemsController < ApplicationController
     if bundle_item.save
       @inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', bundle_item.id, 'BundleItem' ).first
 
-      if bundle_item.has_location?
+      if bundle_item.warehouse_locations?
         item_locations = bundle_item.item_locations
         item_locations.each do |il|
           location = il.warehouse_location

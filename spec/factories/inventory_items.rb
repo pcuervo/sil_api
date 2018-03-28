@@ -6,6 +6,10 @@ FactoryGirl.define do
     user
     project
     value 100.00
+    serial_number { FFaker::Vehicle.vin }
+    quantity 100
+    brand 'Marquis'
+    model 'Modes'
     barcode { FFaker::Vehicle.vin }
   end
 end

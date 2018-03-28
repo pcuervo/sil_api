@@ -12,7 +12,7 @@ class UnitItem < ActiveRecord::Base
     self.status = InventoryItem::OUT_OF_STOCK
     if self.save
       inventory_item = InventoryItem.where( 'actable_id = ? AND actable_type = ?', self.id, 'UnitItem' ).first
-      if self.has_location?
+      if self.warehouse_locations?
         item_location = self.item_locations.first
         location = item_location.warehouse_location
 

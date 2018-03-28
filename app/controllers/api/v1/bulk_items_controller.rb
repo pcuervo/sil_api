@@ -110,7 +110,7 @@ class Api::V1::BulkItemsController < ApplicationController
     if bulk_item.save
       @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', bulk_item.id, 'BulkItem').first
       
-      if bulk_item.has_location? and ! params[:locations].present? and ! params[:any_location]
+      if bulk_item.warehouse_locations? and ! params[:locations].present? and ! params[:any_location]
         item_locations = bulk_item.item_locations
         item_locations.each do |il|
           location = il.warehouse_location

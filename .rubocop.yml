@@ -1,0 +1,21 @@
+Style/Documentation:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 280
+
+Metrics/MethodLength:
+  Max: 15
+
+AllCops:
+  Exclude:
+    - 'db/**/*'
+    - 'config/**/*'
+    - 'spec/**/*'
+
+Metrics/BlockLength:
+  Exclude:
+    - 'Rakefile'
+    - '**/*.rake'
+    - 'test/**/*.rb'
+    - 'config/routes.rb'
