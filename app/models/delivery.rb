@@ -48,6 +48,20 @@ class Delivery < ActiveRecord::Base
     details
   end
 
+  def get_withdrawn_locations
+    withdrawn_locations = []
+    self.delivery_items.each do |item|
+      item_location = ItemLocation.where('inventory_item_id = ? AND quantity = ?', item.inventory_item_id, item.quantity).last
+      puts item_location.to_yaml
+
+      next unless item_location.present?
+
+
+    end
+
+    withdrawn_locations
+  end
+
   scope :recent, -> {
     order(updated_at: :desc).limit(10)
   }

@@ -99,7 +99,7 @@ class WarehouseLocation < ActiveRecord::Base
   def remove_item( inventory_item_id )
     item_location = self.item_locations.find_by_inventory_item_id( inventory_item_id )
   
-    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
+    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.quantity, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
     self.item_locations.delete( item_location )
     item_location.destroy
     return item_location.present?

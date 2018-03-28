@@ -107,7 +107,6 @@ class Api::V1::WarehouseLocationsController < ApplicationController
 
   def mark_as_full 
     location = WarehouseLocation.find( params[:location_id] )
-    puts location.to_yaml
     location.mark_as_full
     render json: { success: 'Ubiación marcada como llena.' }, status: 200
   end

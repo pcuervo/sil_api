@@ -50,6 +50,7 @@ class Api::V1::DeliveriesController < ApplicationController
     if @delivery.save!
       items = params[:inventory_items]
       @delivery.add_items( items, @delivery_user.first_name + ' ' + @delivery_user.last_name, 'Salida por envío a ' + @delivery.company + '. Recibe: ' + @delivery.addressee )
+      
 
       send_delivery_request_notifications if Delivery::PENDING_APPROVAL == @delivery.status
 
