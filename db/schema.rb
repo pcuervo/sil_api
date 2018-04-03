@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180328200216) do
+ActiveRecord::Schema.define(version: 20180403183718) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -190,6 +190,7 @@ ActiveRecord::Schema.define(version: 20180328200216) do
     t.string   "serial_number",                                     default: " "
     t.string   "brand",                                             default: " "
     t.string   "model",                                             default: " "
+    t.text     "extra_parts"
   end
 
   add_index "inventory_items", ["client_id"], name: "index_inventory_items_on_client_id", using: :btree

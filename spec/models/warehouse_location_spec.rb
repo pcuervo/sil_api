@@ -217,4 +217,21 @@ describe WarehouseLocation, type: :model do
       end
     end
   end
+
+  describe ".mark_as_full" do
+    before(:each) do
+      @item_location = FactoryGirl.create :item_location
+      @location = @item_location.warehouse_location
+      @inventory_item = @item_location.inventory_item
+      # Add another item
+      item = FactoryGirl.create :inventory_item
+      @location.locate( item.id, 1, 1 )
+    end
+
+    it "returns true if WarehouseLocation was marked as full" do
+      @location.mark_as_full
+
+      expect( @location.status ).to eq WarehouseLocation::NO_SPACE
+    end
+  end
 end

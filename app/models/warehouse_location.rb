@@ -18,12 +18,12 @@ class WarehouseLocation < ActiveRecord::Base
   ITEM_ALREADY_LOCATED = -4
 
   # Locates an InventoryItem in current WarehouseLocation
-  # * *Params:* 
+  # * *Params:*
   #   - +inventory_item_id+ -> ID of InventoryItem to locate
   #   - +units+ -> Number of units the item occupies
-  #   - +quantity+ -> Item quantity 
+  #   - +quantity+ -> Item quantity
   #   - +part_id+ -> ID of BundleItemPart in case of partially moving a BundleItem
-  # * *Returns:* 
+  # * *Returns:*
   #   - ID of created ItemLocation
   def locate( inventory_item_id, units, quantity, part_id = 0 )
 
@@ -59,7 +59,7 @@ class WarehouseLocation < ActiveRecord::Base
     end
 
     self.update_status
-    return item_location.id if part_id == 0
+    return item_location.id if part_id.zero?
 
     item_location.part_id = part_id
     item_location.save
@@ -84,7 +84,7 @@ class WarehouseLocation < ActiveRecord::Base
     new_item_location.save
     item_location.destroy
 
-    return new_item_location.id if part_id == 0
+    return new_item_location.id if part_id.zero?
 
     new_item_location.part_id = part_id
     new_item_location.save
@@ -147,7 +147,7 @@ class WarehouseLocation < ActiveRecord::Base
   def update_status
     return if self.status == NO_SPACE
 
-    if self.item_locations.count == 0
+    if self.item_locations.count.zero?
       self.status = EMPTY
     else
       self.status = PARTIAL_SPACE
@@ -159,40 +159,43 @@ class WarehouseLocation < ActiveRecord::Base
     inventory_items = []
     self.item_locations.each { |il| inventory_items.push( il.inventory_item.get_details ) }
     details = { 'warehouse_location' => {
-        'id'                        => self.id,
-        'name'                      => self.name,
-        'status'                    => self.status,
-        'units'                     => self.units,
-        'warehouse_rack'            => self.warehouse_rack,
-        'item_locations'            => self.item_locations,
-        'inventory_items'           => inventory_items,
-      }  
+        'id' => self.id,
+        'name' => self.name,
+        'status' => self.status,
+        'units' => self.units,
+        'warehouse_rack' => self.warehouse_rack,
+        'item_locations' => self.item_locations,
+        'inventory_items' => inventory_items,
+      }
     }
   end
 
   def empty
-    self.item_locations.each do |item_location|  
+    item_locations.each do |item_location|
       quantity_to_remove = item_location.quantity
-      self.remove_quantity(item_location.inventory_item_id, quantity_to_remove, WarehouseTransaction::EMPTIED)
+      remove_quantity(item_location.inventory_item_id, quantity_to_remove, WarehouseTransaction::EMPTIED)
     end
 
     true
   end
 
   def mark_as_full
-    puts 'marking as full...'
-    self.status = NO_SPACE
-    puts self.status.to_yaml
-    self.save
+    update(status: NO_SPACE)
   end
 
   def mark_as_available
-    if self.item_locations.count == 0
-      self.status = EMPTY
+    if item_locations.count.zero?
+      update(status: EMPTY)
     else
-      self.status = PARTIAL_SPACE
+      update(status: PARTIAL_SPACE)
     end
-    self.save
   end
 
+  def self.pending_location_ids
+    return InventoryItem.select('inventory_items.id, SUM(item_locations.quantity) AS quantity_locations, SUM(bulk_items.quantity) AS quantity_bulk').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ?', 'BulkItem').group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity').pluck('inventory_items.id')
+  end
+
+  def self.pending_location_items
+    return InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', params[:id]).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
+  end
 end

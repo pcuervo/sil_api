@@ -55,7 +55,11 @@ describe Api::V1::InventoryItemsController do
 
       it "renders the json representation for the inventory item just created" do
         inventory_item_response = json_response[:inventory_item]
+        puts inventory_item_response.to_yaml
         expect(inventory_item_response[:name]).to eql @inventory_item_attributes[:name]
+        expect(inventory_item_response[:brand]).to eql @inventory_item_attributes[:brand]
+        expect(inventory_item_response[:model]).to eql @inventory_item_attributes[:model]
+        expect(inventory_item_response[:quantity]).to eql @inventory_item_attributes[:quantity]
       end
 
       it { should respond_with 201 }

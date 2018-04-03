@@ -10,7 +10,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   before_destroy :delete_ae_items
   before_destroy :delete_bundle_item_parts
 
-  validates :name, :status, :item_type, :user, :project, presence: true
+  validates :name, :status, :item_type, :user, :project, :serial_number, presence: true
   validates :barcode, presence: true, uniqueness: true
 
   belongs_to :user
@@ -193,7 +193,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity_to_withdraw)
     return status if cannot_withdraw?
 
-    puts 'we are inside withdraw'
     if quantity_to_withdraw != '' && quantity_to_withdraw < quantity.to_i
       self.quantity = quantity.to_i - quantity_to_withdraw
       quantity_withdrawn = quantity_to_withdraw
@@ -227,10 +226,11 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def withdraw_from_locations(quantity_to_withdraw)
     quantity_left = quantity_to_withdraw
     if quantity_to_withdraw != ''
-      
-      while quantity_left > 0
-        puts 'Quedan: ' + quantity_left.to_s
+      while quantity_left > 0 
         item_location = item_locations.first
+
+        break unless item_location.present?
+
         location = item_location.warehouse_location
         if quantity_left >= item_location.quantity
           current_location_quantity = item_location.quantity
@@ -257,15 +257,17 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   #
   # @return [Boolean].
   def cannot_withdraw?
+    cannot_withdraw = false
     case status
     when InventoryItem::OUT_OF_STOCK
-      true
+      cannot_withdraw = true
     when InventoryItem::PENDING_ENTRY
-      true
+      cannot_withdraw = true
     when InventoryItem::EXPIRED
-      true
+      cannot_withdraw = true
     end
-    false
+    
+    cannot_withdraw
   end
 
   def belongs_to_client?

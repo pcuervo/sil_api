@@ -1,8 +1,12 @@
 Style/Documentation:
   Enabled: false
 
+Metrics/ClassLength:
+  Max: 130
+
 Metrics/LineLength:
   Max: 280
+  IgnoredPatterns: ['\A#']
 
 Metrics/MethodLength:
   Max: 15
