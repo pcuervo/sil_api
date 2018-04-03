@@ -110,27 +110,22 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Params:* 
   #   - +inventory_item_id+ -> ID of ItemLocation to relocate
   #   - +quantity+ -> quantity to remove
+  #   - +concept+ -> quantity to remove
   # * *Returns:* 
   #   - current quantity or error
-  def remove_quantity( inventory_item_id, quantity, units, concept=3 )
+  def remove_quantity( inventory_item_id, quantity, concept=3 )
 
     item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
     
     return NOT_ENOUGH_STOCKS if quantity > item_location.quantity 
-    #return NOT_ENOUGH_UNITS if units > item_location.units 
 
     item_location.quantity -= quantity
-    item_location.units -= units
-    if item_location.units <= 0 && item_location.quantity > 0
-      item_location.units = item_location.quantity
-    elsif item_location.units <= 0 
-      item_location.units = 0
-    end
+    quantity = item_location.quantity if item_location.quantity < 0
 
     item_location.save
     w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => concept )
 
-    if item_location.quantity == 0 
+    if item_location.quantity <= 0 
       item_location.destroy
       return 0
     end
@@ -178,7 +173,7 @@ class WarehouseLocation < ActiveRecord::Base
   def empty
     self.item_locations.each do |item_location|  
       quantity_to_remove = item_location.quantity
-      self.remove_quantity(item_location.inventory_item_id, quantity_to_remove, quantity_to_remove, WarehouseTransaction::EMPTIED)
+      self.remove_quantity(item_location.inventory_item_id, quantity_to_remove, WarehouseTransaction::EMPTIED)
     end
 
     true

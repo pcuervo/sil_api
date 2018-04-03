@@ -1,6 +1,6 @@
 class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   after_create :send_notification_to_account_executives, if: :belongs_to_client?
-  after_create :send_entry_request_notifications, if: :has_pending_entry?
+  after_create :send_entry_request_notifications, if: :pending_entry?
   before_destroy :delete_transactions
   before_destroy :delete_warehouse_transactions
   before_destroy :delete_item_locations
@@ -27,7 +27,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   has_attached_file :item_img, styles: { medium: '300x300>', thumb: '100x100#' }, default_url: '/images/:style/missing.png', path: ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", url: ":rails_root/storage/#{Rails.env}#{ENV['RAILS_TEST_NUMBER']}/attachments/:id/:style/:basename.:extension", s3_credentials: S3_CREDENTIALS # rubocop:disable Metrics/LineLength
 
   validates_attachment_content_type :item_img, content_type: /\Aimage\/.*\Z/
-  
+
   # Item status
   IN_STOCK = 1
   OUT_OF_STOCK = 2
@@ -175,7 +175,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   def warehouse_locations
     locations = []
-    self.item_locations.each do |il|
+    item_locations.each do |il|
       locations.push(
         'rack'        => il.warehouse_location.warehouse_rack.name,
         'location_id' => il.warehouse_location.id,
@@ -190,164 +190,151 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   # Withdraws InventoryItem and remove from WarehouseLocation if it has any
   # * *Returns:*
   #   - true if successful or error code
-  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantityToWithdraw
-    
-    return self.status if cannot_withdraw?
+  def withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity_to_withdraw)
+    return status if cannot_withdraw?
 
-    puts 'current quantity: ' + quantity.to_s
-    if quantityToWithdraw != '' and quantityToWithdraw < self.quantity.to_i
-      self.quantity = self.quantity.to_i - quantityToWithdraw
-      quantity_withdrawn = quantityToWithdraw
+    puts 'we are inside withdraw'
+    if quantity_to_withdraw != '' && quantity_to_withdraw < quantity.to_i
+      self.quantity = quantity.to_i - quantity_to_withdraw
+      quantity_withdrawn = quantity_to_withdraw
     else
       self.status = InventoryItem::OUT_OF_STOCK
-      quantity_withdrawn = self.quantity
+      quantity_withdrawn = quantity
       self.quantity = 0
     end
-    
-    if self.save
-      if self.warehouse_locations?
-        quantity_left = quantityToWithdraw
-        puts 'quantityToWithdraw: ' + quantityToWithdraw.to_s
-        puts 'self.quantity: ' + self.quantity.to_s
-        puts 'quantity_withdrawn: ' + quantity_withdrawn.to_s
-        # if quantityToWithdraw != '' and quantityToWithdraw < ( self.quantity.to_i + quantity_withdrawn.to_i )
-        #   item_location = self.item_locations.where( 'quantity >= ?', quantityToWithdraw ).first
-        #   location = item_location.warehouse_location
-        #   location.remove_quantity( self.id, quantityToWithdraw, 1 )
-        # elsif 
-        if quantityToWithdraw != ''
-          while quantity_left > 0
-            item_location = self.item_locations.first
-            location = item_location.warehouse_location
 
-            puts 'quantity_left: ' + quantity_left.to_s
-            puts 'location quantity: ' + item_location.quantity .to_s
-            if quantity_left >= item_location.quantity 
-              current_location_quantity = item_location.quantity 
-              location.remove_item( id )
-              item_locations.delete( item_location )
-              location.update_status
-            else
-              location.remove_quantity( id, quantity_left, 1 )
-              break
-            end
-            quantity_left = quantity_left - current_location_quantity
-          end
-        else
-          item_location = self.item_locations.first
-          location = item_location.warehouse_location
-          location.remove_item( self.id )
-          self.item_locations.delete( item_location )
-          location.update_status
-        end
-      end
-      CheckOutTransaction.create( :inventory_item_id => self.id, :concept => 'Salida granel', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => quantity_withdrawn )
-      return true
-    end
+    save
 
-    return false
+    # Withdraw from WarehouseLocations
+    withdraw_from_locations(quantity_withdrawn) if warehouse_locations?
+
+    CheckOutTransaction.create(
+      inventory_item_id: id,
+      concept: 'Salida granel',
+      additional_comments: additional_comments,
+      exit_date: exit_date,
+      estimated_return_date: estimated_return_date,
+      pickup_company: pickup_company,
+      pickup_company_contact: pickup_company_contact,
+      quantity: quantity_withdrawn
+    )
+    true
   end
 
-  # Withdraws InventoryItem
-  # * *Returns:* 
-  #   - true if successful or error code
-  # def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity=''
-  #   case self.actable_type
-  #   when 'UnitItem'
-  #     unit_item = UnitItem.find(self.actable_id)
-  #     return unit_item.withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments)
-  #   when 'BulkItem'
-  #     bulk_item = BulkItem.find(self.actable_id)
-  #     return bulk_item.withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity)
-  #   when 'BundleItem'
-  #     bundle_item = BundleItem.find(self.actable_id)
-  #     return bundle_item.withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments)
-  #   end
-  # end
+  # Withdraws a given quantity from the latest WarehouseLocation.
+  #
+  # @param quantity_to_withdraw [Integer].
+  def withdraw_from_locations(quantity_to_withdraw)
+    quantity_left = quantity_to_withdraw
+    if quantity_to_withdraw != ''
+      
+      while quantity_left > 0
+        puts 'Quedan: ' + quantity_left.to_s
+        item_location = item_locations.first
+        location = item_location.warehouse_location
+        if quantity_left >= item_location.quantity
+          current_location_quantity = item_location.quantity
+          location.remove_item(id)
+          item_locations.delete(item_location)
+          location.update_status
+        else
+          location.remove_quantity(id, quantity_left)
+          break
+        end
+        quantity_left -= current_location_quantity
+      end
+      return
+    end
+
+    item_location = item_locations.first
+    location = item_location.warehouse_location
+    location.remove_item(id)
+    item_locations.delete(item_location)
+    location.update_status
+  end
 
   # Check if InventoryItem can be withdrawn
-  # * *Returns:* 
-  #   - bool
+  #
+  # @return [Boolean].
   def cannot_withdraw?
-    case self.status
+    case status
     when InventoryItem::OUT_OF_STOCK
-      return true
+      true
     when InventoryItem::PENDING_ENTRY
-      return true
+      true
     when InventoryItem::EXPIRED
-      return true
+      true
     end
-    return false
+    false
   end
 
   def belongs_to_client?
-    return true if self.user.role == User::CLIENT
+    return true if user.role == User::CLIENT
 
-    return false
+    false
   end
 
-  def has_pending_entry?
-    return true if self.status == PENDING_ENTRY
+  def pending_entry?
+    return true if status == PENDING_ENTRY
 
-    return false
+    false
   end
 
-  def self.estimated_current_rent project_ids=-1
-
-    if -1 != project_ids
-      current_occupied_units = InventoryItem.joins(:item_locations).where('status IN (?) AND project_id IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY ], project_ids).sum(:units)
-    else
-      current_occupied_units = InventoryItem.joins(:item_locations).where('status IN (?)', [ InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY ]).sum(:units)
-    end
+  def self.estimated_current_rent(project_ids = -1)
+    current_occupied_units = if project_ids != -1
+                               InventoryItem.joins(:item_locations).where('status IN (?) AND project_id IN (?)', [InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY], project_ids).sum(:units)
+                             else
+                               InventoryItem.joins(:item_locations).where('status IN (?)', [InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY]).sum(:units)
+                             end
 
     settings = SystemSetting.select(:units_per_location, :cost_per_location).first
     rounded_units = current_occupied_units / settings.units_per_location * settings.units_per_location + settings.units_per_location
 
-    return rounded_units / settings.units_per_location.to_f  * settings.cost_per_location 
+    rounded_units / settings.units_per_location.to_f * settings.cost_per_location
   end
 
-  def get_ae project
+  def get_ae(project)
     ae_items = self.ae_items
-    return project.get_ae if ! ae_items.present? 
+    return project.get_ae unless ae_items.present?
 
     ae = ae_items.first.user
-    return ae.first_name + ' ' + ae.last_name
+    ae.first_name + ' ' + ae.last_name
   end
 
-  def get_pm project
+  def get_pm(project)
     pm_items = self.pm_items
-    return project.get_pm if ! pm_items.present? 
+    return project.get_pm unless pm_items.present?
 
     pm = pm_items.first.user
-    return pm.first_name + ' ' + pm.last_name
+    pm.first_name + ' ' + pm.last_name
   end
 
   def pm_id
-    project = Project.find(self.project_id)
+    project = Project.find(project_id)
     pm_items = self.pm_items
-    return project.get_pm_id if ! pm_items.present? 
+    return project.get_pm_id unless pm_items.present?
 
     pm = pm_items.first.user
-    return pm.id
+    pm.id
   end
 
   def ae_id
-    project = Project.find(self.project_id)
+    project = Project.find(project_id)
     ae_items = self.ae_items
-    return project.get_ae_id if ! ae_items.present?
+    return project.get_ae_id unless ae_items.present?
 
     ae = ae_items.first.user
-    return ae.id
+    ae.id
   end
 
-  # Scopes 
-  
+  # Scopes
+
   scope :recent, lambda {
     order(created_at: :desc).limit(10)
   }
 
   scope :in_stock, lambda {
-    where('status IN (?)', [ IN_STOCK, PARTIAL_STOCK ]).order(updated_at: :desc)
+    where('status IN (?)', [IN_STOCK, PARTIAL_STOCK]).order(updated_at: :desc)
   }
 
   scope :out_of_stock, lambda {
@@ -358,8 +345,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     where('created_at > ? AND created_at < ?', Date.today.beginning_of_month, Date.today.end_of_month)
   }
 
-  scope :last_month, -> { where('created_at > ? AND created_at < ?', Date.today.last_month.beginning_of_month, Date.today.beginning_of_month)
-  }
+  scope :last_month, -> { where('created_at > ? AND created_at < ?', Date.today.last_month.beginning_of_month, Date.today.beginning_of_month) }
 
   scope :inventory_value, -> { where('status IN (?)', [IN_STOCK, PARTIAL_STOCK, PENDING_ENTRY]).sum(:value) }
 
@@ -396,7 +382,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def send_entry_request_notifications
     admins = User.where('role IN (?)', [User::ADMIN, User::WAREHOUSE_ADMIN])
     admins.each do |admin|
-      admin.notifications << Notification.create(title: 'Solicitud de entrada', inventory_item_id: id, message: user.get_role + ' "' + user.first_name + ' ' + user.last_name + '" ha solicitado el ingreso del artículo "' + name + '".')
+      notification = Notification.create(title: 'Solicitud de entrada', inventory_item_id: id, message: user.get_role + ' "' + user.first_name + ' ' + user.last_name + '" ha solicitado el ingreso del artículo "' + name + '".')
+      admin.notifications << notification
     end
   end
 

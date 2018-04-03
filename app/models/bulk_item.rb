@@ -24,7 +24,7 @@ class BulkItem < ActiveRecord::Base
         if quantity != '' and quantity < ( self.quantity.to_i + quantity_withdrawn.to_i )
           item_location = self.item_locations.where( 'quantity >= ?', quantity ).first
           location = item_location.warehouse_location
-          location.remove_quantity( inventory_item.id, quantity, 1 )
+          location.remove_quantity( inventory_item.id, quantity )
         elsif quantity != ''
           while quantity_left > 0
             item_location = self.item_locations.first
@@ -35,7 +35,7 @@ class BulkItem < ActiveRecord::Base
               self.item_locations.delete( item_location )
               location.update_status
             else
-              location.remove_quantity( inventory_item.id, quantity_left, 1 )
+              location.remove_quantity( inventory_item.id, quantity_left )
             end
             quantity_left = quantity_left - current_location_quantity
           end

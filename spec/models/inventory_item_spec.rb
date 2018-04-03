@@ -58,7 +58,6 @@ describe InventoryItem do
 
     it "returns details of InventoryItem" do
       details = @inventory_item.get_details
-      puts details.to_yaml
       expect(details['inventory_item']['serial_number']).to eq @inventory_item.serial_number
     end
   end 

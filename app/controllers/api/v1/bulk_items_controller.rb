@@ -121,7 +121,7 @@ class Api::V1::BulkItemsController < ApplicationController
       if params[:locations].present?
         params[:locations].each do |l|
           location = WarehouseLocation.find( l[:location_id] )
-          location.remove_quantity( @inventory_item.id, l[:quantity].to_i, l[:units].to_i )
+          location.remove_quantity( @inventory_item.id, l[:quantity].to_i )
         end
       end
 

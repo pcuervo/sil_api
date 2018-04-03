@@ -5,21 +5,6 @@ class InventoryItemSerializer < ActiveModel::Serializer
     object.item_img(:thumb)
   end
 
-  def serial_number
-    if object.actable_type == 'UnitItem'
-      unit_item = UnitItem.find( object.actable_id )
-      return unit_item.serial_number
-    end
-    return '-'
-  end
-
-  def model
-    if object.actable_type == 'UnitItem'
-      unit_item = UnitItem.find( object.actable_id )
-      return unit_item.model
-    end
-  end
-
   def project_data
     project_data = {}
     project = Project.find( object.project_id )

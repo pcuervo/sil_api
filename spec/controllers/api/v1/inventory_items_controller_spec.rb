@@ -78,16 +78,10 @@ describe Api::V1::InventoryItemsController do
       it "renders the json errors on why the inventory item could not be created" do
         inventory_item_response = json_response
 
-        expect(inventory_item_response[:errors][:name]).to include "can't be blank"
+        expect(inventory_item_response[:errors][:name]).to include "El nombre no puede estar vacío"
       end
 
       it { should respond_with 422 }
-    end
-  end
-
-  describe "GET #pending_entries" do
-    before(:each) do
-      # TODO
     end
   end
 
@@ -107,6 +101,7 @@ describe Api::V1::InventoryItemsController do
       @item.project_id = project.id
       @item.save
 
+      api_authorization_header @admin.auth_token
       post :authorize_entry, id: @item.id
     end
 
@@ -130,38 +125,6 @@ describe Api::V1::InventoryItemsController do
     end
 
     it { should respond_with 201 }
-  end
-
-  describe "GET #total_number_items" do
-    before(:each) do
-      5.times{ FactoryGirl.create :inventory_item }
-      get :total_number_items
-    end
-
-    it "returns the information about an inventory item on a hash" do
-      inventory_item_response = json_response[:total_number_items]
-      expect(inventory_item_response).to eql 5
-    end
-
-    it { should respond_with 200 }
-  end
-
-  describe "GET #inventory_value" do
-    before(:each) do
-      @value = 0
-      5.times do
-        item = FactoryGirl.create :inventory_item 
-        @value += item.value
-      end
-      get :inventory_value
-    end
-
-    it "returns the information about an inventory item on a hash" do
-      inventory_item_response = json_response[:inventory_value]
-      expect( inventory_item_response.to_f ).to eql @value.to_f
-    end
-
-    it { should respond_with 200 }
   end
 
   describe "POST #multiple_withdrawal" do
@@ -277,9 +240,6 @@ describe Api::V1::InventoryItemsController do
         inventory_items = []
         3.times do 
           inventory_item = FactoryGirl.create :inventory_item
-          unit_item = FactoryGirl.create :unit_item
-          inventory_item.actable_id = unit_item.id
-          inventory_item.actable_type = 'UnitItem'
           warehouse_location = FactoryGirl.create :warehouse_location
           item_location = FactoryGirl.create :item_location
           inventory_item.item_locations << item_location
