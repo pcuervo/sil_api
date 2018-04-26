@@ -13,7 +13,6 @@ class Api::V1::InventoryItemsController < ApplicationController
   end
 
   def show
-    puts InventoryItem.find(params[:id]).get_details.to_yaml
     respond_with InventoryItem.find(params[:id]).get_details
   end
 
