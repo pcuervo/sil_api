@@ -50,6 +50,8 @@ class InventoryItem < ActiveRecord::Base
 
   def self.search( params = {} )
     inventory_items = InventoryItem.all.order(created_at: :desc)
+    x = inventory_items.page(1)
+
     inventory_items = inventory_items.where( 'status IN (?)', [ IN_STOCK, PARTIAL_STOCK ] ).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
     inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
@@ -140,6 +142,11 @@ class InventoryItem < ActiveRecord::Base
       inventory_items = inventory_items.where( 'storage_type = ?', params[:storage_type] )
     end
 
+    if params[:page] 
+      inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc)
+
+    end
+
     inventory_items.each do |i|
       inventory_items_details['inventory_items'].push({
         'id'                        => i.id,
@@ -158,6 +165,10 @@ class InventoryItem < ActiveRecord::Base
         'serial_number'             => i.get_serial_number,
         'model'                     => i.get_model
       })
+      if params[:page] 
+        inventory_items_details['page'] = params[:page]
+        inventory_items_details['total_pages'] = inventory_items.page(params[:page]).total_pages
+      end
     end
 
     inventory_items_details

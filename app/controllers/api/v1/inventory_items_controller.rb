@@ -9,7 +9,9 @@ class Api::V1::InventoryItemsController < ApplicationController
   respond_to :json
 
   def index
-    respond_with InventoryItem.search( params )
+    items = InventoryItem.search( params )
+
+    respond_with items
   end
 
   def show

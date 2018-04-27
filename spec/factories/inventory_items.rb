@@ -5,7 +5,7 @@ FactoryGirl.define do
     item_type "Desktop"
     user
     project
-    value 100.00
-    barcode { FFaker::Vehicle.vin }
+    value 100.00 
+    sequence(:barcode){|n| Random.rand(100).to_s + n.to_s + FFaker::Vehicle.vin + Random.rand(10000).to_s }
   end
 end
