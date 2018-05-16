@@ -112,7 +112,7 @@ class Api::V1::InventoryItemsController < ApplicationController
     inventory_items.each do |item|
       inventory_item = InventoryItem.find( item[:id] )
       quantity = item[:quantity].to_i
-      withdraw = inventory_item.withdraw( params[:exit_date], '', params[:pickup_company], params[:pickup_company_contact], params[:additional_comments], quantity )
+      withdraw = inventory_item.withdraw( params[:exit_date], '', params[:pickup_company], params[:pickup_company_contact], params[:additional_comments], quantity, params[:folio] )
 
       if [ InventoryItem::OUT_OF_STOCK, InventoryItem::PENDING_ENTRY, InventoryItem::PENDING_WITHDRAWAL, InventoryItem::EXPIRED ].include? withdraw
         render json: { errors: 'No se pudo realizar la salida masiva', items_withdrawn: 0 }, status: 422

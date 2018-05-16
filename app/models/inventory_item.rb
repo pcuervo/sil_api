@@ -307,17 +307,17 @@ class InventoryItem < ActiveRecord::Base
   # Withdraws InventoryItem
   # * *Returns:* 
   #   - true if successful or error code
-  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity=''
+  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity='', folio='-'
     case self.actable_type
     when 'UnitItem'
       unit_item = UnitItem.find( self.actable_id )
-      return unit_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
+      return unit_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, folio )
     when 'BulkItem'
       bulk_item = BulkItem.find( self.actable_id )
-      return bulk_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity )
+      return bulk_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity, folio )
     when 'BundleItem'
       bundle_item = BundleItem.find( self.actable_id )
-      return bundle_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments )
+      return bundle_item.withdraw( exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, folio )
     end
   end
 
