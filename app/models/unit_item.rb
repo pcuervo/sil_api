@@ -16,11 +16,12 @@ class UnitItem < ActiveRecord::Base
         item_location = self.item_locations.first
         location = item_location.warehouse_location
 
-        puts location.to_yaml
         location.remove_item( inventory_item.id )
         location.update_status
       end
-      CheckOutTransaction.create( :inventory_item_id => inventory_item.id, :concept => 'Salida unitaria', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => 1, :folio => folio )
+      
+      CheckOutTransaction.create!( :inventory_item_id => inventory_item.id, :concept => 'Salida unitaria', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => 1, :folio => folio )
+      
       return true
     end
 

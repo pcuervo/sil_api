@@ -37,4 +37,14 @@ RSpec.describe InventoryTransaction, type: :model do
     end
   end
 
+  describe "self.next_folio" do
+    it "returns the next folio when there are no previous transactions" do
+      expect(InventoryTransaction.next_folio).to eql 'FS-0000001'
+    end
+
+    it "returns the next folio when there are no previous transactions" do
+      FactoryGirl.create :check_out_transaction
+      expect(InventoryTransaction.next_folio).to eql 'FS-0000002'
+    end
+  end
 end

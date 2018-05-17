@@ -308,6 +308,9 @@ class InventoryItem < ActiveRecord::Base
   # * *Returns:* 
   #   - true if successful or error code
   def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity='', folio='-'
+
+    #folio = InventoryTransaction.next_folio if folio == '-'
+
     case self.actable_type
     when 'UnitItem'
       unit_item = UnitItem.find( self.actable_id )
