@@ -84,7 +84,8 @@ class InventoryTransaction < ActiveRecord::Base
         'quantity'                => i.quantity,
         'entry_exit_date'         => entry_exit_date,
         'deliver_pickup_contact'  => deliver_pickup_contact,
-        'additional_comments'     => i.additional_comments
+        'additional_comments'     => i.additional_comments,
+        'folio'                   => i.folio
       })
     end
 
@@ -114,6 +115,12 @@ class InventoryTransaction < ActiveRecord::Base
       }  
     }
     details
+  end
+
+  def self.by_folio( folio )
+    checkout_transaction = CheckOutTransaction.where('folio = ?',folio)
+
+    return get_formatted_transactions( checkout_transaction )
   end
 
   def self.check_ins
