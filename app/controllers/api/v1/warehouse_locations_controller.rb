@@ -1,5 +1,7 @@
 class Api::V1::WarehouseLocationsController < ApplicationController
-  before_action only: [:update, :locate_item, :locate_bundle] do 
+  require 'csv'
+
+  before_action only: [:update, :locate_item, :locate_bundle, :csv_locate] do 
     authenticate_with_token! request.headers['Authorization']
   end
   respond_to :json
@@ -115,6 +117,16 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     location = WarehouseLocation.find( params[:location_id] )
     location.mark_as_available
     render json: { success: 'Ubiación marcada como disponible.' }, status: 200
+  end
+
+  def csv_locate
+    warehouse_update = WarehouseLocation.bulk_locate( current_user.email, params[:warehouse_data] )  
+    if warehouse_update[:errors].count == 0
+      render json: { success: 'Los artículos se ubicarion correctamente.' }, status: 200
+      return
+    end
+
+    render json: { errors: warehouse_update[:errors], located_items: warehouse_update[:located_items] }, status: 200 
   end
 
   private

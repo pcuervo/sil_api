@@ -118,6 +118,7 @@ Sil::Application.routes.draw do
           post 'update',            :action => 'update'
           post 'mark_as_full',      :action => 'mark_as_full'
           post 'mark_as_available', :action => 'mark_as_available'
+          post 'csv_locate',        :action => 'csv_locate'
         end
       end
       resources :warehouse_racks, :only => [:show, :index, :create] do

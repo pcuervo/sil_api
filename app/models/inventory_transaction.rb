@@ -71,6 +71,12 @@ class InventoryTransaction < ActiveRecord::Base
       transaction = InventoryTransaction.get_by_type( i.actable_id, i.actable_type )
       entry_exit_date = "CheckInTransaction" == i.actable_type ? transaction.entry_date : transaction.exit_date
       deliver_pickup_contact = "CheckInTransaction" == i.actable_type ? transaction.delivery_company_contact : transaction.pickup_company_contact
+      folio = '-'
+      if 'CheckOutTransaction' == i.actable_type 
+        checkout = CheckOutTransaction.find(i.actable_id)
+        folio = checkout.folio
+      end
+
       transaction_details['inventory_transactions'].push({
         'inventory_item'  => {
             'id'            => inventory_item.id,
@@ -85,7 +91,7 @@ class InventoryTransaction < ActiveRecord::Base
         'entry_exit_date'         => entry_exit_date,
         'deliver_pickup_contact'  => deliver_pickup_contact,
         'additional_comments'     => i.additional_comments,
-        'folio'                   => i.folio
+        'folio'                   => folio
       })
     end
 

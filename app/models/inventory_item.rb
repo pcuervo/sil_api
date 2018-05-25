@@ -511,4 +511,8 @@ class InventoryItem < ActiveRecord::Base
     ActiveRecord::Base.connection.execute(sql)
   end
 
+  def self.unify_unit_items
+
+  end
+
 end
