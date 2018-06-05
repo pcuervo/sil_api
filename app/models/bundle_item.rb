@@ -76,7 +76,7 @@ class BundleItem < ActiveRecord::Base
   # Withdraws Bundleitem and remove from WarehouseLocation if it has any
   # * *Returns:* 
   #   - true if successful or error code
-  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments
+  def withdraw exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, folio
     puts self.status
     return self.status if cannot_withdraw?
 
@@ -90,7 +90,7 @@ class BundleItem < ActiveRecord::Base
         location.remove_item( inventory_item.id )
         location.update_status
       end
-      CheckOutTransaction.create( :inventory_item_id => inventory_item.id, :concept => 'Salida paquete', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => quantity_withdrawn )
+      CheckOutTransaction.create( :inventory_item_id => inventory_item.id, :concept => 'Salida paquete', :additional_comments => additional_comments, :exit_date => exit_date, :estimated_return_date => estimated_return_date, :pickup_company => pickup_company, :pickup_company_contact => pickup_company_contact, :quantity => quantity_withdrawn, :folio => folio )
       return true
     end
 

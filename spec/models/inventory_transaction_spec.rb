@@ -6,12 +6,10 @@ RSpec.describe InventoryTransaction, type: :model do
 
   it { should respond_to(:inventory_item_id) }
   it { should respond_to(:concept) }
-  it { should respond_to(:storage_type) }
   it { should respond_to(:additional_comments) }
 
   it { should validate_presence_of :inventory_item }
   it { should validate_presence_of :concept }
-  it { should validate_presence_of :storage_type }
 
   it { should belong_to :inventory_item }
 
@@ -37,4 +35,32 @@ RSpec.describe InventoryTransaction, type: :model do
     end
   end
 
+  describe "self.next_checkout_folio" do
+    it "returns the next folio when there are no previous transactions" do
+      expect(InventoryTransaction.next_checkout_folio).to eql 'FS-0000001'
+    end
+
+    it "returns the next folio when there are no previous transactions" do
+      FactoryGirl.create :check_out_transaction
+      expect(InventoryTransaction.next_checkout_folio).to eql 'FS-0000002'
+    end
+  end
+
+  describe "self.next_checkin_folio" do
+    it "returns the next folio when there are no previous transactions" do
+      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000001'
+    end
+
+    it "returns the next folio when there are no previous transactions" do
+      FactoryGirl.create :check_in_transaction
+      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000001'
+    end
+
+    it "returns the next folio when there are no previous transactions" do
+      check_in = FactoryGirl.create :check_in_transaction
+      check_in.update_attribute(:folio, InventoryTransaction.next_checkin_folio)
+
+      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000002'
+    end
+  end
 end

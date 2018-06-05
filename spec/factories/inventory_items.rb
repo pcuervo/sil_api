@@ -11,6 +11,5 @@ FactoryGirl.define do
     brand 'Marquis'
     model 'Modes'
     barcode { FFaker::Vehicle.vin }
-    extra_parts 'Parte 1, parte 2 y así.'
   end
 end

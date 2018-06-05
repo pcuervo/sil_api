@@ -101,10 +101,12 @@ Sil::Application.routes.draw do
       end
       resources :inventory_transactions, :only => [:show, :index] do
         collection do 
-          get 'get_check_ins',  :action => 'get_check_ins'
+          get 'get_check_ins', :action => 'get_check_ins'
           get 'get_check_outs', :action => 'get_check_outs'
           get 'get_check_outs_by_client/:id', :action => 'get_check_outs_by_client'
-          post 'search',        :action => 'search'
+          post 'search',  :action => 'search'
+          get 'last_checkout_folio', :action => 'last_checkout_folio'
+          post 'by_folio',  :action => 'by_folio'
         end
       end
       resources :warehouse_locations, :only => [:show, :index] do
@@ -116,6 +118,7 @@ Sil::Application.routes.draw do
           post 'update',            :action => 'update'
           post 'mark_as_full',      :action => 'mark_as_full'
           post 'mark_as_available', :action => 'mark_as_available'
+          post 'csv_locate',        :action => 'csv_locate'
         end
       end
       resources :warehouse_racks, :only => [:show, :index, :create] do

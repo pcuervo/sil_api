@@ -33,6 +33,12 @@ describe Delivery, type: :model do
       @delivery.add_items( @items, 'El Chomper', 'No comments' )
       expect( DeliveryItem.all.count ).to eq 3
     end
+
+    it "register InventoryTransaction with folio" do 
+      @delivery.add_items( @items, 'El Chomper', 'No comments' )
+      first_transaction_folio = CheckOutTransaction.first.folio
+      expect(first_transaction_folio).to eq 'FS-0000001'
+    end
   end
 
   describe ".get_withdrawn_locations" do

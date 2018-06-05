@@ -42,6 +42,8 @@ class WarehouseLocation < ActiveRecord::Base
         end
       end
 
+      return ITEM_ALREADY_LOCATED if 'UnitItem' == inventory_item.actable_type
+
       item_location.save
       w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.quantity, :quantity => item_location.quantity, :concept => WarehouseTransaction::ENTRY )
     else
@@ -198,4 +200,51 @@ class WarehouseLocation < ActiveRecord::Base
   def self.pending_location_items
     return InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', params[:id]).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
   end
+  
+  def self.bulk_locate user_email, item_locations_arr
+    errors = []
+    located_items = 0
+    item_locations_arr.each_with_index do |row, i|
+      barcode = row[:barcode]
+      quantity = row[:quantity].to_i
+      location_name = row[:location].gsub(/\n/, "").gsub(/\r/,"")
+
+      location = WarehouseLocation.find_by_name( location_name )
+      if ! location.present?
+        errors.push('¡No existe la ubicación con nombre: ' + location_name.to_s + '!' )
+        next
+      end
+
+      item = InventoryItem.find_by_barcode( barcode )
+      if ! item.present?
+        errors.push('¡No existe el artículo con código de barras: ' + barcode + '!' )
+        next
+      end
+
+      # @todo: Corregir cuando se usen un solo tipo de artículo.
+      if item.status == InventoryItem::OUT_OF_STOCK
+        errors.push('No se ubicó el artículo con código de barras "' + barcode + '" porque no cuenta con piezas en el inventario.' )
+        next
+      end
+
+      if item.actable_type == 'BulkItem'
+        bulk_item = BulkItem.find(item.actable_type)
+        new_quantity = bulk_item.quantity
+      else
+        new_quantity = 1
+      end
+
+      locate_item = location.locate( item.id, new_quantity, new_quantity )
+
+      if ITEM_ALREADY_LOCATED == locate_item
+        errors.push('No se agregó la cantidad de ' + quantity.to_s + ' pieza(s) del artículo con código de barras "' + barcode + '" porque ya estaba previamente ubicado en la ubicación ' + location_name + '.' )
+        next
+      end
+      located_items += 1 
+    end
+
+    #WarehouseMailer.csv_locate( user_email, located_items, errors ).deliver_now
+    return { located_items: located_items, errors: errors }
+  end
+
 end

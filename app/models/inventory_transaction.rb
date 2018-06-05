@@ -71,6 +71,12 @@ class InventoryTransaction < ActiveRecord::Base
       transaction = InventoryTransaction.get_by_type( i.actable_id, i.actable_type )
       entry_exit_date = "CheckInTransaction" == i.actable_type ? transaction.entry_date : transaction.exit_date
       deliver_pickup_contact = "CheckInTransaction" == i.actable_type ? transaction.delivery_company_contact : transaction.pickup_company_contact
+      folio = '-'
+      if 'CheckOutTransaction' == i.actable_type 
+        checkout = CheckOutTransaction.find(i.actable_id)
+        folio = checkout.folio
+      end
+
       transaction_details['inventory_transactions'].push({
         'inventory_item'  => {
             'id'            => inventory_item.id,
@@ -84,7 +90,8 @@ class InventoryTransaction < ActiveRecord::Base
         'quantity'                => i.quantity,
         'entry_exit_date'         => entry_exit_date,
         'deliver_pickup_contact'  => deliver_pickup_contact,
-        'additional_comments'     => i.additional_comments
+        'additional_comments'     => i.additional_comments,
+        'folio'                   => folio
       })
     end
 
@@ -114,6 +121,12 @@ class InventoryTransaction < ActiveRecord::Base
       }  
     }
     details
+  end
+
+  def self.by_folio( folio )
+    checkout_transaction = CheckOutTransaction.where('folio = ?',folio)
+
+    return get_formatted_transactions( checkout_transaction )
   end
 
   def self.check_ins
@@ -190,6 +203,39 @@ class InventoryTransaction < ActiveRecord::Base
     if 'CheckOutTransaction' == type 
       return CheckOutTransaction.find( id )
     end
+  end
+
+  def self.next_checkout_folio 
+    return 'FS-0000001' unless CheckOutTransaction.last.present?
+
+    last_folio = CheckOutTransaction.last.folio
+    return 'FS-0000001' if last_folio == '-'
+
+    next_folio_num = self.next_folio_num(last_folio)
+
+    return 'FS-' + next_folio_num;
+  end
+
+  def self.next_checkin_folio 
+    return 'FE-0000001' unless CheckInTransaction.last.present?
+
+    last_folio = CheckInTransaction.last.folio
+    return 'FE-0000001' if last_folio == '-'
+
+    next_folio_num = self.next_folio_num(last_folio)
+  
+    return 'FE-' + next_folio_num;
+  end
+
+  def self.next_folio_num(last_folio)
+    total_digits = 7
+    splitted = last_folio.split('-')
+    next_folio_num = splitted[1].to_i + 1
+
+    while next_folio_num.to_s.length < total_digits 
+      next_folio_num = "0" + next_folio_num.to_s
+    end
+    next_folio_num
   end
 
 end

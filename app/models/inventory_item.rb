@@ -97,6 +97,11 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
     inventory_items = inventory_items.where('storage_type = ?', params[:storage_type]) if params[:storage_type].present?
 
+    if params[:page] 
+      inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc)
+
+    end
+
     inventory_items.each do |i|
       item_with_locations = {
         'item' => i,

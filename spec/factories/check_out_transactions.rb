@@ -7,5 +7,6 @@ FactoryGirl.define do
     estimated_return_date { FFaker::Time.date }
     pickup_company { FFaker::Product.brand }
     pickup_company_contact { FFaker::PhoneNumber.phone_number }
+    folio 'FS-0000001'
   end
 end

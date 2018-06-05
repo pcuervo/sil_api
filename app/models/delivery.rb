@@ -16,10 +16,12 @@ class Delivery < ActiveRecord::Base
   validates_attachment_content_type :image, content_type: /\Aimage\/.*\Z/
 
   def add_items items, delivery_guy, additional_comments
+    next_checkout_folio = InventoryTransaction.next_checkout_folio
     items.each do |i|
       item = InventoryItem.find( i[:item_id] )
       litobel_supplier = Supplier.find_by_name( 'Litobel' )
-      item.withdraw Time.now, '', litobel_supplier.id, delivery_guy, additional_comments, i[:quantity].to_i
+      withdraw = item.withdraw(Time.now, '', litobel_supplier.id, delivery_guy, additional_comments, i[:quantity].to_i, next_checkout_folio)
+
       DeliveryItem.create( :inventory_item_id => i[:item_id], :delivery_id => self.id, :quantity => i[:quantity], )
     end
   end

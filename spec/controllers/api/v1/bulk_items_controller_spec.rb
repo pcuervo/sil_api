@@ -48,7 +48,7 @@ describe Api::V1::BulkItemsController, type: :controller do
         @bulk_item_attributes[:project_id] = project.id
 
         api_authorization_header user.auth_token
-        post :create, { user_id: user.id, bulk_item: @bulk_item_attributes, :entry_date => Time.now, :storage_type => 'Permanente', :delivery_company => 'DHL' }
+        post :create, { user_id: user.id, bulk_item: @bulk_item_attributes, :entry_date => Time.now, :storage_type => 'Permanente', :delivery_company => 'DHL', :folio => 'FE-0000001' }
       end
 
       it "renders the json representation for the inventory item just created" do
@@ -58,11 +58,13 @@ describe Api::V1::BulkItemsController, type: :controller do
         expect(bulk_item_response[:value].to_i).to eql @bulk_item_attributes[:value]
       end
 
-      it "should record the transaction in database" do
+      it "should record the transaction in database with Folio" do
         bulk_item_response = json_response[:inventory_item]
         inv_item = InventoryItem.find(bulk_item_response[:id])
         inv_transaction = InventoryTransaction.find_by_inventory_item_id(inv_item.id)
+        check_in = CheckInTransaction.find(inv_transaction.actable_id)
         expect(inv_transaction.to_json.size).to be >= 1
+        expect(check_in.folio).to eq 'FE-0000001'
       end
 
       it { should respond_with 201 }
@@ -85,7 +87,7 @@ describe Api::V1::BulkItemsController, type: :controller do
       it "renders the json errors on why the inventory item could not be created" do
         bulk_item_response = json_response
 
-        expect(bulk_item_response[:errors][:name]).to include "can't be blank"
+        expect(bulk_item_response[:errors][:name]).to include "El nombre no puede estar vacío"
       end
 
       it { should respond_with 422 }
