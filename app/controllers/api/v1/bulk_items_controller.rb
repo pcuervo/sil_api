@@ -23,17 +23,17 @@ class Api::V1::BulkItemsController < ApplicationController
 
     if bulk_item.save
       @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', bulk_item.id, 'BulkItem').first
-      log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity])
+      log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:bulk_item][:quantity], params[:folio])
 
       if params[:item_request_id].to_i > 0
         @item_request = InventoryItemRequest.find( params[:item_request_id] )
         send_notifications_approved_entry
         @item_request.destroy
       end
-      
+
       PmItem.create( :user_id => params[:pm_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
       AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
-      
+
       render json: bulk_item.get_details, status: 201, location: [:api, bulk_item]
     else
       render json: { errors: bulk_item.errors }, status: 422
@@ -132,7 +132,7 @@ class Api::V1::BulkItemsController < ApplicationController
       render json: { success: '¡Has sacado ' + params[:quantity].to_s + ' existencia(s) del artículo "' +  bulk_item.name + '"!', quantity: bulk_item.quantity }, status: 201   
       return
     end
-    
+
     render json: { errors: bulk_item.errors }, status: 422 
   end
 

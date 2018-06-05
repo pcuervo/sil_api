@@ -205,12 +205,29 @@ class InventoryTransaction < ActiveRecord::Base
     end
   end
 
-  def self.next_folio 
+  def self.next_checkout_folio 
     return 'FS-0000001' unless CheckOutTransaction.last.present?
 
     last_folio = CheckOutTransaction.last.folio
     return 'FS-0000001' if last_folio == '-'
 
+    next_folio_num = self.next_folio_num(last_folio)
+
+    return 'FS-' + next_folio_num;
+  end
+
+  def self.next_checkin_folio 
+    return 'FE-0000001' unless CheckInTransaction.last.present?
+
+    last_folio = CheckInTransaction.last.folio
+    return 'FE-0000001' if last_folio == '-'
+
+    next_folio_num = self.next_folio_num(last_folio)
+  
+    return 'FE-' + next_folio_num;
+  end
+
+  def self.next_folio_num(last_folio)
     total_digits = 7
     splitted = last_folio.split('-')
     next_folio_num = splitted[1].to_i + 1
@@ -218,8 +235,7 @@ class InventoryTransaction < ActiveRecord::Base
     while next_folio_num.to_s.length < total_digits 
       next_folio_num = "0" + next_folio_num.to_s
     end
-
-    return 'FS-' + next_folio_num;
+    next_folio_num
   end
 
 end

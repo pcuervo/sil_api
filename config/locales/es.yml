@@ -49,6 +49,8 @@ es:
               blank: "El upc no puede estar vacío"
             mid:
               blank: "El mid no puede estar vacío"
+            name:
+              blank: "El nombre no puede estar vacío"
         item_type:
           attributes:
             name:

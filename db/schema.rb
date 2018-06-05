@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180426224649) do
+ActiveRecord::Schema.define(version: 20180604231448) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -54,8 +54,9 @@ ActiveRecord::Schema.define(version: 20180426224649) do
     t.date     "estimated_issue_date"
     t.string   "delivery_company"
     t.string   "delivery_company_contact"
-    t.datetime "created_at",               null: false
-    t.datetime "updated_at",               null: false
+    t.datetime "created_at",                             null: false
+    t.datetime "updated_at",                             null: false
+    t.string   "folio",                    default: "-"
   end
 
   create_table "check_out_transactions", force: :cascade do |t|

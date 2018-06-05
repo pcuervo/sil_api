@@ -16,7 +16,7 @@ class Delivery < ActiveRecord::Base
   validates_attachment_content_type :image, content_type: /\Aimage\/.*\Z/
 
   def add_items items, delivery_guy, additional_comments
-    next_checkout_folio = InventoryTransaction.next_folio
+    next_checkout_folio = InventoryTransaction.next_checkout_folio
     items.each do |i|
       item = InventoryItem.find( i[:item_id] )
       litobel_supplier = Supplier.find_by_name( 'Litobel' )
