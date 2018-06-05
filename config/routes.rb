@@ -106,6 +106,7 @@ Sil::Application.routes.draw do
           get 'get_check_outs_by_client/:id', :action => 'get_check_outs_by_client'
           post 'search',  :action => 'search'
           get 'last_checkout_folio', :action => 'last_checkout_folio'
+          get 'last_checkin_folio', :action => 'last_checkin_folio'
           post 'by_folio',  :action => 'by_folio'
         end
       end

@@ -34,6 +34,14 @@ module Api
         render json: {folio: "FS-0000000"}, status: :ok
       end
 
+      def last_checkin_folio
+        last_folio = CheckInTransaction.last.folio
+        puts last_folio.to_yaml
+        return render json: {folio: last_folio}, status: :ok if last_folio != "-"
+
+        render json: {folio: "FE-0000000"}, status: :ok
+      end
+
       def get_check_outs_by_client
         user = User.find(params[:id])
         client_user = ClientContact.find(user.actable_id)

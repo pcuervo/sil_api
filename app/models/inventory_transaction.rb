@@ -124,9 +124,13 @@ class InventoryTransaction < ActiveRecord::Base
   end
 
   def self.by_folio( folio )
-    checkout_transaction = CheckOutTransaction.where('folio = ?',folio)
+    if folio.include?('FE')
+      transaction = CheckInTransaction.where('folio = ?',folio)
+    else
+      transaction = CheckOutTransaction.where('folio = ?',folio)
+    end
 
-    return get_formatted_transactions( checkout_transaction )
+    return get_formatted_transactions( transaction )
   end
 
   def self.check_ins

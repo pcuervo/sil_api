@@ -13,6 +13,8 @@ class WarehouseTransaction < ActiveRecord::Base
 
     warehouse_transaction_details = { 'warehouse_transactions' => [] }
     warehouse_transactions.each do |wt|
+      next unless wt.present?
+
       inventory_item = InventoryItem.find( wt.inventory_item_id )
       location = WarehouseLocation.find( wt.warehouse_location_id )
       warehouse_transaction_details['warehouse_transactions'].push({
