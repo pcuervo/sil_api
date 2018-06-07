@@ -48,7 +48,8 @@ class InventoryItem < ActiveRecord::Base
   NEED_MAINTENANCE = 6
   GOOD = 7
 
-  def self.search( params = {} )
+  def self.search( params = {}, ids_only=false )
+
     inventory_items = InventoryItem.all.order(created_at: :desc)
     x = inventory_items.page(1)
 
@@ -58,42 +59,24 @@ class InventoryItem < ActiveRecord::Base
     inventory_items_details = { 'inventory_items' => [] }
 
     if params[:keyword]
-      inventory_items = inventory_items.where( 'name LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%" )
+      inventory_items = inventory_items.where( 'lower(name) LIKE ? OR lower( barcode ) LIKE ?', "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%" )
     end
 
     if params[:serial_number].present?
       
       unit_items = UnitItem.where('lower(unit_items.serial_number) LIKE (?)',"%#{params[:serial_number].downcase}%" )
-      bundle_item_parts = BundleItemPart.where('serial_number LIKE (?)', "%#{params[:serial_number].downcase}%" )
 
       if unit_items.present?
         inventory_items = InventoryItem.where( 'actable_id IN (?) AND actable_type = ?', unit_items.pluck(:id), 'UnitItem' )
       end
 
-      
-      if bundle_item_parts.present?
-        bundle_item_ids = []
-        bundle_item_parts.each do |bdp|
-          bundle_item_ids.push( bdp.bundle_item.id )
-        end
-        bundle_items = InventoryItem.where( 'actable_id IN (?) AND actable_type = ?', bundle_item_ids, 'BundleItem' )
-      end
-
-      if unit_items.present? && bundle_item_parts.present?
-        ids = inventory_items.pluck(:id).concat( bundle_items.pluck(:id) )
-        puts ids
-        inventory_items = InventoryItem.where('id IN (?)', ids)
-        puts inventory_items.pluck(:name).to_yaml
-      end
-
-      if ! unit_items.present? && ! bundle_item_parts.present?
+      if ! unit_items.present?
         return inventory_items_details
       end
 
     end
 
     if params[:project_id].present?
-      puts 'PROJ'
       inventory_items = inventory_items.where( 'project_id = ?', params[:project_id] )
     end
 
@@ -146,6 +129,8 @@ class InventoryItem < ActiveRecord::Base
       inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc)
 
     end
+
+    return inventory_items.pluck(:id) if ids_only
 
     inventory_items.each do |i|
       inventory_items_details['inventory_items'].push({

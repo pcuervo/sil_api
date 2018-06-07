@@ -102,6 +102,11 @@ class Api::V1::DeliveriesController < ApplicationController
     render json: { deliveries: DeliveryItem.by_delivery_item(params[:inventory_item_id]) }, status: 200
   end
 
+  def by_keyword
+    deliveries = Delivery.by_keyword(params)
+    render json: { deliveries: deliveries }, status: :ok
+  end
+
   private 
 
   def delivery_params

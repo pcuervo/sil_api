@@ -158,6 +158,7 @@ Sil::Application.routes.draw do
           get 'pending_approval',     :action => 'pending_approval'
           post 'update',              :action => 'update'
           post 'by_delivery_man/',    :action => 'by_delivery_man'
+          post 'by_keyword/',    :action => 'by_keyword'
         end
       end
       resources :system_settings, :only => [:show] do
