@@ -73,4 +73,37 @@ describe Delivery, type: :model do
       expect( 3 ).to eq 3
     end
   end
+
+  describe 'Delivery.by_inventory_item' do
+    before(:each) do
+      FactoryGirl.create :supplier
+      @delivery = FactoryGirl.create :delivery
+      @another_delivery = FactoryGirl.create :delivery
+
+      @items = []
+      5.times do |t| 
+        delivery_item = {}
+        bulk_item = FactoryGirl.create :bulk_item
+        item = FactoryGirl.create :inventory_item
+        item.update(actable_type: 'BulkItem')
+        item.update(actable_id: bulk_item.id)
+        
+        delivery_item[:item_id] = item.id
+        delivery_item[:quantity] = 1
+        @items.push(delivery_item)
+      end
+      
+      @delivery.add_items( @items, 'El Chomper', 'No comments' )
+      @other_items = [@items.first]
+      @another_delivery.add_items( @other_items, 'El Mamfred', 'With comments' )
+    end
+
+    it "returns Deliveries that include the searched InventoryItems" do
+      deliveries = Delivery.by_inventory_item( @items.first[:item_id] )
+    
+      puts deliveries.count.to_yaml
+      expect( deliveries.first.company ).to eq @delivery.company
+      expect(deliveries.count).to eq 2
+    end
+  end
 end

@@ -64,6 +64,13 @@ class Delivery < ActiveRecord::Base
     withdrawn_locations
   end
 
+  def self.by_inventory_item( inventory_item_id )
+    deliveries = []
+    delivery_ids = DeliveryItem.where('inventory_item_id = ?', inventory_item_id).pluck(:delivery_id)
+
+    Delivery.where('id IN (?)',delivery_ids)
+  end
+
   scope :recent, -> {
     order(updated_at: :desc).limit(10)
   }
