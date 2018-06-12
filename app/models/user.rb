@@ -108,6 +108,7 @@ class User < ActiveRecord::Base
     end
   end
 
+  scope :all_admin_users, -> { where('role IN (?)', [WAREHOUSE_ADMIN, ADMIN]) }
   scope :admin_users, -> { where( role: ADMIN ) }
   scope :pm_users, -> { where( role: PROJECT_MANAGER ) }
   scope :ae_users, -> { where( role: ACCOUNT_EXECUTIVE ) }

@@ -47,8 +47,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   NEED_MAINTENANCE = 6
   GOOD = 7
 
-  def self.search( params = {}, ids_only=false )
-
+  def self.search(params = {}, ids_only = false)
     inventory_items = InventoryItem.all.order(created_at: :desc)
     inventory_items = inventory_items.where('status IN (?)', [IN_STOCK, PARTIAL_STOCK]).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
@@ -98,10 +97,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
     inventory_items = inventory_items.where('storage_type = ?', params[:storage_type]) if params[:storage_type].present?
 
-    if params[:page] 
-      inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc)
-
-    end
+    inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc) if params[:page]
 
     return inventory_items.pluck(:id) if ids_only
 
@@ -234,7 +230,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def withdraw_from_locations(quantity_to_withdraw)
     quantity_left = quantity_to_withdraw
     if quantity_to_withdraw != ''
-      while quantity_left > 0 
+      while quantity_left > 0
         item_location = item_locations.first
 
         break unless item_location.present?
@@ -274,7 +270,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     when InventoryItem::EXPIRED
       cannot_withdraw = true
     end
-    
+
     cannot_withdraw
   end
 
@@ -382,7 +378,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   private
 
   def send_notification_to_account_executives
-    project = self.project
     account_executives = project.users.where('role = ?', User::ACCOUNT_EXECUTIVE)
     account_executives.each do |ae|
       ae.notifications << Notification.create(title: 'Solicitud de entrada', inventory_item_id: id, message: 'El cliente "' + user.first_name + ' ' + user.last_name + '" ha solicitado un ingreso.')
@@ -390,10 +385,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   end
 
   def send_entry_request_notifications
-    admins = User.where('role IN (?)', [User::ADMIN, User::WAREHOUSE_ADMIN])
-    admins.each do |admin|
-      notification = Notification.create(title: 'Solicitud de entrada', inventory_item_id: id, message: user.get_role + ' "' + user.first_name + ' ' + user.last_name + '" ha solicitado el ingreso del artículo "' + name + '".')
-      admin.notifications << notification
+    User.all_admin_users.each do |admin|
+      admin.notifications << Notification.create(title: 'Solicitud de entrada', inventory_item_id: id, message: user.get_role + ' "' + user.first_name + ' ' + user.last_name + '" ha solicitado el ingreso del artículo "' + name + '".')
     end
   end
 
