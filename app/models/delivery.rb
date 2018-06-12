@@ -44,7 +44,8 @@ class Delivery < ActiveRecord::Base
         'addressee'           => self.addressee,
         'addressee_phone'     => self.addressee_phone,
         'additional_comments' => self.additional_comments,
-        'created_at'          => self.created_at
+        'created_at'          => self.created_at,
+        'date_time'          => self.date_time,
       }  
     }
     details
@@ -62,6 +63,22 @@ class Delivery < ActiveRecord::Base
     end
 
     withdrawn_locations
+  end
+
+  # @todo Clean InventoryItem.search, remove ids_only
+  # return ActiveRelation
+  def self.by_keyword( params )
+    ids_only = true
+    deliveries = []
+
+    inventory_item_ids = InventoryItem.search( params, ids_only )
+    delivery_ids = DeliveryItem.where('inventory_item_id IN (?)', inventory_item_ids).pluck(:delivery_id)
+
+    Delivery.where('id IN (?)',delivery_ids).each do |delivery|
+      details = delivery.get_details
+      deliveries.push(details['delivery'])
+    end
+    deliveries
   end
 
   scope :recent, -> {

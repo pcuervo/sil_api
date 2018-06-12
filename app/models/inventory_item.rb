@@ -47,7 +47,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   NEED_MAINTENANCE = 6
   GOOD = 7
 
-  def self.search(params = {})
+  def self.search( params = {}, ids_only=false )
+
     inventory_items = InventoryItem.all.order(created_at: :desc)
     inventory_items = inventory_items.where('status IN (?)', [IN_STOCK, PARTIAL_STOCK]).recent if params[:recent].present?
     inventory_items = inventory_items.in_stock if params[:in_stock].present?
@@ -101,6 +102,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
       inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc)
 
     end
+
+    return inventory_items.pluck(:id) if ids_only
 
     inventory_items.each do |i|
       item_with_locations = {

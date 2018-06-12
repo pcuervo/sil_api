@@ -106,6 +106,7 @@ Sil::Application.routes.draw do
           get 'get_check_outs_by_client/:id', :action => 'get_check_outs_by_client'
           post 'search',  :action => 'search'
           get 'last_checkout_folio', :action => 'last_checkout_folio'
+          get 'last_checkin_folio', :action => 'last_checkin_folio'
           post 'by_folio',  :action => 'by_folio'
         end
       end
@@ -157,6 +158,7 @@ Sil::Application.routes.draw do
           get 'pending_approval',     :action => 'pending_approval'
           post 'update',              :action => 'update'
           post 'by_delivery_man/',    :action => 'by_delivery_man'
+          post 'by_keyword/',    :action => 'by_keyword'
         end
       end
       resources :system_settings, :only => [:show] do

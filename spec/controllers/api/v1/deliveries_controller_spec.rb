@@ -157,27 +157,41 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
 
       it { should respond_with 200 }
     end
-
-    # context "when is not updated because litobel_id is already taken" do
-    #   before(:each) do
-    #     @user = FactoryGirl.create :user
-    #     @delivery = FactoryGirl.create :delivery
-    #     @invalid_delivery = FactoryGirl.create :delivery
-    #     api_authorization_header @user.auth_token
-    #     patch :update, { id: @invalid_delivery.id,
-    #                       delivery: { litobel_id: @delivery.litobel_id } }, format: :json
-    #   end
-
-    #   it "renders an errors json" do
-    #     delivery_response = json_response
-    #     expect(delivery_response).to have_key(:errors)
-    #   end
-
-    #   it "renders the json errors when the email is invalid" do
-    #     user_response = json_response
-    #     expect(user_response[:errors][:litobel_id]).to include "has already been taken"
-    #   end
-    # end
   end
 
+  describe "POST #by_keyword" do
+    before(:each) do
+      FactoryGirl.create :supplier
+      @delivery = FactoryGirl.create :delivery
+      @another_delivery = FactoryGirl.create :delivery
+
+      @items = []
+      5.times do |t| 
+        delivery_item = {}
+        bulk_item = FactoryGirl.create :bulk_item
+        item = FactoryGirl.create :inventory_item
+        item.update(name: 'MiItem'+t.to_s)
+        item.update(actable_type: 'BulkItem')
+        item.update(actable_id: bulk_item.id)
+        
+        delivery_item[:item_id] = item.id
+        delivery_item[:quantity] = 1
+        @items.push(delivery_item)
+      end
+      
+      @delivery.add_items( @items, 'El Chomper', 'No comments' )
+      @other_items = [@items.first] 
+      @another_delivery.add_items( @other_items, 'El Mamfred', 'With comments' )
+
+      post :by_keyword, { keyword: 'MiItem' }, format: :json
+    end
+
+    it "returns all Deliveries with items that have an occurrence of the keyword, serial number or barcode" do
+      puts json_response.to_yaml
+      delivery_response = json_response[:deliveries]
+      expect( delivery_response.count).to eql 2
+    end
+
+    #it { should respond_with 200 }
+  end
 end
