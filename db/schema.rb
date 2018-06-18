@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180604231448) do
+ActiveRecord::Schema.define(version: 20180612035050) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -215,9 +215,7 @@ ActiveRecord::Schema.define(version: 20180604231448) do
   create_table "item_locations", force: :cascade do |t|
     t.integer  "inventory_item_id"
     t.integer  "warehouse_location_id"
-    t.integer  "units",                 default: 1
     t.integer  "quantity",              default: 1
-    t.integer  "part_id",               default: 0
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
   end
@@ -365,7 +363,6 @@ ActiveRecord::Schema.define(version: 20180604231448) do
     t.integer  "inventory_item_id"
     t.integer  "warehouse_location_id"
     t.integer  "concept",               default: 1
-    t.integer  "units",                 default: 1
     t.integer  "quantity",              default: 1
     t.integer  "part_id",               default: 0
     t.datetime "created_at",                        null: false

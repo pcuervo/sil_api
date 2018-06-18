@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :inventory_item do
-    name { FFaker::Product.product_name }
+    sequence(:name) { |n| FFaker::Product.product_name + n.to_s }
     description { FFaker::HipsterIpsum.paragraph } 
     item_type "Desktop"
     user
@@ -10,6 +10,6 @@ FactoryGirl.define do
     quantity 100
     brand 'Marquis'
     model 'Modes'
-    barcode { FFaker::Vehicle.vin }
+    sequence(:barcode) { |n| FFaker::Vehicle.vin + n.to_s + rand(6).to_s }
   end
 end

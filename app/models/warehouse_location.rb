@@ -1,7 +1,6 @@
 class WarehouseLocation < ActiveRecord::Base
   validates :name, presence: true
   validates :name, uniqueness: true
-  validates :units, numericality: { only_intenger: true, greater_than: 0 }
   belongs_to :warehouse_rack
   has_many :item_locations
   has_many :warehouse_transactions
@@ -17,159 +16,122 @@ class WarehouseLocation < ActiveRecord::Base
   NOT_ENOUGH_UNITS = -3
   ITEM_ALREADY_LOCATED = -4
 
-  # Locates an InventoryItem in current WarehouseLocation
-  # * *Params:*
-  #   - +inventory_item_id+ -> ID of InventoryItem to locate
-  #   - +units+ -> Number of units the item occupies
-  #   - +quantity+ -> Item quantity
-  #   - +part_id+ -> ID of BundleItemPart in case of partially moving a BundleItem
-  # * *Returns:*
-  #   - ID of created ItemLocation
-  def locate( inventory_item_id, units, quantity, part_id = 0 )
+  def locate(inventory_item_id, quantity)
+    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, id).first
+    inventory_item = InventoryItem.find(inventory_item_id)
 
-    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
     if item_location.present?
+      return ITEM_ALREADY_LOCATED if (item_location.quantity + quantity) >= inventory_item.quantity
 
-      inventory_item = item_location.inventory_item 
-      if( 'BulkItem' == inventory_item.actable_type )
-        bulk_item = BulkItem.find( inventory_item.actable_id )
-        return ITEM_ALREADY_LOCATED if ( item_location.quantity + quantity ) > bulk_item.quantity
+      item_location.update(quantity: item_location.quantity + quantity)
+      item_location.update(quantity: inventory_item.quantity) if item_location.quantity > inventory_item.quantity
 
-        item_location.quantity = item_location.quantity + quantity
-        item_location.units = item_location.quantity
-        if item_location.quantity > bulk_item.quantity 
-          item_location.quantity = bulk_item.quantity 
-        end
-      end
-
-      return ITEM_ALREADY_LOCATED if 'UnitItem' == inventory_item.actable_type
-
-      item_location.save
-      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.quantity, :quantity => item_location.quantity, :concept => WarehouseTransaction::ENTRY )
+      WarehouseTransaction.create(inventory_item_id: inventory_item_id, warehouse_location_id: id, quantity: item_location.quantity, concept: WarehouseTransaction::ENTRY)
     else
-      inventory_item = InventoryItem.find( inventory_item_id )
-      if( 'BulkItem' == inventory_item.actable_type )
-        bulk_item = BulkItem.find( inventory_item.actable_id )
-        if quantity > bulk_item.quantity 
-          quantity = bulk_item.quantity 
-        end
-      end
+      quantity = inventory_item.quantity if quantity > inventory_item.quantity
 
-      item_location = ItemLocation.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => quantity, :quantity => quantity )
-      self.item_locations << item_location
-      w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => quantity, :quantity => quantity, :concept => WarehouseTransaction::ENTRY )
+      item_location = ItemLocation.create(inventory_item_id: inventory_item_id, warehouse_location_id: id, quantity: quantity)
+      item_locations << item_location
+      WarehouseTransaction.create(inventory_item_id: inventory_item_id, warehouse_location_id: id, quantity: quantity, concept: WarehouseTransaction::ENTRY)
     end
 
-    self.update_status
-    return item_location.id if part_id.zero?
+    update_status
 
-    item_location.part_id = part_id
-    item_location.save
-    return item_location.id
+    item_location.id
   end
 
   # Relocates an existing InventoryItem to current WarehouseLocation
-  # * *Params:* 
+  # * *Params:*
   #   - +item_location_id+ -> ID of ItemLocation to relocate
-  #   - +units+ -> Units to relocate
-  #   - +quantity+ -> Item quantity 
-  #   - +part_id+ -> ID of BundleItemPart in case of relocating a BundleItem
-  # * *Returns:* 
+  #   - +quantity+ -> Item quantity
+  # * *Returns:*
   #   - ID of new ItemLocation
-  def relocate( item_location_id, units, quantity, part_id = 0 )
-    item_location = ItemLocation.find( item_location_id )
-    inventory_item = InventoryItem.find( item_location.inventory_item_id )
+  # @todo REDEFINE THIS SHIT
+  def relocate(item_location_id, quantity)
+    item_location = ItemLocation.find(item_location_id)
+    inventory_item = InventoryItem.find(item_location.inventory_item_id)
     old_location = item_location.warehouse_location
-    new_item_location = ItemLocation.create( :inventory_item_id => item_location.inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => quantity )
-    w = WarehouseTransaction.create( :inventory_item_id => item_location.inventory_item_id, :warehouse_location_id => self.id, :units => item_location.units, :quantity => quantity, :concept => WarehouseTransaction::RELOCATION )
+
+    new_item_location = ItemLocation.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity)
+    w = WarehouseTransaction.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity, concept: WarehouseTransaction::RELOCATION)
 
     new_item_location.save
     item_location.destroy
 
-    return new_item_location.id if part_id.zero?
-
-    new_item_location.part_id = part_id
-    new_item_location.save
-    return new_item_location.id
+    new_item_location.id
   end
 
   # Remove an item from current location
-  # * *Params:* 
+  # * *Params:*
   #   - +inventory_item_id+ -> ID of ItemLocation to relocate
-  # * *Returns:* 
+  # * *Returns:*
   #   - bool if item was removed successfully
-  def remove_item( inventory_item_id )
-    item_location = self.item_locations.find_by_inventory_item_id( inventory_item_id )
-  
-    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => item_location.quantity, :quantity => item_location.quantity, :concept => WarehouseTransaction::WITHDRAW )
-    self.item_locations.delete( item_location )
+  def remove_item(inventory_item_id)
+    item_location = item_locations.find_by_inventory_item_id(inventory_item_id)
+
+    w = WarehouseTransaction.create(inventory_item_id: inventory_item_id, warehouse_location_id: id, quantity: item_location.quantity, concept: WarehouseTransaction::WITHDRAW)
+    item_locations.delete(item_location)
     item_location.destroy
-    return item_location.present?
+    item_location.present?
   end
 
   # Remove a quantity of an item from current location. By default
   # the concept is WITHDRAWAL (3).
-  # * *Params:* 
+  # * *Params:*
   #   - +inventory_item_id+ -> ID of ItemLocation to relocate
   #   - +quantity+ -> quantity to remove
   #   - +concept+ -> quantity to remove
-  # * *Returns:* 
+  # * *Returns:*
   #   - current quantity or error
-  def remove_quantity( inventory_item_id, quantity, concept=3 )
+  def remove_quantity(inventory_item_id, quantity, concept = 3)
+    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, id).first
 
-    item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, self.id ).first
-    
-    return NOT_ENOUGH_STOCKS if quantity > item_location.quantity 
+    return NOT_ENOUGH_STOCKS if quantity > item_location.quantity
 
     item_location.quantity -= quantity
     quantity = item_location.quantity if item_location.quantity < 0
 
     item_location.save
-    w = WarehouseTransaction.create( :inventory_item_id => inventory_item_id, :warehouse_location_id => self.id, :units => units, :quantity => quantity, :concept => concept )
+    w = WarehouseTransaction.create(inventory_item_id: inventory_item_id, warehouse_location_id: id, quantity: quantity, concept: concept)
 
-    if item_location.quantity <= 0 
+    if item_location.quantity <= 0
       item_location.destroy
       return 0
     end
-    self.update_status
-    return item_location.quantity
+    update_status
+    item_location.quantity
   end
 
   # Returns the available units in current WarehouseLocation
-  # * *Returns:* 
+  # * *Returns:*
   #   - number of available units
   def get_available_units
-    return 0 if self.status == NO_SPACE
-    return 999
-    # units = 0
-    # self.item_locations.each { |il| units += il.units }
-    # return self.units - units
+    return 0 if status == NO_SPACE
+    999
   end
 
   def update_status
-    return if self.status == NO_SPACE
+    return if status == NO_SPACE
 
-    if self.item_locations.count.zero?
-      self.status = EMPTY
-    else
-      self.status = PARTIAL_SPACE
-    end
-    self.save
+    self.status = if item_locations.count.zero?
+                    EMPTY
+                  else
+                    PARTIAL_SPACE
+                  end
+    save
   end
 
   def get_details
     inventory_items = []
-    self.item_locations.each { |il| inventory_items.push( il.inventory_item.get_details ) }
+    item_locations.each { |il| inventory_items.push(il.inventory_item.get_details) }
     details = { 'warehouse_location' => {
-        'id' => self.id,
-        'name' => self.name,
-        'status' => self.status,
-        'units' => self.units,
-        'warehouse_rack' => self.warehouse_rack,
-        'item_locations' => self.item_locations,
-        'inventory_items' => inventory_items,
-      }
-    }
+      'id' => id,
+      'name' => name,
+      'status' => status,
+      'warehouse_rack' => warehouse_rack,
+      'item_locations' => item_locations,
+      'inventory_items' => inventory_items
+    } }
   end
 
   def empty
@@ -194,36 +156,36 @@ class WarehouseLocation < ActiveRecord::Base
   end
 
   def self.pending_location_ids
-    return InventoryItem.select('inventory_items.id, SUM(item_locations.quantity) AS quantity_locations, SUM(bulk_items.quantity) AS quantity_bulk').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ?', 'BulkItem').group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity').pluck('inventory_items.id')
+    InventoryItem.select('inventory_items.id, SUM(item_locations.quantity) AS quantity_locations, SUM(bulk_items.quantity) AS quantity_bulk').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ?', 'BulkItem').group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity').pluck('inventory_items.id')
   end
 
   def self.pending_location_items
-    return InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', params[:id]).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
+    InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', params[:id]).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
   end
-  
-  def self.bulk_locate user_email, item_locations_arr
+
+  def self.bulk_locate(_user_email, item_locations_arr)
     errors = []
     located_items = 0
-    item_locations_arr.each_with_index do |row, i|
+    item_locations_arr.each_with_index do |row, _i|
       barcode = row[:barcode]
       quantity = row[:quantity].to_i
-      location_name = row[:location].gsub(/\n/, "").gsub(/\r/,"")
+      location_name = row[:location].delete("\n").delete("\r")
 
-      location = WarehouseLocation.find_by_name( location_name )
-      if ! location.present?
-        errors.push('¡No existe la ubicación con nombre: ' + location_name.to_s + '!' )
+      location = WarehouseLocation.find_by_name(location_name)
+      unless location.present?
+        errors.push('¡No existe la ubicación con nombre: ' + location_name.to_s + '!')
         next
       end
 
-      item = InventoryItem.find_by_barcode( barcode )
-      if ! item.present?
-        errors.push('¡No existe el artículo con código de barras: ' + barcode + '!' )
+      item = InventoryItem.find_by_barcode(barcode)
+      unless item.present?
+        errors.push('¡No existe el artículo con código de barras: ' + barcode + '!')
         next
       end
 
-      # @todo: Corregir cuando se usen un solo tipo de artículo.
+      # @todo: Corregir cuando se usen un solo tipo de articulo.
       if item.status == InventoryItem::OUT_OF_STOCK
-        errors.push('No se ubicó el artículo con código de barras "' + barcode + '" porque no cuenta con piezas en el inventario.' )
+        errors.push('No se ubicó el artículo con código de barras "' + barcode + '" porque no cuenta con piezas en el inventario.')
         next
       end
 
@@ -234,17 +196,15 @@ class WarehouseLocation < ActiveRecord::Base
         new_quantity = 1
       end
 
-      locate_item = location.locate( item.id, new_quantity, new_quantity )
+      locate_item = location.locate(item.id, new_quantity, new_quantity)
 
       if ITEM_ALREADY_LOCATED == locate_item
-        errors.push('No se agregó la cantidad de ' + quantity.to_s + ' pieza(s) del artículo con código de barras "' + barcode + '" porque ya estaba previamente ubicado en la ubicación ' + location_name + '.' )
+        errors.push('No se agregó la cantidad de ' + quantity.to_s + ' pieza(s) del artículo con código de barras "' + barcode + '" porque ya estaba previamente ubicado en la ubicación ' + location_name + '.')
         next
       end
-      located_items += 1 
+      located_items += 1
     end
 
-    #WarehouseMailer.csv_locate( user_email, located_items, errors ).deliver_now
-    return { located_items: located_items, errors: errors }
+    { located_items: located_items, errors: errors }
   end
-
 end

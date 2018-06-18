@@ -26,8 +26,7 @@ class WarehouseTransaction < ActiveRecord::Base
         'rack_id'       => location.warehouse_rack.id,
         'rack'          => location.warehouse_rack.name,
         'concept'       => get_concept_description( wt.concept ),
-        'created_at'    => wt.created_at,
-        'units'         => wt.units
+        'created_at'    => wt.created_at
       })
     end
     warehouse_transaction_details
