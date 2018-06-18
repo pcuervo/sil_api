@@ -28,15 +28,14 @@ module Api
       end
 
       def last_checkout_folio
-        last_folio = CheckOutTransaction.last.folio
-        return render json: {folio: last_folio}, status: :ok if last_folio != "-"
+        last_folio = CheckOutTransaction.where('folio != ?', '-').last.folio
+        return render json: {folio: last_folio}, status: :ok if last_folio.present?
 
         render json: {folio: "FS-0000000"}, status: :ok
       end
 
       def last_checkin_folio
         last_folio = CheckInTransaction.last.folio
-        puts last_folio.to_yaml
         return render json: {folio: last_folio}, status: :ok if last_folio != "-"
 
         render json: {folio: "FE-0000000"}, status: :ok
