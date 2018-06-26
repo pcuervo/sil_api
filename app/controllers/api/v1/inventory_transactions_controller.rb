@@ -36,7 +36,7 @@ module Api
 
       def last_checkin_folio
         last_folio = CheckInTransaction.where('folio != ?', '-').last
-        return render json: {folio: last_folio.last}, status: :ok if last_folio.present?
+        return render json: {folio: last_folio.folio}, status: :ok if last_folio.present?
 
         render json: {folio: "FE-0000000"}, status: :ok
       end
