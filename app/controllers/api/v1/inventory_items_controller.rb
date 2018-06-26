@@ -19,13 +19,29 @@ module Api
       end
 
       def create
-        inventory_item = current_user.inventory_items.build(inventory_item_params)
+        @inventory_item = current_user.inventory_items.build(inventory_item_params)
 
-        if inventory_item.save
-          render json: inventory_item, status: 201, location: [:api, inventory_item]
-        else
-          render json: { errors: inventory_item.errors }, status: 422
+        item_img = Paperclip.io_adapters.for(params[:item_img])
+        item_img.original_filename = params[:filename]
+        @inventory_item.item_img = item_img
+
+        if @inventory_item.save
+          log_checkin_transaction( params[:entry_date], @inventory_item.id, "Entrada granel inicial", params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:inventory_item][:quantity], params[:folio])
+    
+          if params[:item_request_id].to_i > 0
+            @item_request = InventoryItemRequest.find( params[:item_request_id] )
+            send_notifications_approved_entry
+            @item_request.destroy
+          end
+    
+          PmItem.create( :user_id => params[:pm_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+          AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+    
+          render json: @inventory_item.get_details, status: 201, location: [:api, @inventory_item]      
+          return    
         end
+
+        render json: { errors: @inventory_item.errors }, status: 422
       end
 
       def by_barcode

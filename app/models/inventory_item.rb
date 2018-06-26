@@ -184,8 +184,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         'rack'        => il.warehouse_location.warehouse_rack.name,
         'location_id' => il.warehouse_location.id,
         'location'    => il.warehouse_location.name,
-        'quantity'    => il.quantity,
-        'units'       => il.units
+        'quantity'    => il.quantity
       )
     end
     locations

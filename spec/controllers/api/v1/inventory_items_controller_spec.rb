@@ -31,29 +31,6 @@ describe Api::V1::InventoryItemsController do
     it { should respond_with 200 }
   end
 
-  describe 'GET #index with pagination' do
-    before(:each) do
-      Kaminari.configure { |config| config.default_per_page = 50 }
-
-      51.times { FactoryGirl.create :inventory_item }
-    end
-
-    it 'returns 50 inventory items from the database' do
-      get :index, page: 1
-      inventory_items_response = json_response[:inventory_items]
-      expect(inventory_items_response.size).to eq(50)
-    end
-
-    it 'returns 1 inventory items from the database' do
-      get :index, page: 2
-      inventory_items_response = json_response[:inventory_items]
-
-      expect(inventory_items_response.size).to eq(1)
-    end
-
-    # it { should respond_with 200 }
-  end
-
   describe 'POST #create' do
     context 'when is succesfully created' do
       before(:each) do

@@ -31,7 +31,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
       inventory_item = InventoryItem.where( 'actable_type = ? AND actable_id = ?', params[:actable_type], params[:inventory_item_id] ).first
     end
     location = WarehouseLocation.find( params[:warehouse_location_id] )
-    new_location_id = location.locate( inventory_item.id, params[:units].to_i, params[:quantity] )
+    new_location_id = location.locate( inventory_item.id, params[:quantity] )
 
     if new_location_id > 0
       item_location = ItemLocation.find( new_location_id )
@@ -42,43 +42,14 @@ class Api::V1::WarehouseLocationsController < ApplicationController
     render json: { errors: 'No se pudo ubicar el artículo' }, status: 422
   end
 
-  def locate_bundle
-    if params[:is_inventory_item]
-      inventory_item = InventoryItem.find( params[:inventory_item_id] )
-    else
-      inventory_item = InventoryItem.where( 'actable_type = "BundleItem" AND actable_id = ?', params[:actable_type] ).first
-    end
-    part_locations = params[:part_locations]
-    locations = []
-
-    part_locations.each do |pl|
-      location = WarehouseLocation.find( pl[:locationId] )
-      new_location_id = location.locate( inventory_item.id, pl[:units].to_i, 1, pl[:partId] )
-      if new_location_id > 0
-        location.update_status
-        locations.push( ItemLocation.find( new_location_id ) )
-        next
-      end
-
-      render json: { errors: 'No se pudo ubicar el artículo' }, status: 422
-      return
-    end
-
-    render json: { item_locations: locations }, status: 201
-  end
-
   def locate_bulk
-    if params[:is_inventory_item]
-      inventory_item = InventoryItem.find( params[:inventory_item_id] )
-    else
-      inventory_item = InventoryItem.where( 'actable_type = "BulkItem" AND actable_id = ?', params[:inventory_item_id] ).first
-    end
+    inventory_item = InventoryItem.find( params[:inventory_item_id] )
     bulk_locations = params[:bulk_locations]
     locations = []
 
     bulk_locations.each do |bl|
       location = WarehouseLocation.find( bl[:locationId] )
-      new_location_id = location.locate( inventory_item.id, bl[:units].to_i, bl[:quantity], 0 )
+      new_location_id = location.locate( inventory_item.id, bl[:quantity], 0 )
       if new_location_id > 0
         locations.push( ItemLocation.find( new_location_id ) )
         next

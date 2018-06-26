@@ -85,7 +85,12 @@ class Api::V1::ProjectsController < ApplicationController
     client = project.client
     client_contact = project.users.find_by_role( User::CLIENT )
 
-    client_obj = { :id => client.id, :name => client.name, :contact_name => client_contact.first_name + ' ' + client_contact.last_name }
+    contact_name = 'Sin Cliente asignado'
+    if client_contact.present?
+      contact_name = client_contact.first_name + ' ' + client_contact.last_name
+    end
+        
+    client_obj = { :id => client.id, :name => client.name, :contact_name => contact_name }
     render json: { :client => client_obj }, status: 200, location: [:api, project]
   end
 
