@@ -51,16 +51,9 @@ class InventoryTransaction < ActiveRecord::Base
       return get_formatted_transactions(inventory_transactions)
     end
 
-    bundle_item_part = BundleItemPart.find_by(serial_number: keyword)
-    if bundle_item_part.present?
-      bundle_item = bundle_item_part.bundle_item
-      inventory_items_id = InventoryItem.where("actable_id = ? AND actable_type = ?", bundle_item.id, "BundleItem").pluck(:id)
-      inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where("inventory_item_id IN (?)", inventory_items_id).order(created_at: :desc)
-      return get_formatted_transactions(inventory_transactions)
-    end
-
-    inventory_items_id = InventoryItem.where("name LIKE ? OR lower( barcode ) LIKE ?", "%#{keyword}%", "%#{keyword.downcase}%").pluck(:id)
+    inventory_items_id = InventoryItem.where("lower(name) LIKE ? OR lower( barcode ) LIKE ?", "%#{keyword.downcase}%", "%#{keyword.downcase}%").pluck(:id)
     inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where("inventory_item_id IN (?)", inventory_items_id).order(created_at: :desc)
+    
     get_formatted_transactions(inventory_transactions)
   end
 
