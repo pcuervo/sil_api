@@ -193,7 +193,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   # Withdraws InventoryItem and remove from WarehouseLocation if it has any
   # * *Returns:*
   #   - true if successful or error code
-  def withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity_to_withdraw)
+  def withdraw(exit_date, estimated_return_date, pickup_company, pickup_company_contact, additional_comments, quantity_to_withdraw, folio='-')
     return status if cannot_withdraw?
 
     if quantity_to_withdraw != '' && quantity_to_withdraw < quantity.to_i
