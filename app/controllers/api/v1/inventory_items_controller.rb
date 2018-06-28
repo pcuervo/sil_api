@@ -106,7 +106,7 @@ module Api
       end
 
       def reentry_with_pending_location?
-        pending_location_items = WarehouseLocation.pending_location_items
+        pending_location_items = WarehouseLocation.pending_location_items(params[:id])
         if pending_location_items.present?
           render json: { quantity: pending_location_items.first.quantity }, status: 201
           return

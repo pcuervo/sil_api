@@ -21,6 +21,7 @@ class WarehouseTransaction < ActiveRecord::Base
         'item_id'       => wt.inventory_item_id,
         'actable_type'  => inventory_item.actable_type,
         'item_name'     => inventory_item.name,
+        'quantity'      => wt.quantity,
         'location_id'   => location.id,
         'location'      => location.name,
         'rack_id'       => location.warehouse_rack.id,
@@ -39,6 +40,8 @@ class WarehouseTransaction < ActiveRecord::Base
     when RELOCATION
       'Reubicación'
     when WITHDRAW
+      'Salida'
+    when EMPTIED
       'Salida'
     end
   end

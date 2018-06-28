@@ -54,7 +54,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     inventory_items = inventory_items.out_of_stock if params[:out_of_stock].present?
     inventory_items_details = { 'inventory_items' => [] }
 
-    inventory_items = inventory_items.where('name LIKE ? OR lower(barcode) LIKE ? OR lower(serial_number) LIKE ?', "%#{params[:keyword]}%", "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%") if params[:keyword]
+    inventory_items = inventory_items.where('lower(name) LIKE ? OR lower(barcode) LIKE ? OR lower(serial_number) LIKE ?', "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%", "%#{params[:keyword].downcase}%") if params[:keyword]
 
     inventory_items = inventory_items.where('project_id = ?', params[:project_id]) if params[:project_id].present?
 

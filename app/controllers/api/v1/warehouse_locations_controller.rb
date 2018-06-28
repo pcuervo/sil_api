@@ -49,7 +49,7 @@ class Api::V1::WarehouseLocationsController < ApplicationController
 
     bulk_locations.each do |bl|
       location = WarehouseLocation.find( bl[:locationId] )
-      new_location_id = location.locate( inventory_item.id, bl[:quantity], 0 )
+      new_location_id = location.locate( inventory_item.id, bl[:quantity] )
       if new_location_id > 0
         locations.push( ItemLocation.find( new_location_id ) )
         next

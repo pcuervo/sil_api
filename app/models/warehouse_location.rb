@@ -130,8 +130,35 @@ class WarehouseLocation < ActiveRecord::Base
       'status' => status,
       'warehouse_rack' => warehouse_rack,
       'item_locations' => item_locations,
-      'inventory_items' => inventory_items
+      'inventory_items' => items
     } }
+  end
+
+  def items
+    inventory_items = []
+    item_locations.order(created_at: :desc).each do |il|
+
+      unless il.inventory_item.present?
+        il.destroy
+        next
+      end
+
+      item = il.inventory_item
+      inventory_items.push({
+        'id'            => item.id,
+        'img'           => item.item_img(:thumb),
+        'name'          => item.name,
+        'location_id'   => il.warehouse_location_id,
+        'location'      => il.warehouse_location.name,
+        'quantity'      => il.quantity,
+        'created_at'    => il.created_at,
+        'item_type'     => item.item_type,
+        'actable_type'  => item.actable_type,
+        'serial_number' => item.serial_number
+      })
+    end
+
+    inventory_items
   end
 
   def empty
@@ -159,8 +186,8 @@ class WarehouseLocation < ActiveRecord::Base
     InventoryItem.select('inventory_items.id, SUM(item_locations.quantity) AS quantity_locations, SUM(bulk_items.quantity) AS quantity_bulk').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ?', 'BulkItem').group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity').pluck('inventory_items.id')
   end
 
-  def self.pending_location_items
-    InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', params[:id]).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
+  def self.pending_location_items(id)
+    InventoryItem.select('inventory_items.id, bulk_items.quantity-SUM(item_locations.quantity) AS quantity').joins(:item_locations).joins('INNER JOIN bulk_items ON bulk_items.id = inventory_items.actable_id').where('actable_type = ? AND inventory_items.id = ?', 'BulkItem', id).group('inventory_items.id, bulk_items.quantity').having('SUM(item_locations.quantity) < bulk_items.quantity')
   end
 
   def self.bulk_locate(_user_email, item_locations_arr)
