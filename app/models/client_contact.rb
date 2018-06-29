@@ -3,6 +3,8 @@ class ClientContact < ActiveRecord::Base
   belongs_to :client
 
   validates :client, presence: true
+  validates :first_name, presence: true
+  validates :last_name, presence: true
 
   def inventory_items in_stock_only=false
     projects = self.client.projects

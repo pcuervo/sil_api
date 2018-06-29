@@ -49,11 +49,9 @@ class WarehouseLocation < ActiveRecord::Base
   # @todo REDEFINE THIS SHIT
   def relocate(item_location_id, quantity)
     item_location = ItemLocation.find(item_location_id)
-    inventory_item = InventoryItem.find(item_location.inventory_item_id)
-    old_location = item_location.warehouse_location
 
     new_item_location = ItemLocation.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity)
-    w = WarehouseTransaction.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity, concept: WarehouseTransaction::RELOCATION)
+    WarehouseTransaction.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity, concept: WarehouseTransaction::RELOCATION)
 
     new_item_location.save
     item_location.destroy
@@ -132,20 +130,20 @@ class WarehouseLocation < ActiveRecord::Base
       'item_locations' => item_locations,
       'inventory_items' => items
     } }
+    details
   end
 
   def items
     inventory_items = []
     item_locations.order(created_at: :desc).each do |il|
-
       unless il.inventory_item.present?
         il.destroy
         next
       end
 
       item = il.inventory_item
-      inventory_items.push({
-        'id'            => item.id,
+      inventory_items.push(
+        'id' => item.id,
         'img'           => item.item_img(:thumb),
         'name'          => item.name,
         'location_id'   => il.warehouse_location_id,
@@ -155,7 +153,7 @@ class WarehouseLocation < ActiveRecord::Base
         'item_type'     => item.item_type,
         'actable_type'  => item.actable_type,
         'serial_number' => item.serial_number
-      })
+      )
     end
 
     inventory_items

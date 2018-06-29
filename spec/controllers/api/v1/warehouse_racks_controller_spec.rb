@@ -126,7 +126,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
       end
 
       it "empties rack and registers WarehouseTransactions" do
-        expect( @warehouse_rack.is_empty? ).to eq true
+        expect( @warehouse_rack.empty? ).to eq true
         expect( WarehouseTransaction.last.concept ).to eq WarehouseTransaction::EMPTIED
       end
 

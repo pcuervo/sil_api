@@ -12,33 +12,26 @@ class WithdrawRequest < ActiveRecord::Base
     end
   end
 
-  def authorize pickup_company_contact, additional_comments, quantities=[]
-    withdraw_request_items.each_with_index do |wri, i|
-      inventory_item = wri.inventory_item
-      wri.inventory_item.status = InventoryItem::IN_STOCK
-      wri.inventory_item.save
-      if quantities.empty?
-        quantity_to_withdraw = wri.quantity.to_i
-      else
-        quantity_to_withdraw = quantities[i].to_i
-      end
-      puts 'q: ' + quantity_to_withdraw.to_s
-      withdrawn = inventory_item.withdraw( self.exit_date, '', self.pickup_company_id, pickup_company_contact, additional_comments, quantity_to_withdraw )
-      if withdrawn != true
-        return false
-      end
+  def authorize(pickup_company_contact, additional_comments, quantities = [])
+    withdraw_request_items.each do |wri|
+      wri.inventory_item.update_attributes(status: InventoryItem::IN_STOCK)
+      quantity_to_withdraw = if quantities.empty?
+                               wri.quantity.to_i
+                             else
+                               quantities[i].to_i
+                             end
+      withdrawn = wri.inventory_item.withdraw(exit_date, '', pickup_company_id, pickup_company_contact, additional_comments, quantity_to_withdraw)
+      return false if withdrawn != true
     end
-    self.destroy
-    return true
+    destroy
+    true
   end
 
   def cancel
-    return self.destroy
+    destroy
   end
 
   def remove_items
-    self.withdraw_request_items.each do |item|
-      item.destroy
-    end
+    withdraw_request_items.each(&:destroy)
   end
 end

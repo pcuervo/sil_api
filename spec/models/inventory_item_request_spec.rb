@@ -14,12 +14,12 @@ RSpec.describe InventoryItemRequest, type: :model do
   it { should validate_presence_of :ae_id }
   it { should validate_presence_of :item_type }
 
-  describe ".details" do
+  describe '.details' do
     before(:each) do
       project = FactoryGirl.create :project
       ae = FactoryGirl.create :user
       pm = FactoryGirl.create :user
-      3.times.each do 
+      3.times.each do
         item_request = FactoryGirl.create :inventory_item_request
         item_request.project_id = project.id
         item_request.pm_id = pm.id
@@ -28,8 +28,8 @@ RSpec.describe InventoryItemRequest, type: :model do
       end
     end
 
-    it "returns the most updated records" do
-      expect( InventoryItemRequest.details['inventory_item_requests'].count ).to eq 3
+    it 'returns the most updated records' do
+      expect(InventoryItemRequest.details['inventory_item_requests'].count).to eq 3
     end
   end
 end

@@ -13,50 +13,50 @@ RSpec.describe InventoryTransaction, type: :model do
 
   it { should belong_to :inventory_item }
 
-  describe ".check_ins" do
+  describe '.check_ins' do
     before(:each) do
       3.times { FactoryGirl.create :check_in_transaction }
     end
 
-    it "returns 3 records of type CheckInTransaction" do
+    it 'returns 3 records of type CheckInTransaction' do
       check_ins = InventoryTransaction.check_ins
       expect(check_ins['inventory_transactions'].count).to eql 3
     end
   end
 
-  describe ".check_outs" do
+  describe '.check_outs' do
     before(:each) do
       3.times { FactoryGirl.create :check_out_transaction }
     end
 
-    it "returns 3 records of type CheckInTransaction" do
+    it 'returns 3 records of type CheckInTransaction' do
       check_outs = InventoryTransaction.check_outs
       expect(check_outs['inventory_transactions'].count).to eql 3
     end
   end
 
-  describe "self.next_checkout_folio" do
-    it "returns the next folio when there are no previous transactions" do
+  describe 'self.next_checkout_folio' do
+    it 'returns the next folio when there are no previous transactions' do
       expect(InventoryTransaction.next_checkout_folio).to eql 'FS-0000001'
     end
 
-    it "returns the next folio when there are no previous transactions" do
+    it 'returns the next folio when there are no previous transactions' do
       FactoryGirl.create :check_out_transaction
       expect(InventoryTransaction.next_checkout_folio).to eql 'FS-0000002'
     end
   end
 
-  describe "self.next_checkin_folio" do
-    it "returns the next folio when there are no previous transactions" do
+  describe 'self.next_checkin_folio' do
+    it 'returns the next folio when there are no previous transactions' do
       expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000001'
     end
 
-    it "returns the next folio when there are no previous transactions" do
+    it 'returns the next folio when there are no previous transactions' do
       FactoryGirl.create :check_in_transaction
       expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000001'
     end
 
-    it "returns the next folio when there are no previous transactions" do
+    it 'returns the next folio when there are no previous transactions' do
       check_in = FactoryGirl.create :check_in_transaction
       check_in.update_attribute(:folio, InventoryTransaction.next_checkin_folio)
 

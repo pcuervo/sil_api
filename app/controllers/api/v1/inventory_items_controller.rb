@@ -225,7 +225,7 @@ module Api
       def send_entry_request_notifications
         admins = User.where('role IN (?)', [User::ADMIN, User::WAREHOUSE_ADMIN])
         admins.each do |admin|
-          admin.notifications << Notification.create(title: 'Solicitud de entrada', inventory_item_id: -1, message: current_user.get_role + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado el ingreso del artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime('%d/%m/%Y') + '.')
+          admin.notifications << Notification.create(title: 'Solicitud de entrada', inventory_item_id: -1, message: current_user.role_name + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado el ingreso del artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime('%d/%m/%Y') + '.')
         end
       end
 

@@ -56,5 +56,14 @@ es:
             name:
               taken: "Ya existe ese tipo de mercancía"
               blank: "El tipo de mercancía es obligatorio"
+        client_contact:
+          attribures: 
+            first_name:
+              blank: "El nombre no puede estar vacío" 
+            first_name:
+              blank: "El apellido no puede estar vacío" 
+            email:
+              blank: "El correo no puede estar vacío"
+              taken: "Ya existe un usuario con ese email"
       messages:
           record_invalid: "es inválido"

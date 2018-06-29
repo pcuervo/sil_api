@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Delivery, type: :model do
-  before { @delivery = FactoryGirl.build(:delivery) }
+  let(:delivery) { FactoryGirl.create :delivery }
 
   it { should validate_presence_of :company }
   it { should validate_presence_of :addressee }
@@ -9,101 +9,84 @@ describe Delivery, type: :model do
 
   it { should belong_to :user }
 
-  describe ".add_items" do
+  describe '.add_items' do
     before(:each) do
-      @delivery = FactoryGirl.create :delivery
-      supplier = FactoryGirl.create :supplier
-      supplier.name = 'Litobel'
-      supplier.save
+      create_litobel_supplier
       @items = []
-      3.times do |t|
+      3.times do |_t|
         delivery_item = {}
-        unit_item = FactoryGirl.create :unit_item
         item = FactoryGirl.create :inventory_item
-        item.actable_type = 'UnitItem'
-        item.actable_id = unit_item.id
-        item.save
+
         delivery_item[:item_id] = item.id
         delivery_item[:quantity] = 1
-        @items.push( delivery_item )
+
+        @items.push(delivery_item)
       end
     end
 
-    it "creates 2 DeliveryItems" do
-      @delivery.add_items( @items, 'El Chomper', 'No comments' )
-      expect( DeliveryItem.all.count ).to eq 3
+    it 'creates 2 DeliveryItems' do
+      delivery.add_items(@items, 'El Chomper', 'No comments')
+      expect(DeliveryItem.all.count).to eq 3
     end
 
-    it "register InventoryTransaction with folio" do 
-      @delivery.add_items( @items, 'El Chomper', 'No comments' )
+    it 'register InventoryTransaction with folio' do
+      delivery.add_items(@items, 'El Chomper', 'No comments')
       first_transaction_folio = CheckOutTransaction.first.folio
       expect(first_transaction_folio).to eq 'FS-0000001'
     end
   end
 
-  describe ".get_withdrawn_locations" do
+  describe '.withdrawn_items_locations' do
     before(:each) do
-      @delivery = FactoryGirl.create :delivery
-      supplier = FactoryGirl.create :supplier
-      supplier.name = 'Litobel'
-      supplier.save
+      create_litobel_supplier
+
       @items = []
-      2.times do |t|
+      2.times do |_t|
         delivery_item = {}
-        unit_item = FactoryGirl.create :unit_item
         location = FactoryGirl.create :warehouse_location
         item = FactoryGirl.create :inventory_item
-        item.actable_type = 'UnitItem'
-        item.actable_id = unit_item.id
-        item.save
+        location.locate(item.id, 1)
 
-        item_location = ItemLocation.find( location.locate( item.id, 1, 1 ) )
-        item_location.save
-
-        delivery_item[:item_id] = item.id
-        delivery_item[:quantity] = 1
-        @items.push( delivery_item )
-      end
-    end
-
-    it "returns WarehouseLocations from which delivery Items where removed" do
-      @delivery.add_items( @items, 'El Chomper', 'No comments' )
-      widthdrawn_locations = @delivery.get_withdrawn_locations
-
-      expect( 3 ).to eq 3
-    end
-  end
-
-  describe 'Delivery.by_keyword' do
-    before(:each) do
-      FactoryGirl.create :supplier
-      @delivery = FactoryGirl.create :delivery
-      @another_delivery = FactoryGirl.create :delivery
-
-      @items = []
-      5.times do |t| 
-        delivery_item = {}
-        bulk_item = FactoryGirl.create :bulk_item
-        item = FactoryGirl.create :inventory_item
-        item.update(name: 'MiItem'+t.to_s)
-        item.update(actable_type: 'BulkItem')
-        item.update(actable_id: bulk_item.id)
-        
         delivery_item[:item_id] = item.id
         delivery_item[:quantity] = 1
         @items.push(delivery_item)
       end
-      
-      @delivery.add_items( @items, 'El Chomper', 'No comments' )
-      @other_items = [@items.first] 
-      @another_delivery.add_items( @other_items, 'El Mamfred', 'With comments' )
     end
 
-    it "returns Deliveries that include the searched InventoryItems" do
-      inv_item = InventoryItem.first
-      deliveries = Delivery.by_keyword( 'MiItem' )
-    
-      expect( deliveries.first.company ).to eq @delivery.company
+    it 'returns WarehouseLocations from which delivery Items where removed' do
+      delivery.add_items(@items, 'El Chomper', 'No comments')
+      delivery.withdrawn_items_locations
+
+      expect(3).to eq 3
+    end
+  end
+
+  describe 'Delivery.by_keyword' do
+    let(:another_delivery) { FactoryGirl.create :delivery }
+    before(:each) do
+      create_litobel_supplier
+
+      @items = []
+      3.times do |t|
+        delivery_item = {}
+        item = FactoryGirl.create :inventory_item
+        item.update(name: 'MiItem' + t.to_s)
+
+        delivery_item[:item_id] = item.id
+        delivery_item[:quantity] = 1
+        @items.push(delivery_item)
+      end
+
+      delivery.add_items(@items, 'El Chomper', 'No comments')
+      @other_items = [@items.first]
+      another_delivery.add_items(@other_items, 'El Mamfred', 'With comments')
+    end
+
+    it 'returns Deliveries that include the searched InventoryItems' do
+      params = { keyword: 'miitem' }
+      deliveries = Delivery.by_keyword(params)
+
+      expect(deliveries.first['company']).to eq delivery.company
       expect(deliveries.count).to eq 2
     end
   end

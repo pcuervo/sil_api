@@ -74,7 +74,7 @@ class Api::V1::WithdrawRequestsController < ApplicationController
     def send_withdrawal_request_notifications
       admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
       admins.each do |admin|
-        admin.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => -1, :message => current_user.get_role + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado una salida para el día ' + @withdraw_request.exit_date.strftime("%d/%m/%Y") + '.' )
+        admin.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => -1, :message => current_user.role_name + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado una salida para el día ' + @withdraw_request.exit_date.strftime("%d/%m/%Y") + '.' )
       end
     end 
 

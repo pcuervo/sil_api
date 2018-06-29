@@ -80,7 +80,7 @@ class Api::V1::DeliveryRequestsController < ApplicationController
     def send_delivery_request_notifications
       admins = User.where( 'role IN (?)', [ User::ADMIN, User::WAREHOUSE_ADMIN ]  )
       admins.each do |admin|
-        admin.notifications << Notification.create( :title => 'Solicitud de envío', :inventory_item_id => -1, :message => current_user.get_role + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado un envío para el día ' + @delivery_request.date_time.strftime("%d/%m/%Y %H:%M") + '.' )
+        admin.notifications << Notification.create( :title => 'Solicitud de envío', :inventory_item_id => -1, :message => current_user.role_name + ' "' + current_user.first_name + ' ' + current_user.last_name + '" ha solicitado un envío para el día ' + @delivery_request.date_time.strftime("%d/%m/%Y %H:%M") + '.' )
       end
     end 
 
