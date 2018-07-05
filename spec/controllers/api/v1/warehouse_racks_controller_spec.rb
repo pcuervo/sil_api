@@ -31,7 +31,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
     it { should respond_with 200 }
   end
 
-  describe "GET #get_available_locations" do
+  describe "GET #available_locations" do
     before(:each) do
       warehouse_rack = FactoryGirl.create :warehouse_rack
       5.times do 
@@ -39,7 +39,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
         warehouse_rack.warehouse_locations << location
       end
 
-      get :get_available_locations, id: warehouse_rack.id
+      get :available_locations, id: warehouse_rack.id
     end
 
     it "return 5 WarehouseLocations in JSON format" do

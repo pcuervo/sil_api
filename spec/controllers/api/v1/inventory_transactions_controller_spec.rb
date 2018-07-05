@@ -3,7 +3,8 @@ require 'spec_helper'
 describe Api::V1::InventoryTransactionsController do
   describe "GET #show" do
     before(:each) do
-      @inventory_transaction = FactoryGirl.create :inventory_transaction
+      check_in = FactoryGirl.create :check_in_transaction
+      @inventory_transaction = check_in.acting_as
       get :show, id: @inventory_transaction.id
     end
 
@@ -17,7 +18,10 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #index" do
     before(:each) do
-      5.times { FactoryGirl.create :check_in_transaction }
+      user = FactoryGirl.create(:user)
+      5.times { FactoryGirl.create(:check_in_transaction) }
+
+      api_authorization_header user.auth_token
       get :index
     end
 
@@ -32,6 +36,9 @@ describe Api::V1::InventoryTransactionsController do
   describe "GET #get_check_ins" do
     before(:each) do
       3.times { FactoryGirl.create :check_in_transaction }
+      user = FactoryGirl.create(:user)
+
+      api_authorization_header user.auth_token
       get :get_check_ins
     end
 
@@ -43,7 +50,10 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #get_check_outs" do
     before(:each) do
+      @user = FactoryGirl.create(:user, role: User::ADMIN)
       3.times { FactoryGirl.create :check_out_transaction }
+
+      api_authorization_header @user.auth_token
       get :get_check_outs
     end
 
@@ -65,7 +75,7 @@ describe Api::V1::InventoryTransactionsController do
       end
       it "returns the first folio since no previous folios have been created" do
         folio_response = json_response[:folio]
-        expect(folio_response).to eq('FS-0000000')
+        expect(folio_response).to eq('FS-0000001')
       end
 
       it { should respond_with 200 }

@@ -301,7 +301,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   def get_ae(project)
     ae_items = self.ae_items
-    return project.get_ae unless ae_items.present?
+    return project.ae unless ae_items.present?
 
     ae = ae_items.first.user
     ae.first_name + ' ' + ae.last_name
@@ -309,7 +309,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   def get_pm(project)
     pm_items = self.pm_items
-    return project.get_pm unless pm_items.present?
+    return project.pm unless pm_items.present?
 
     pm = pm_items.first.user
     pm.first_name + ' ' + pm.last_name
@@ -318,7 +318,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def pm_id
     project = Project.find(project_id)
     pm_items = self.pm_items
-    return project.get_pm_id unless pm_items.present?
+    return project.pm_id unless pm_items.present?
 
     pm = pm_items.first.user
     pm.id
@@ -327,7 +327,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def ae_id
     project = Project.find(project_id)
     ae_items = self.ae_items
-    return project.get_ae_id unless ae_items.present?
+    return project.ae_id unless ae_items.present?
 
     ae = ae_items.first.user
     ae.id

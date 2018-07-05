@@ -5,14 +5,10 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
     before(:each) do
       user = FactoryGirl.create :user
       3.times{ FactoryGirl.create :notification }
+      
+      Notification.all.each { |n| user.notifications << n }
 
       api_authorization_header user.auth_token
-      current_user = User.find_by(auth_token: request.headers['Authorization'])
-
-      Notification.all.each do |n|
-        current_user.notifications << n
-      end
-
       get :index
     end
 
@@ -24,7 +20,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
     it { should respond_with 200 }
   end
 
-  describe "GET #get_unread" do
+  describe "GET #unread" do
     before(:each) do
       user = FactoryGirl.create :user
       3.times{ FactoryGirl.create :notification }
@@ -39,7 +35,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
         current_user.notifications << n
       end
 
-      get :get_unread
+      get :unread
     end
 
     it "returns all unread notifications for current user" do
@@ -50,7 +46,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
     it { should respond_with 200 }
   end
 
-  describe "GET #get_num_unread" do
+  describe "GET #num_unread" do
     before(:each) do
       user = FactoryGirl.create :user
       3.times{ FactoryGirl.create :notification }
@@ -65,7 +61,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
         current_user.notifications << n
       end
 
-      get :get_num_unread
+      get :num_unread
     end
 
     it "returns number of all unread notifications for current user" do
@@ -76,7 +72,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
     it { should respond_with 200 }
   end
 
-  describe "GET #get_read" do
+  describe "GET #read" do
     before(:each) do
       user = FactoryGirl.create :user
       3.times{ FactoryGirl.create :notification }
@@ -91,7 +87,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
         current_user.notifications << n
       end
 
-      get :get_read
+      get :read
     end
 
     it "returns all unread notifications for current user" do

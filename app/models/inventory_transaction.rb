@@ -28,7 +28,7 @@ class InventoryTransaction < ActiveRecord::Base
         'inventory_item' => {
           'name'         => inventory_item.name,
           'actable_type' => inventory_item.actable_type,
-          'status'       => inventory_item.get_status,
+          'status'       => inventory_item.status_name,
           'img'          => inventory_item.item_img(:medium)
         },
         'id'                     => i.id,
@@ -44,13 +44,6 @@ class InventoryTransaction < ActiveRecord::Base
   end
 
   def self.better_search(keyword, _user)
-    unit_item = UnitItem.find_by(serial_number: keyword)
-    if unit_item.present?
-      inventory_items_id = InventoryItem.select(:id).where('actable_id = ? AND actable_type = ?', unit_item.id, 'UnitItem').pluck(:id)
-      inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', inventory_items_id).order(created_at: :desc)
-      return get_formatted_transactions(inventory_transactions)
-    end
-
     inventory_items_id = InventoryItem.where('lower(name) LIKE ? OR lower( barcode ) LIKE ? OR lower(serial_number) LIKE ?', "%#{keyword.downcase}%", "%#{keyword.downcase}%", "%#{keyword.downcase}%").pluck(:id)
     inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where('inventory_item_id IN (?)', inventory_items_id).order(created_at: :desc)
     get_formatted_transactions(inventory_transactions)
@@ -105,7 +98,7 @@ class InventoryTransaction < ActiveRecord::Base
       'inventory_item' => {
         'name'         => inventory_item.name,
         'actable_type' => inventory_item.actable_type,
-        'status'       => inventory_item.get_status,
+        'status'       => inventory_item.status_name,
         'img'          => inventory_item.item_img(:medium)
       },
       'actable_type'            => actable_type,

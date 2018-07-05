@@ -43,6 +43,10 @@ es:
               blank: "La confirmación de password está vacía"
             role: 
               blank: "No puede estar vacío"
+            first_name: 
+              blank: "El nombre no puede estar vacío"
+            last_name: 
+              blank: "El apellido no puede estar vacío"
         inventory_item:
           attributes:
             upc:
@@ -57,7 +61,7 @@ es:
               taken: "Ya existe ese tipo de mercancía"
               blank: "El tipo de mercancía es obligatorio"
         client_contact:
-          attribures: 
+          attributes: 
             first_name:
               blank: "El nombre no puede estar vacío" 
             first_name:
@@ -65,5 +69,21 @@ es:
             email:
               blank: "El correo no puede estar vacío"
               taken: "Ya existe un usuario con ese email"
+            client: 
+              blank: "El cliente no puede estar vacío"
+        supplier:
+          attributes:
+            name:
+              taken: "Ya existe ese proveedor"
+        client:
+          attributes:
+            name:
+              taken: "Ya existe un cliente con ese nombre"
+        project:
+          attributes:
+            litobel_id:
+              taken: "Ya existe un proyecto con esa clave de proyecto"
+            client:
+              blank: "El cliente no puede estar vacío"
       messages:
           record_invalid: "es inválido"

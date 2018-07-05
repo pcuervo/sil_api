@@ -64,7 +64,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
 
       it "renders the JSON errors that say that a client contact could not be created" do
         client_contact_response = json_response
-        expect(client_contact_response[:errors][:first_name]).to include "can't be blank"
+        expect(client_contact_response[:errors][:first_name]).to include "El nombre no puede estar vacío"
       end
 
       it { should respond_with 422 }
@@ -105,7 +105,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
 
       it "should render the JSON error that say the client contact could not be updated" do
         client_contact_response = json_response
-        expect(client_contact_response[:errors][:email]).to include 'has already been taken'
+        expect(client_contact_response[:errors][:email]).to include 'Ya existe un usuario con ese email'
       end
 
       it { should respond_with 422 }
@@ -126,7 +126,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
 
       it "should render the JSON error that say the client was invalid" do
         client_contact_response = json_response
-        expect(client_contact_response[:errors][:client]).to include "can't be blank"
+        expect(client_contact_response[:errors][:client]).to include "El cliente no puede estar vacío"
       end
 
       it { should respond_with 422 }
@@ -157,7 +157,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
       delete :destroy, id: client_contact.id
     end
 
-    it { should respond_with 204 }
+    it { should respond_with 200 }
   end
 
   describe "GET #inventory_items" do

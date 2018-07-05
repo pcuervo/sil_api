@@ -18,5 +18,17 @@ module ExtendedFactories
 
       supplier
     end
+
+    def create_random_suppliers(num_suppliers)
+      num_suppliers.times { FactoryGirl.create(:supplier, name: FFaker::Company.name) }
+    end
+
+    def create_delivery_with_user
+      user = FactoryGirl.create :user
+      delivery = FactoryGirl.create :delivery
+      delivery.update_attributes(delivery_user_id: user.id)
+      
+      delivery
+    end
   end
 end

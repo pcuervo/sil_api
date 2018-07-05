@@ -11,6 +11,7 @@ describe Authenticable do
   describe "#current_user" do
     before do
       @user = FactoryGirl.create :user
+      UserToken.create(user_id: @user.id, auth_token: Devise.friendly_token)
       request.headers["Authorization"] = @user.auth_token
       authentication.stub(:request).and_return(request)
     end

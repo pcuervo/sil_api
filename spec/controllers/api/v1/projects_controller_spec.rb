@@ -75,7 +75,7 @@ describe Api::V1::ProjectsController do
 
       it "renders the json errors when there is no client present" do
         project_response = json_response
-        expect(project_response[:errors][:client]).to include "can't be blank"
+        expect(project_response[:errors][:client]).to include "El cliente no puede estar vacío"
       end
 
       it { should respond_with 422 }
@@ -118,7 +118,7 @@ describe Api::V1::ProjectsController do
 
       it "renders the json errors when the email is invalid" do
         user_response = json_response
-        expect(user_response[:errors][:litobel_id]).to include "has already been taken"
+        expect(user_response[:errors][:litobel_id]).to include "Ya existe un proyecto con esa clave de proyecto"
       end
     end
   end
@@ -139,8 +139,9 @@ describe Api::V1::ProjectsController do
       before(:each) do
         user = FactoryGirl.create :user
         @project = FactoryGirl.create :project
-        inventory_item = FactoryGirl.create :unit_item
+        inventory_item = FactoryGirl.create :inventory_item
         @project.inventory_items << inventory_item
+
         api_authorization_header user.auth_token
         post :destroy, { user_id: user.id, id: @project.id }
       end
@@ -154,7 +155,7 @@ describe Api::V1::ProjectsController do
     end
   end
 
-  describe "GET #get_project_users" do
+  describe "GET #project_users" do
     before(:each) do
       project = FactoryGirl.create :project
 
@@ -163,7 +164,7 @@ describe Api::V1::ProjectsController do
         project.users << user
       end
 
-      get :get_project_users, id: project.id
+      get :project_users, id: project.id
     end
 
     it "returns the users of the given project in JSON format" do
@@ -174,14 +175,14 @@ describe Api::V1::ProjectsController do
     it { should respond_with 200 }
   end
 
-  describe "GET #get_project_client" do
+  describe "GET #project_client" do
     before(:each) do
       project = FactoryGirl.create :project
       @client = project.client
       client_contact = FactoryGirl.create :client_contact
       @client.client_contacts << client_contact
 
-      get :get_project_client, id: project.id
+      get :project_client, id: project.id
     end
 
     it "returns the client and client_contact of the given project in JSON format" do
@@ -248,7 +249,7 @@ describe Api::V1::ProjectsController do
 
       it "renders the json errors when there are no users present" do
         project_response = json_response
-        expect(project_response[:errors]).to include "Necesitas agregar al menos un Project Manager o Ejecutivo de Cuenta"
+        expect(project_response[:errors]).to include "Necesitas agregar al menos un Project Manager, Ejecutivo de Cuenta o Contato Cliente"
       end
     end
   end

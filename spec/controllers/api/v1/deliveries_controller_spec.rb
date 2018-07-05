@@ -2,17 +2,14 @@ require 'spec_helper'
 
 RSpec.describe Api::V1::DeliveriesController, type: :controller do
   describe "GET #show" do
+    let(:delivery) { create_delivery_with_user }
     before(:each) do
-      user = FactoryGirl.create :user
-      @delivery = FactoryGirl.create :delivery
-      @delivery.delivery_user_id = user.id
-      @delivery.save
-      get :show, id: @delivery.id
+      get :show, id: delivery.id
     end
 
     it "returns the information about an inventory item on a hash" do
       delivery_response = json_response[:delivery]
-      expect(delivery_response[:address]).to eql @delivery.address
+      expect(delivery_response[:address]).to eql delivery.address
       expect(delivery_response).to have_key(:delivery_items)
     end
 
@@ -22,6 +19,9 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
   describe "GET #index" do
     before(:each) do
       5.times { FactoryGirl.create :delivery }
+      @user = FactoryGirl.create(:user, role: User::ADMIN)
+
+      api_authorization_header @user.auth_token
       get :index
     end
 
@@ -34,14 +34,11 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
   end
 
   describe "POST #create" do
+    before{ create_litobel_supplier }
     context "when is succesfully created by User Admin or WarehouseAdmin" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @user.role = 1
-        @user.save
-        @delivery_user = FactoryGirl.create :user
-        @delivery_user.save
-        @delivery_user.role = User::DELIVERY
+        @user = FactoryGirl.create(:user, role: User::ADMIN)
+        @delivery_user = FactoryGirl.create(:user, role: User::DELIVERY)
 
         @items = []
         2.times do |t|
@@ -168,11 +165,8 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
       @items = []
       5.times do |t| 
         delivery_item = {}
-        bulk_item = FactoryGirl.create :bulk_item
         item = FactoryGirl.create :inventory_item
         item.update(name: 'MiItem'+t.to_s)
-        item.update(actable_type: 'BulkItem')
-        item.update(actable_id: bulk_item.id)
         
         delivery_item[:item_id] = item.id
         delivery_item[:quantity] = 1
@@ -187,7 +181,6 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
     end
 
     it "returns all Deliveries with items that have an occurrence of the keyword, serial number or barcode" do
-      puts json_response.to_yaml
       delivery_response = json_response[:deliveries]
       expect( delivery_response.count).to eql 2
     end

@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 RSpec.describe Api::V1::DeliveryRequestsController, type: :controller do
+  before { create_litobel_supplier }
+  
   describe "GET #index" do
     before(:each) do
       user = FactoryGirl.create :user
@@ -45,20 +47,13 @@ RSpec.describe Api::V1::DeliveryRequestsController, type: :controller do
         user = FactoryGirl.create :user
         @delivery_request = FactoryGirl.create :delivery_request
         @delivery_request_item = FactoryGirl.create :delivery_request_item
-        @unit_item = FactoryGirl.create :unit_item
         @inventory_item = FactoryGirl.create :inventory_item
-        @inventory_item.actable_type = 'UnitItem'
-        @inventory_item.actable_id = @unit_item.id
-        @inventory_item.save
+
         @delivery_request_item.inventory_item = @inventory_item
         @delivery_request_item.save
         @delivery_request.delivery_request_items << @delivery_request_item
         @delivery_request.update_items_status_to_pending
         @delivery_request.save
-
-        supplier = FactoryGirl.create :supplier
-        supplier.name = 'Litobel'
-        supplier.save
 
         api_authorization_header user.auth_token
         post :authorize_delivery, { id: @delivery_request.id, delivery_user_id: -1, supplier_id: -1, additional_comments: 'adicionales', quantities: [] }
@@ -79,20 +74,12 @@ RSpec.describe Api::V1::DeliveryRequestsController, type: :controller do
         user = FactoryGirl.create :user
         @delivery_request = FactoryGirl.create :delivery_request
         @delivery_request_item = FactoryGirl.create :delivery_request_item
-        @unit_item = FactoryGirl.create :unit_item
         @inventory_item = FactoryGirl.create :inventory_item
-        @inventory_item.actable_type = 'UnitItem'
-        @inventory_item.actable_id = @unit_item.id
-        @inventory_item.save
         @delivery_request_item.inventory_item = @inventory_item
         @delivery_request_item.save
         @delivery_request.delivery_request_items << @delivery_request_item
         @delivery_request.update_items_status_to_pending
         @delivery_request.save
-
-        supplier = FactoryGirl.create :supplier
-        supplier.name = 'Litobel'
-        supplier.save
 
         api_authorization_header user.auth_token
         post :reject_delivery, { id: @delivery_request.id }

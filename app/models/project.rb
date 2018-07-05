@@ -8,28 +8,28 @@ class Project < ActiveRecord::Base
   has_many :inventory_items
   belongs_to :client
 
-  def get_pm
+  def pm
     pm = users.where('role=?', User::PROJECT_MANAGER).first
 
     return unless pm.present?
     pm.first_name + ' ' + pm.last_name
   end
 
-  def get_pm_id
+  def pm_id
     pm = users.where('role=?', User::PROJECT_MANAGER).first
 
     return unless pm.present?
     pm.id
   end
 
-  def get_ae
+  def ae
     ae = users.where('role=?', User::ACCOUNT_EXECUTIVE).first
 
     return unless ae.present?
     ae.first_name + ' ' + ae.last_name
   end
 
-  def get_ae_id
+  def ae_id
     ae = users.where('role=?', User::ACCOUNT_EXECUTIVE).first
 
     return unless ae.present?

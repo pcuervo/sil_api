@@ -63,7 +63,7 @@ describe Api::V1::ClientsController do
 
       it "renders the json errors that say that client could not be created" do
         client_response = json_response
-        expect(client_response[:errors][:name]).to include "has already been taken"
+        expect(client_response[:errors][:name]).to include "Ya existe un cliente con ese nombre"
       end
 
       it { should respond_with 422 }
@@ -105,7 +105,7 @@ describe Api::V1::ClientsController do
 
       it "renders the errors json when the name already exists" do
         client_response = json_response
-        expect(client_response[:errors][:name]).to include "has already been taken"
+        expect(client_response[:errors][:name]).to include "Ya existe un cliente con ese nombre"
       end
 
       it { should respond_with 422 }

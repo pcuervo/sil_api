@@ -17,7 +17,7 @@ describe Api::V1::SuppliersController do
 
   describe "GET #index" do
     before(:each) do
-      5.times { FactoryGirl.create :supplier }
+      create_random_suppliers(5)
       get :index
     end
 
@@ -63,7 +63,7 @@ describe Api::V1::SuppliersController do
 
       it "renders the json errors that say that supplier could not be created" do
         supplier_response = json_response
-        expect(supplier_response[:errors][:name]).to include "has already been taken"
+        expect(supplier_response[:errors][:name]).to include "Ya existe ese proveedor"
       end
 
       it { should respond_with 422 }

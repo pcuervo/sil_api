@@ -43,7 +43,7 @@ describe Api::V1::InventoryItemsController do
         @inventory_item_attributes[:client_id] = client.id
 
         api_authorization_header user.auth_token
-        post :create, user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg'
+        post :create, user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', folio: InventoryTransaction::next_checkin_folio, entry_date: Date.today
       end
 
       it 'renders the json representation for the inventory item just created' do

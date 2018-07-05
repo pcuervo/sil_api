@@ -63,7 +63,7 @@ class ClientContact < ActiveRecord::Base
   # * *Returns:* 
   #   - decimal rent
   def get_rent month, year
-    occupied_units = self.get_occuppied_units( month, year )
+    occupied_units = self.get_occuppied_quantity( month, year )
     return 0 if occupied_units == 0
 
     return 0 if self.discount.nil?
@@ -75,25 +75,25 @@ class ClientContact < ActiveRecord::Base
     return ( rent * self.discount ).round(2)
   end
 
-  # Get the number of occupied space in units by month
+  # Get the number of occupied space in quantity by month
   # * *Params:* 
   #   - +month+ -> Number of month
   #   - +year+ ->  Year
   # * *Returns:* 
-  #   - integer occuppied_units
-  def get_occuppied_units month, year
+  #   - integer occuppied_quantity
+  def get_occuppied_quantity month, year
     rent_date = DateTime.new(year, month, 1)
     projects_ids = self.projects.pluck(:id)
     inventory_items_ids = InventoryItem.select( 'id' ).where( 'project_id IN (?)', project_ids  ).pluck(:id)
-    occupied_units_current_month = WarehouseTransaction.select("to_char(created_at, 'MM-YY') as mon, sum(units) as units").where( 'concept = 1 AND inventory_item_id IN (?) and created_at BETWEEN ? AND ?', inventory_items_ids, rent_date.beginning_of_month, rent_date.end_of_month ).group('mon').order("to_char(created_at, 'MM-YY') ")
+    occupied_quantity_current_month = WarehouseTransaction.select("to_char(created_at, 'MM-YY') as mon, sum(quantity) as quantity").where( 'concept = 1 AND inventory_item_id IN (?) and created_at BETWEEN ? AND ?', inventory_items_ids, rent_date.beginning_of_month, rent_date.end_of_month ).group('mon').order("to_char(created_at, 'MM-YY') ")
     current_month_inventory_items = WarehouseTransaction.select("inventory_item_id").where( 'concept = 1 AND inventory_item_id IN (?) and created_at BETWEEN ? AND ?', inventory_items_ids, rent_date.beginning_of_month, rent_date.end_of_month ).distinct.pluck(:inventory_item_id)
 
     inventory_items_ids = inventory_items_ids - current_month_inventory_items
-    existing_inventory_items_units = InventoryItem.joins(:item_locations).where( 'inventory_items.id in (?) and inventory_items.created_at < ? AND status IN (?)', inventory_items_ids, rent_date.beginning_of_month, [InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK] ).sum(:units)
+    existing_inventory_items_quantity = InventoryItem.joins(:item_locations).where( 'inventory_items.id in (?) and inventory_items.created_at < ? AND status IN (?)', inventory_items_ids, rent_date.beginning_of_month, [InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK] ).sum(:quantity)
 
-    return occupied_units_current_month.first.units + existing_inventory_items_units if occupied_units_current_month.present?
+    return occupied_quantity_current_month.first.quantity + existing_inventory_items_quantity if occupied_quantity_current_month.present?
 
-    return existing_inventory_items_units
+    return existing_inventory_items_quantity
   end
 
   # Get the rent for high value items in current month

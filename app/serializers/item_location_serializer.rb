@@ -1,3 +1,3 @@
 class ItemLocationSerializer < ActiveModel::Serializer
-  attributes :id, :units, :quantity, :inventory_item, :warehouse_location
+  attributes :id, :quantity, :inventory_item, :warehouse_location
 end

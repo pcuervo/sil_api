@@ -15,11 +15,11 @@ Sil::Application.routes.draw do
         resources :inventory_items, :only => [:create] 
         resources :unit_items, :only => [:create]
           collection do 
-            get 'get_project_managers/', :action => 'get_project_managers'
-            get 'get_account_executives/', :action => 'get_account_executives'
-            get 'get_warehouse_admins/', :action => 'get_warehouse_admins'
-            get 'get_client_contacts/', :action => 'get_client_contacts'
-            get 'get_delivery_users/', :action => 'get_delivery_users'
+            get 'get_project_managers/', :action => 'project_managers'
+            get 'get_account_executives/', :action => 'account_executives'
+            get 'get_warehouse_admins/', :action => 'warehouse_admins'
+            get 'get_client_contacts/', :action => 'client_contacts'
+            get 'get_delivery_users/', :action => 'delivery_users'
           end
         resources :bulk_items, :only => [:create]
         resources :bundle_items, :only => [:create]
@@ -76,8 +76,8 @@ Sil::Application.routes.draw do
       end
       resources :projects, :only => [:index, :show, :create, :update] do
         collection do 
-          get 'get_project_users/:id',  :action => 'get_project_users'
-          get 'get_project_client/:id', :action => 'get_project_client'
+          get 'get_project_users/:id',  :action => 'project_users'
+          get 'get_project_client/:id', :action => 'project_client'
           get 'by_user/:id',            :action => 'by_user'
           post 'add_users',             :action => 'add_users'
           post 'remove_user',           :action => 'remove_user'
@@ -92,7 +92,7 @@ Sil::Application.routes.draw do
       end
       resources :client_contacts, :only => [:show, :index, :create, :update, :destroy] do
         collection do 
-          get 'get_by_client/',    :action => 'get_by_client'
+          get 'get_by_client/',    :action => 'by_client'
           post 'inventory_items',  :action => 'inventory_items'
           get 'stats/:id',         :action => 'stats'
           post 'update',           :action => 'update'
@@ -101,9 +101,9 @@ Sil::Application.routes.draw do
       end
       resources :inventory_transactions, :only => [:show, :index] do
         collection do 
-          get 'get_check_ins', :action => 'get_check_ins'
-          get 'get_check_outs', :action => 'get_check_outs'
-          get 'get_check_outs_by_client/:id', :action => 'get_check_outs_by_client'
+          get 'get_check_ins', :action => 'check_ins'
+          get 'get_check_outs', :action => 'check_outs'
+          get 'get_check_outs_by_client/:id', :action => 'check_outs_by_client'
           post 'search',  :action => 'search'
           get 'last_checkout_folio', :action => 'last_checkout_folio'
           get 'last_checkin_folio', :action => 'last_checkin_folio'
@@ -113,7 +113,6 @@ Sil::Application.routes.draw do
       resources :warehouse_locations, :only => [:show, :index] do
         collection do
           post 'locate_item',       :action => 'locate_item'
-          post 'locate_bundle',     :action => 'locate_bundle'
           post 'locate_bulk',       :action => 'locate_bulk'
           post 'relocate_item',     :action => 'relocate_item'
           post 'update',            :action => 'update'
@@ -124,9 +123,9 @@ Sil::Application.routes.draw do
       end
       resources :warehouse_racks, :only => [:show, :index, :create] do
         collection do
-          get 'get_available_locations/:id', :action => 'get_available_locations'
+          get 'get_available_locations/:id', :action => 'available_locations'
           get 'show_details/:id', :action => 'show_details'
-          get 'get_items/:id',    :action => 'get_items'
+          get 'get_items/:id',    :action => 'items'
           post 'destroy',         :action => 'destroy'
           post 'empty',         :action => 'empty'
           get 'stats',            :action => 'stats'
@@ -134,7 +133,7 @@ Sil::Application.routes.draw do
       end
       resources :item_locations, :only => [:show, :index, :create] do
         collection do
-          post 'get_item_location_details/', :action => 'get_details'
+          post 'get_item_location_details/', :action => 'details'
         end
       end
       resources :suppliers, :only => [:show, :index, :create, :update, :destroy] do
@@ -145,9 +144,9 @@ Sil::Application.routes.draw do
       resources :warehouse_transactions, :only => [:index]
       resources :notifications, :only => [:index, :show] do
         collection do
-          get 'get_num_unread',   :action => 'get_num_unread'
-          get 'get_unread',       :action => 'get_unread'
-          get 'get_read',         :action => 'get_read'
+          get 'get_num_unread',   :action => 'num_unread'
+          get 'get_unread',       :action => 'unread'
+          get 'get_read',         :action => 'read'
           post 'destroy',         :action => 'destroy'
           post 'mark_as_read',    :action => 'mark_as_read'
         end

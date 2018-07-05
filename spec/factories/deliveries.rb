@@ -10,5 +10,6 @@ FactoryGirl.define do
     longitude           '-99.172152'
     status              1
     additional_comments { FFaker::HipsterIpsum.phrase }
+    date_time Time.now
   end
 end

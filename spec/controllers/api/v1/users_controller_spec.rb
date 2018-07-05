@@ -51,7 +51,7 @@ describe Api::V1::UsersController do
 
       it "renders the json errors when no email is present" do
         user_response = json_response
-        expect(user_response[:errors][:email]).to include "can't be blank"
+        expect(user_response[:errors][:email]).to include "No puede estar vacío"
       end
 
       it "renders the json errors when the role is invalid" do
@@ -65,14 +65,14 @@ describe Api::V1::UsersController do
         @invalid_user_attributes = { email: "test@test.com", last_name: 'Cab', password: 'holama123', password_confirmation: 'holama123', role: 2 }
         post :create, { user: @invalid_user_attributes }, format: :json
         user_response = json_response
-        expect(user_response[:errors][:first_name]).to include "can't be blank"
+        expect(user_response[:errors][:first_name]).to include "El nombre no puede estar vacío"
       end
 
       it "renders the json errors when the last name is missing" do
         @invalid_user_attributes = { email: "test@test.com", first_name: 'Mig', password: 'holama123', password_confirmation: 'holama123', role: 2 }
         post :create, { user: @invalid_user_attributes }, format: :json
         user_response = json_response
-        expect(user_response[:errors][:last_name]).to include "can't be blank"
+        expect(user_response[:errors][:last_name]).to include "El apellido no puede estar vacío"
       end
 
       it { should respond_with 422 }
@@ -112,7 +112,7 @@ describe Api::V1::UsersController do
 
       it "renders the json errors when the email is invalid" do
         user_response = json_response
-        expect(user_response[:errors][:email]).to include "is invalid"
+        expect(user_response[:errors][:email]).to include "Es inválido"
       end
 
       it { should respond_with 422 }
@@ -122,7 +122,8 @@ describe Api::V1::UsersController do
   describe "DELETE #destroy" do
     before(:each) do
       @user = FactoryGirl.create :user
-      api_authorization_header @user.auth_token #we added this line
+      api_authorization_header @user.auth_token
+
       delete :destroy, id: @user.auth_token
     end
 
@@ -132,8 +133,9 @@ describe Api::V1::UsersController do
   describe "POST #change_password" do
     before(:each) do
       @user = FactoryGirl.create :user
-      api_authorization_header @user.auth_token #we added this line
-      post :change_password, password: 'holama123', password_confirmation: 'holama123'
+      api_authorization_header @user.auth_token
+
+      post :change_password, user: { password: 'holama123', password_confirmation: 'holama123' }
     end
 
     it "renders a success message about the password change" do

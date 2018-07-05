@@ -63,7 +63,11 @@ RSpec.configure do |config|
   config.include Request::JsonHelpers, :type => :controller
   config.include Request::HeadersHelpers, :type => :controller
   config.include Devise::TestHelpers, :type => :controller
-  config.include ExtendedFactories::DeliveryHelpers, :type => :model
+  # Factories and other helpers
+  [:model, :controller].each do |type| 
+    config.include ExtendedFactories::DeliveryHelpers, :type => type
+  end
+  
   
   config.before(:each, type: :controller) do
     include_default_accept_headers
