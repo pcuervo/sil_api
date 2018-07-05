@@ -33,13 +33,13 @@ describe Api::V1::InventoryTransactionsController do
     it { should respond_with 200 }
   end
 
-  describe "GET #get_check_ins" do
+  describe "GET #check_ins" do
     before(:each) do
       3.times { FactoryGirl.create :check_in_transaction }
       user = FactoryGirl.create(:user)
 
       api_authorization_header user.auth_token
-      get :get_check_ins
+      get :check_ins
     end
 
     it "returns 3 entry_transaction records" do
@@ -48,13 +48,13 @@ describe Api::V1::InventoryTransactionsController do
     end
   end
 
-  describe "GET #get_check_outs" do
+  describe "GET #check_outs" do
     before(:each) do
       @user = FactoryGirl.create(:user, role: User::ADMIN)
       3.times { FactoryGirl.create :check_out_transaction }
 
       api_authorization_header @user.auth_token
-      get :get_check_outs
+      get :check_outs
     end
 
     it "returns 3 entry_transaction records" do

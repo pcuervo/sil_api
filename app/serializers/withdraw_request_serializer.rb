@@ -16,7 +16,7 @@ class WithdrawRequestSerializer < ActiveModel::Serializer
   end
 
   def pickup_company
-    supplier = Supplier.find( object.pickup_company_id )
+    supplier = Supplier.find_by_id( object.pickup_company_id )
     return '-' if ! supplier.present?
 
     supplier.name
