@@ -294,4 +294,46 @@ describe Api::V1::InventoryItemsController do
 
     inventory_item
   end
+
+  describe "POST #update" do
+    context "when InventoryItem is successfully updated" do
+      let(:user) { FactoryGirl.create(:user) }
+      let(:inventory_item) { FactoryGirl.create(:inventory_item) }
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :update, { 
+          id: inventory_item.id,
+          inventory_item: { 
+            name: 'My new name', 
+            serial_number: 'OTHER123',
+            brand: 'NewBrand',
+            model: 'NewModel',
+            state: 2,
+            value: 2000.0,
+            description: 'A new description',
+            extra_parts: 'Part 1, part 2, part3',
+            storage_type: 'Temporal',
+            validity_expiration_date: '2059-07-14'
+          } 
+        }, format: :json
+      end
+
+      it "renders the json representation for the updated InventoryItem" do
+        bulk_item_response = json_response[:inventory_item]
+        expect(bulk_item_response[:name]).to eql 'My new name'
+        expect(bulk_item_response[:serial_number]).to eql 'OTHER123'
+        expect(bulk_item_response[:brand]).to eql 'NewBrand'
+        expect(bulk_item_response[:model]).to eql 'NewModel'
+        expect(bulk_item_response[:state]).to eql 2
+        expect(bulk_item_response[:value]).to eql "2000.0"
+        expect(bulk_item_response[:description]).to eql 'A new description'
+        expect(bulk_item_response[:extra_parts]).to eql 'Part 1, part 2, part3'
+        expect(bulk_item_response[:storage_type]).to eql 'Temporal'
+        expect(bulk_item_response[:validity_expiration_date]).to eql '2059-07-14'
+      end
+
+      it { should respond_with 200 }
+    end
+  end
 end

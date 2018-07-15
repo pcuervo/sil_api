@@ -11,18 +11,13 @@ Sil::Application.routes.draw do
           post 'update/', :action => 'update'
           post 'change_password/', :action => 'change_password'
           post 'delete/', :action => 'delete'
+          get 'get_project_managers/', :action => 'project_managers'
+          get 'get_account_executives/', :action => 'account_executives'
+          get 'get_warehouse_admins/', :action => 'warehouse_admins'
+          get 'get_client_contacts/', :action => 'client_contacts'
+          get 'get_delivery_users/', :action => 'delivery_users'
         end
-        resources :inventory_items, :only => [:create] 
-        resources :unit_items, :only => [:create]
-          collection do 
-            get 'get_project_managers/', :action => 'project_managers'
-            get 'get_account_executives/', :action => 'account_executives'
-            get 'get_warehouse_admins/', :action => 'warehouse_admins'
-            get 'get_client_contacts/', :action => 'client_contacts'
-            get 'get_delivery_users/', :action => 'delivery_users'
-          end
-        resources :bulk_items, :only => [:create]
-        resources :bundle_items, :only => [:create]
+        resources :inventory_items, :only => [:create, :update] 
       end
       resources :sessions, :only => [:create, :destroy] do
         collection do
@@ -51,6 +46,7 @@ Sil::Application.routes.draw do
           post 'request_item_entry/',           :action => 'request_item_entry'
           post 'cancel_item_entry_request/',    :action => 'cancel_item_entry_request'
           post 'destroy/',                      :action => 'destroy'
+          post 'update/',                       :action => 'update'
         end
       end
       resources :unit_items, :only => [:index, :show] do 

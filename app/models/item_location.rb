@@ -21,7 +21,7 @@ class ItemLocation < ActiveRecord::Base
       'location' => location.name,
       'rack_id' => location.warehouse_rack.id,
       'rack_name' => location.warehouse_rack.name,
-      'available_units' => location.get_available_units
+      'available_units' => location.available_units
     } }
 
     details

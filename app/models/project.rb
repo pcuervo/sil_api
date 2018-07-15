@@ -18,6 +18,8 @@ class Project < ActiveRecord::Base
   def pm_id
     pm = users.where('role=?', User::PROJECT_MANAGER).first
 
+    puts pm.to_yaml
+
     return unless pm.present?
     pm.id
   end

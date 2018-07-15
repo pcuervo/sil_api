@@ -51,7 +51,7 @@ RSpec.describe WarehouseRack, type: :model do
       @inventory_item = @item_location.inventory_item
       # Add another item
       item = FactoryGirl.create :inventory_item
-      @location.locate(item.id, 1)
+      @location.locate(item, 1)
       @rack = FactoryGirl.create :warehouse_rack
       @rack.warehouse_locations << @location
     end

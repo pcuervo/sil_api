@@ -5,12 +5,13 @@ class WarehouseRack < ActiveRecord::Base
   def available_locations
     available_locations_info = { 'available_locations' => [] }
     warehouse_locations.order(:name).each do |location|
-      next unless location.get_available_units > 0
+      next unless location.available_units > 0
+
       available_locations_info['available_locations'].push(
         'id' => location.id,
         'name'            => location.name,
         'units'           => location.units,
-        'available_units' => location.get_available_units,
+        'available_units' => location.available_units,
         'status'          => location.status
       )
     end
@@ -44,7 +45,7 @@ class WarehouseRack < ActiveRecord::Base
         'id' => location.id,
         'name'            => location.name,
         'units'           => location.units,
-        'available_units' => location.get_available_units,
+        'available_units' => location.available_units,
         'status'          => location.status
       )
     end
@@ -93,7 +94,7 @@ class WarehouseRack < ActiveRecord::Base
   def empty?
     warehouse_locations.each do |location|
       return false if location.item_locations.count > 0
-      # return false if location.get_available_units < location.units
+      # return false if location.available_units < location.units
     end
     true
   end

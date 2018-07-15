@@ -66,6 +66,7 @@ RSpec.configure do |config|
   # Factories and other helpers
   [:model, :controller].each do |type| 
     config.include ExtendedFactories::DeliveryHelpers, :type => type
+    config.include ExtendedFactories::WarehouseHelpers, :type => type
   end
   
   

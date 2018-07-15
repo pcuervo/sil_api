@@ -87,3 +87,6 @@ es:
               blank: "El cliente no puede estar vacío"
       messages:
           record_invalid: "es inválido"
+  custom_errors:
+    warehouse_location:
+        invalid_quantity_to_locate: "La cantidad a ubicar es mayor a la cantidad disponbile"

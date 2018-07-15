@@ -45,7 +45,7 @@ describe Delivery, type: :model do
         delivery_item = {}
         location = FactoryGirl.create :warehouse_location
         item = FactoryGirl.create :inventory_item
-        location.locate(item.id, 1)
+        location.locate(item, 1)
 
         delivery_item[:item_id] = item.id
         delivery_item[:quantity] = 1

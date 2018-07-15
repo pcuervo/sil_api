@@ -48,6 +48,40 @@ module Api
         render json: { errors: @inventory_item.errors }, status: 422
       end
 
+      def update
+        inventory_item = InventoryItem.find( params[:id] )
+    
+        if inventory_item.update( inventory_item_params )
+          
+          if params[:pm_id].present?
+            pm_item = PmItem.where( :inventory_item_id => inventory_item.id ).first
+            if pm_item.present?          
+              sql = "DELETE from pm_items WHERE inventory_item_id = " + inventory_item.id.to_s
+              ActiveRecord::Base.connection.execute(sql)
+              PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
+            else
+              PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
+            end
+          end
+    
+          if params[:ae_id].present?
+            ae_item = AeItem.where( :inventory_item_id => inventory_item.id ).first
+            if ae_item.present?          
+              sql = "DELETE from ae_items WHERE inventory_item_id = " + inventory_item.id.to_s
+              ActiveRecord::Base.connection.execute(sql)
+              AeItem.create( :user_id => params[:ae_id], :inventory_item_id => inventory_item.id ) 
+            else
+              AeItem.create( :user_id => params[:ae_id], :inventory_item_id => inventory_item.id ) 
+            end
+          end
+    
+          render json: inventory_item.get_details, status: 200, location: [:api, inventory_item]
+          return
+        end
+    
+        render json: { errors: inventory_item.errors }, status: 422
+      end
+
       def by_barcode
         inventory_item = InventoryItem.find_by_barcode(params[:barcode])
         if inventory_item.present?
@@ -203,11 +237,11 @@ module Api
       private
 
       def inventory_item_params
-        params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type, :storage_type, :serial_number, :quantity, :brand, :model, :extra_parts)
+        params.require(:inventory_item).permit(:name, :description, :project_id, :status, :item_img, :barcode, :item_type, :storage_type, :serial_number, :quantity, :brand, :model, :extra_parts, :value, :validity_expiration_date, :is_high_value, :user_id, :state)
       end
 
       def inventory_item_request_params
-        params.require(:inventory_item_request).permit(:name, :description, :state, :quantity, :project_id, :pm_id, :ae_id, :item_type, :validity_expiration_date, :entry_date)
+        params.require(:inventory_item_request).permit(:name, :description, :state, :quantity, :project_id, :pm_id, :ae_id, :item_type, :validity_expiration_date, :entry_date, :is_high_value)
       end
 
       def send_notification_authorize_entry

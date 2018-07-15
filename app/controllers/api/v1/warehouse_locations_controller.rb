@@ -30,7 +30,7 @@ module Api
         inventory_item = InventoryItem.find(params[:inventory_item_id])
 
         location = WarehouseLocation.find(params[:warehouse_location_id])
-        new_location_id = location.locate(inventory_item.id, params[:quantity].to_i)
+        new_location_id = location.locate(inventory_item, params[:quantity].to_i)
 
         if new_location_id > 0
           item_location = ItemLocation.find(new_location_id)
@@ -48,7 +48,7 @@ module Api
 
         bulk_locations.each do |bl|
           location = WarehouseLocation.find(bl[:locationId])
-          new_location_id = location.locate(inventory_item.id, bl[:quantity])
+          new_location_id = location.locate(inventory_item, bl[:quantity])
           if new_location_id > 0
             locations.push(ItemLocation.find(new_location_id))
             next
@@ -92,7 +92,7 @@ module Api
       def csv_locate
         warehouse_update = WarehouseLocation.bulk_locate(current_user.email, params[:warehouse_data])
         if warehouse_update[:errors].count.zero?
-          render json: { success: 'Los artículos se ubicarion correctamente.' }, status: 200
+          render json: { success: 'Los artículos se ubicaron correctamente.' }, status: 200
           return
         end
 

@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe WarehouseLocation, type: :model do
-  before { @warehouse_location = FactoryGirl.build(:warehouse_location) }
+  let(:warehouse_location) { FactoryGirl.create :warehouse_location }
 
   it { should respond_to(:name) }
   it { should respond_to(:status) }
@@ -11,37 +11,149 @@ describe WarehouseLocation, type: :model do
   it { should validate_uniqueness_of :name }
   it { should validate_presence_of :name }
 
-  describe '.locate' do
-    before(:each) do
-      @inventory_item = FactoryGirl.create :inventory_item
-      @warehouse_location = FactoryGirl.create :warehouse_location
-    end
-
-    context 'locates an InventoryItem successfully' do
+  describe '.locate_in_new' do
+    let(:inventory_item) { FactoryGirl.create :inventory_item }
+    
+    context 'when InventoryItem is fully located in new WarehouseLocation' do
       it 'returns the ID of new ItemLocation and records a new WarehouseTransaction' do
-        item_location_id = @warehouse_location.locate(@inventory_item.id, @inventory_item.quantity)
+        item_location_id = warehouse_location.locate_in_new(inventory_item, inventory_item.quantity)
         item_location = ItemLocation.find(item_location_id)
         warehouse_transaction = WarehouseTransaction.last
+        warehouse_location.reload
 
-        expect(item_location.quantity).to eq @inventory_item.quantity
+        expect(item_location.quantity).to eq inventory_item.quantity
         expect(item_location[:quantity]).to eq warehouse_transaction.quantity
+        expect(warehouse_location.status).to eq WarehouseLocation::PARTIAL_SPACE
       end
     end
 
-    context 'locates all pieces of bulk item successfully into multiple locations' do
-      it 'return a hash containing the information of the item location' do
-        wh_location1 = FactoryGirl.create :warehouse_location
-        wh_location2 = FactoryGirl.create :warehouse_location
-        # locate items
-        item_location1 = ItemLocation.find(wh_location1.locate(@inventory_item.id, 70))
-        item_location2 = ItemLocation.find(wh_location2.locate(@inventory_item.id, 30))
+    context 'when InventoryItem is partially located in new WarehouseLocation' do
+      it 'returns the ID of new ItemLocation and records a new WarehouseTransaction' do
+        item_location_id = warehouse_location.locate_in_new(inventory_item, inventory_item.quantity-10)
+        item_location = ItemLocation.find(item_location_id)
+        warehouse_transaction = WarehouseTransaction.last
+        warehouse_location.reload
 
-        # tests
-        expect(item_location1.quantity).to eq 70
-        expect(item_location2.quantity).to eq 30
-        expect(item_location1.inventory_item.name).to eq @inventory_item.name
-        expect(item_location2.inventory_item.name).to eq @inventory_item.name
-        expect(item_location1.quantity.to_i + item_location2.quantity.to_i).to eq 100
+        expect(item_location.quantity).to be < inventory_item.quantity
+        expect(item_location[:quantity]).to eq inventory_item.quantity-10
+        expect(warehouse_location.status).to eq WarehouseLocation::PARTIAL_SPACE
+      end
+    end
+
+    context 'when InventoryItem is not located' do
+      it "raises an error when quantity to locate is greater than InventoryItem's quantity" do
+        invalid_quantity = inventory_item.quantity + 100
+
+        expect{warehouse_location.locate_in_new(inventory_item, invalid_quantity)}.to raise_error(SilExceptions::InvalidQuantityToLocate)
+      end
+    end
+  end
+  
+  describe '.locate_in_existing' do
+    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 500) }
+    before { warehouse_location.locate_in_new(inventory_item, 200) }
+    let(:item_location) { ItemLocation.last }
+    
+    context 'locates an InventoryItem successfully in an existing WarehouseLocation' do
+      it 'returns the ID of new ItemLocation and records a new WarehouseTransaction' do
+        warehouse_location.locate_in_existing(item_location, 300)
+        warehouse_transactions = WarehouseTransaction.where(
+          'inventory_item_id = ? AND warehouse_location_id = ?', 
+          inventory_item.id, 
+          warehouse_location.id
+        )
+
+        expect(item_location.quantity).to eq 500
+        expect(warehouse_transactions.count).to eq 2
+      end
+    end
+
+    context 'when InventoryItem is not located' do
+      it "raises an error when the sum of the quantity to locate and the quantity already located is greater than InventoryItem's quantity" do
+        expect{ warehouse_location.locate_in_existing(item_location, 301) }.to raise_error(SilExceptions::InvalidQuantityToLocate)
+      end
+    end
+  end
+
+  describe '.in_location?' do
+    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 500) }
+    
+    context 'when InventoryItem is not located in WarehouseLocation' do
+      it 'returns false' do
+        expect(warehouse_location.in_location?(inventory_item.id)).to eq false
+      end
+    end
+
+    context 'when InventoryItem is located in WarehouseLocation' do
+      before { warehouse_location.locate_in_new(inventory_item, 200) }
+
+      it 'returns true' do
+        expect(warehouse_location.in_location?(inventory_item.id)).to eq true
+      end
+    end
+  end
+
+  describe '.locate' do
+    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 500) }
+    
+    context 'locates an InventoryItem successfully in a new WarehouseLocation' do
+      it 'returns the ID of new ItemLocation and records a new WarehouseTransaction' do
+        item_location_id = warehouse_location.locate(inventory_item, inventory_item.quantity)
+        item_location = ItemLocation.find(item_location_id)
+        warehouse_transaction = WarehouseTransaction.last
+
+        expect(item_location.quantity).to eq inventory_item.quantity
+        expect(item_location.quantity).to eq warehouse_transaction.quantity
+        expect(warehouse_location.status).to eq WarehouseLocation::PARTIAL_SPACE
+      end
+    end
+
+    context 'locates an InventoryItem successfully in an existing WarehouseLocation' do
+      before { warehouse_location.locate_in_new(inventory_item, 200) }
+      let(:item_location) { ItemLocation.last }
+
+      it 'returns ItemLocation and records a new WarehouseTransaction' do
+        warehouse_location.locate(inventory_item, 300)
+        warehouse_transaction = WarehouseTransaction.last
+
+        item_location.reload
+        expect(item_location.quantity).to eq 500
+        expect(warehouse_location.item_locations.count).to eq 1
+        expect(warehouse_transaction.quantity).to eq 300
+      end
+    end
+
+    context 'locates InventoryItem in two WarehouseLocations successfully' do
+      let(:another_warehouse_location) { FactoryGirl.create :warehouse_location }
+
+      it 'records each WarehouseTransaction' do
+        warehouse_location.locate(inventory_item, 200)
+        another_warehouse_location.locate(inventory_item, 300)
+
+        warehouse_transactions = WarehouseTransaction.where('inventory_item_id = ?', inventory_item.id)
+
+        expect(warehouse_transactions.count).to eq 2
+        expect(warehouse_transactions.first.quantity).to eq 200
+        expect(warehouse_transactions.last.quantity).to eq 300
+      end
+    end
+
+    context 'cannot locate InventoryItem' do
+      let(:another_warehouse_location) { FactoryGirl.create :warehouse_location }
+
+      it 'raises an error when trying to locate a zero or less pieces' do
+        expect{ warehouse_location.locate(inventory_item, 0) }.to raise_error(SilExceptions::InvalidQuantityToLocate)
+      end
+      
+      it 'raises an error when trying to locate more pieces than possible' do
+        expect{ warehouse_location.locate(inventory_item, 1000) }.to raise_error(SilExceptions::InvalidQuantityToLocate)
+      end
+
+      it 'raises an error when trying to locate in multiple locations more pieces than possible' do
+        warehouse_location.locate(inventory_item, 200)
+        another_warehouse_location.locate(inventory_item, 500)
+
+        expect{ another_warehouse_location.locate(inventory_item, 500) }.to raise_error(SilExceptions::InvalidQuantityToLocate)
       end
     end
   end
@@ -111,10 +223,10 @@ describe WarehouseLocation, type: :model do
     before(:each) do
       @item_location = FactoryGirl.create :item_location
       @location = @item_location.warehouse_location
-      @inventory_item = @item_location.inventory_item
+      inventory_item = @item_location.inventory_item
       # Add another item
       item = FactoryGirl.create :inventory_item
-      @location.locate(item.id, 1)
+      @location.locate(item, 1)
     end
 
     context 'emtpy WarehouseLocation and register transaction' do
@@ -133,10 +245,10 @@ describe WarehouseLocation, type: :model do
     before(:each) do
       @item_location = FactoryGirl.create :item_location
       @location = @item_location.warehouse_location
-      @inventory_item = @item_location.inventory_item
+      inventory_item = @item_location.inventory_item
       # Add another item
       item = FactoryGirl.create :inventory_item
-      @location.locate(item.id, 1)
+      @location.locate(item, 1)
     end
 
     it 'returns true if WarehouseLocation was marked as full' do
