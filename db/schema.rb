@@ -218,6 +218,7 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "quantity",              default: 1
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
+    t.integer  "units",                 default: 1
   end
 
   add_index "item_locations", ["inventory_item_id"], name: "index_item_locations_on_inventory_item_id", using: :btree
@@ -365,8 +366,9 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "concept",               default: 1
     t.integer  "quantity",              default: 1
     t.integer  "part_id",               default: 0
-    t.datetime "created_at",                        null: false
-    t.datetime "updated_at",                        null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.integer  "units",                 default: 1000
   end
 
   add_index "warehouse_transactions", ["inventory_item_id"], name: "index_warehouse_transactions_on_inventory_item_id", using: :btree

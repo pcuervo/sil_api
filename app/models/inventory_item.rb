@@ -283,19 +283,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     false
   end
 
-  def self.estimated_current_rent(project_ids = -1)
-    current_occupied_units = if project_ids != -1
-                               InventoryItem.joins(:item_locations).where('status IN (?) AND project_id IN (?)', [InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY], project_ids).sum(:units)
-                             else
-                               InventoryItem.joins(:item_locations).where('status IN (?)', [InventoryItem::IN_STOCK, InventoryItem::PARTIAL_STOCK, InventoryItem::PENDING_ENTRY]).sum(:units)
-                             end
-
-    settings = SystemSetting.select(:units_per_location, :cost_per_location).first
-    rounded_units = current_occupied_units / settings.units_per_location * settings.units_per_location + settings.units_per_location
-
-    rounded_units / settings.units_per_location.to_f * settings.cost_per_location
-  end
-
   def get_ae(project)
     return project.ae unless ae_items.present?
 

@@ -204,7 +204,6 @@ module Api
         stats = {}
         stats['total_number_items'] = InventoryItem.all.count
         stats['inventory_value'] = InventoryItem.inventory_value
-        stats['current_rent'] = InventoryItem.estimated_current_rent
         stats['inventory_by_type'] = InventoryItem.inventory_by_type
         stats['occupation_by_month'] = InventoryItem.occupation_by_month
         stats['total_high_value_items'] = InventoryItem.total_high_value_items
