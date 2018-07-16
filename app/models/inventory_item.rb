@@ -284,14 +284,14 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   end
 
   def get_ae(project)
-    return project.ae unless ae_items.present?
+    return project.ae_name unless ae_items.present?
 
     ae = ae_items.first.user
     ae.first_name + ' ' + ae.last_name
   end
 
   def get_pm(project)
-    return project.pm unless pm_items.present?
+    return project.pm_name unless pm_items.present?
 
     pm = pm_items.first.user
     pm.first_name + ' ' + pm.last_name
@@ -311,6 +311,22 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
     ae = ae_items.first.user
     ae.id
+  end
+
+  def self.migrate_items
+    BulkItem.all.each do |bulk| 
+      item = bulk.acting_as
+      item.update_attributes(quantity: bulk.quantity)
+    end
+
+    UnitItem.all.each do |unit|
+      item = unit.acting_as
+      item.update_attributes({
+        serial_number: unit.serial_number,
+        brand: unit.brand,
+        model: unit.model
+      })
+    end
   end
 
   # Scopes
