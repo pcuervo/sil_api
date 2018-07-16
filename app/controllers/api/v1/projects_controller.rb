@@ -4,6 +4,9 @@ module Api
       before_action only: [:create] do
         authenticate_with_token! request.headers['Authorization']
       end
+      before_action only: :transfer_inventory do
+        set_transfer_projects
+      end
 
       respond_to :json
 
@@ -154,11 +157,24 @@ module Api
 
         render json: { errors: 'No se pudo eliminar el usuario del proyecto' }, status: 422
       end
+      
+      def transfer_inventory
+        @project_from.transfer_inventory(@project_to)
+        
+        render json: { success: 'Se ha transferido el proyecto con éxito' }, status: 200, location: [:api, @project_from]
+
+        # render json: { errors: 'No se pudo eliminar el usuario del proyecto' }, status: 422
+      end
 
       private
 
       def project_params
         params.require(:project).permit(:name, :litobel_id, :user_id, :client_id)
+      end
+
+      def set_transfer_projects
+        @project_from = Project.find(params[:from_project_id])
+        @project_to = Project.find(params[:to_project_id])
       end
     end
   end

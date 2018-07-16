@@ -102,11 +102,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     return inventory_items.pluck(:id) if ids_only
 
     inventory_items.each do |i|
-      item_with_locations = {
-        'item' => i,
-        'locations' => i.warehouse_locations
-      }
-      inventory_items_details['inventory_items'].push(item_with_locations)
+      inventory_items_details['inventory_items'].push(i.get_details)
     end
 
     inventory_items_details

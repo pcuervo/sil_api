@@ -52,4 +52,8 @@ class Project < ActiveRecord::Base
   def check_if_has_inventory
     return false if inventory_items.count > 0
   end
+
+  def transfer_inventory(to_project)
+    inventory_items.each { |item| item.update_attributes(project_id: to_project.id) }
+  end
 end

@@ -79,6 +79,7 @@ Sil::Application.routes.draw do
           post 'remove_user',           :action => 'remove_user'
           post 'update',                :action => 'update'
           post 'destroy',               :action => 'destroy'
+          post 'transfer_inventory',    :action => 'transfer_inventory'
         end
       end
       resources :clients, :only => [:show, :index, :create,  :destroy] do

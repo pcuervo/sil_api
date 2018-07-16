@@ -280,7 +280,24 @@ describe Api::V1::ProjectsController do
 
       it { should respond_with 200 }
     end
+  end
 
+  describe "POST #transfer_inventory" do
+    context "when an Inventory is transferred successfully between Projects" do
+      let(:user) { FactoryGirl.create(:user) }
+      let(:from_project) { create_project_with_items(5) }
+      let(:to_project) { FactoryGirl.create(:project) }
+      before(:each) do
+        api_authorization_header user.auth_token
+        post :transfer_inventory, { from_project_id: from_project.id, to_project_id: to_project.id }
+      end
+
+      it "returns true if inventory was transferred" do
+        expect( json_response[:success] ).to eql 'Se ha transferido el proyecto con éxito'
+      end
+
+      it { should respond_with 200 }
+    end
   end
 
 end
