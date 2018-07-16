@@ -324,7 +324,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
       item.update_attributes({
         serial_number: unit.serial_number,
         brand: unit.brand,
-        model: unit.model
+        model: unit.model,
+        quantity: 1
       })
     end
   end
