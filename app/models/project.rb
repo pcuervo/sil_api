@@ -52,6 +52,6 @@ class Project < ActiveRecord::Base
   end
 
   def transfer_inventory(to_project)
-    inventory_items.each { |item| item.update_attributes(project_id: to_project.id  
+    inventory_items.each { |item| item.update_attributes(project_id: to_project.id) }
   end
 end
