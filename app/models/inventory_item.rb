@@ -314,20 +314,26 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   end
 
   def self.migrate_items
-    BulkItem.all.each do |bulk| 
-      item = bulk.acting_as
-      item.update_attributes(quantity: bulk.quantity)
+    InventoryItem.all.each do |item|
+      if 'BulkItem' == item.actable_type
+        bulk_item = BulkItem.find(item.actable_id)
+        item.update_attributes(quantity: bulk_item.quantity)
+      end
     end
+    # BulkItem.all.each do |bulk| 
+    #   item = bulk.acting_as
+    #   item.update_attributes(quantity: bulk.quantity)
+    # end
 
-    UnitItem.all.each do |unit|
-      item = unit.acting_as
-      item.update_attributes({
-        serial_number: unit.serial_number,
-        brand: unit.brand,
-        model: unit.model,
-        quantity: 1
-      })
-    end
+    # UnitItem.all.each do |unit|
+    #   item = unit.acting_as
+    #   item.update_attributes({
+    #     serial_number: unit.serial_number,
+    #     brand: unit.brand,
+    #     model: unit.model,
+    #     quantity: 1
+    #   })
+    # end
   end
 
   # Scopes
