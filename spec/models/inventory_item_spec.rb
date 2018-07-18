@@ -38,7 +38,7 @@ describe InventoryItem do
 
       @params['keyword'] = 'somen'
       searched_items = InventoryItem.search(@params)
-      expect(searched_items['inventory_items'].first['item']['name']).to eq 'Somename'
+      expect(searched_items['inventory_items'].first['inventory_item']['name']).to eq 'Somename'
     end
 
     it 'returns an array of InventoryItems given a serial_number' do
@@ -47,7 +47,7 @@ describe InventoryItem do
 
       @params['keyword'] = 'somen'
       searched_items = InventoryItem.search(@params)
-      expect(searched_items['inventory_items'].first['item']['serial_number']).to eq 'Serial'
+      expect(searched_items['inventory_items'].first['inventory_item']['serial_number']).to eq 'Serial'
     end
   end
 

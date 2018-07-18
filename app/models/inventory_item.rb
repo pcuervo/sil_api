@@ -113,8 +113,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     pm = get_pm(project)
     ae = get_ae(project)
 
-    client = project.get_client
-    client_contact = project.get_client_contact
+    client = project.client
+    client_contact = project.client_contact
     locations = warehouse_locations
 
     details = {

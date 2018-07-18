@@ -10,10 +10,10 @@ class InventoryItemSerializer < ActiveModel::Serializer
     project = Project.find( object.project_id )
     project_data[:litobel_id] = project.litobel_id
     project_data[:name] = project.name
-    project_data[:pm] = project.pm
-    project_data[:ae] = project.ae
-    project_data[:client] = project.get_client
-    project_data[:client_contact] = project.get_client_contact
+    project_data[:pm] = project.pm_name
+    project_data[:ae] = project.ae_name
+    project_data[:client] = project.client
+    project_data[:client_contact] = project.client_contact
     project_data
   end
 

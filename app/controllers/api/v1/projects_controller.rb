@@ -4,7 +4,7 @@ module Api
       before_action only: [:create] do
         authenticate_with_token! request.headers['Authorization']
       end
-      before_action only: :transfer_inventory do
+      before_action only: %i[transfer_inventory transfer_inventory_items] do
         set_transfer_projects
       end
 
@@ -19,7 +19,8 @@ module Api
           render json: { errors: 'No se encontró el proyecto.' }, status: 422
           return
         end
-        respond_with Project.find(params[:id])
+        #respond_with Project.find(params[:id])
+        render json: Project.find(params[:id]), include: 'inventory_items'
       end
 
       def create
@@ -157,13 +158,25 @@ module Api
 
         render json: { errors: 'No se pudo eliminar el usuario del proyecto' }, status: 422
       end
-      
-      def transfer_inventory
-        @project_from.transfer_inventory(@project_to)
-        
-        render json: { success: 'Se ha transferido el proyecto con éxito' }, status: 200, location: [:api, @project_from]
 
-        # render json: { errors: 'No se pudo eliminar el usuario del proyecto' }, status: 422
+      def transfer_inventory
+        unless @project_from && @project_to
+          render json: { errors: 'No existe el proyecto fuente o destino' }, status: 422
+          return
+        end
+
+        @project_from.transfer_inventory(@project_to)
+        render json: { success: 'Se ha transferido el proyecto con éxito' }, status: 200, location: [:api, @project_from]
+      end
+
+      def transfer_inventory_items
+        unless @project_from && @project_to
+          render json: { errors: 'No existe el proyecto fuente o destino' }, status: 422
+          return
+        end
+
+        @project_from.transfer_inventory_items(@project_to, params[:items_ids])
+        render json: { success: 'Se ha transferido el inventario con éxito' }, status: 200, location: [:api, @project_from]
       end
 
       private
@@ -173,8 +186,8 @@ module Api
       end
 
       def set_transfer_projects
-        @project_from = Project.find(params[:from_project_id])
-        @project_to = Project.find(params[:to_project_id])
+        @project_from = Project.find_by(id: params[:from_project_id])
+        @project_to = Project.find_by(id: params[:to_project_id])
       end
     end
   end

@@ -43,7 +43,7 @@ describe Api::V1::InventoryItemsController do
         @inventory_item_attributes[:client_id] = client.id
 
         api_authorization_header user.auth_token
-        post :create, user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', folio: InventoryTransaction::next_checkin_folio, entry_date: Date.today
+        post :create, user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', folio: InventoryTransaction.next_checkin_folio, entry_date: Date.today
       end
 
       it 'renders the json representation for the inventory item just created' do
@@ -295,17 +295,17 @@ describe Api::V1::InventoryItemsController do
     inventory_item
   end
 
-  describe "POST #update" do
-    context "when InventoryItem is successfully updated" do
+  describe 'POST #update' do
+    context 'when InventoryItem is successfully updated' do
       let(:user) { FactoryGirl.create(:user) }
       let(:inventory_item) { FactoryGirl.create(:inventory_item) }
       before(:each) do
         api_authorization_header user.auth_token
 
-        post :update, { 
+        post :update, {
           id: inventory_item.id,
-          inventory_item: { 
-            name: 'My new name', 
+          inventory_item: {
+            name: 'My new name',
             serial_number: 'OTHER123',
             brand: 'NewBrand',
             model: 'NewModel',
@@ -315,18 +315,18 @@ describe Api::V1::InventoryItemsController do
             extra_parts: 'Part 1, part 2, part3',
             storage_type: 'Temporal',
             validity_expiration_date: '2059-07-14'
-          } 
+          }
         }, format: :json
       end
 
-      it "renders the json representation for the updated InventoryItem" do
+      it 'renders the json representation for the updated InventoryItem' do
         bulk_item_response = json_response[:inventory_item]
         expect(bulk_item_response[:name]).to eql 'My new name'
         expect(bulk_item_response[:serial_number]).to eql 'OTHER123'
         expect(bulk_item_response[:brand]).to eql 'NewBrand'
         expect(bulk_item_response[:model]).to eql 'NewModel'
         expect(bulk_item_response[:state]).to eql 2
-        expect(bulk_item_response[:value]).to eql "2000.0"
+        expect(bulk_item_response[:value]).to eql '2000.0'
         expect(bulk_item_response[:description]).to eql 'A new description'
         expect(bulk_item_response[:extra_parts]).to eql 'Part 1, part 2, part3'
         expect(bulk_item_response[:storage_type]).to eql 'Temporal'

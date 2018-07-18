@@ -62,12 +62,36 @@ RSpec.describe Project, type: :model do
     let(:project_from) { create_project_with_items(5) }
     let(:project_to) { FactoryGirl.create(:project) }
 
-    context "when inventory is transferred successfully" do
+    context 'when inventory is transferred successfully' do
       it 'transfers all InventoryItems from one Project to another' do
         project_from.transfer_inventory(project_to)
 
         expect(project_from.inventory_items.count).to eq 0
         expect(project_to.inventory_items.count).to eq 5
+      end
+    end
+  end
+
+  describe '.transfer_inventory_items' do
+    let(:project_from) { create_project_with_items(5) }
+    let(:project_to) { FactoryGirl.create(:project) }
+    let(:items_ids) { [project_from.inventory_items.first.id, project_from.inventory_items.last.id] }
+
+    context 'when inventory is transferred successfully' do
+      it 'transfers all InventoryItems from one Project to another' do
+        project_from.transfer_inventory_items(project_to, items_ids)
+
+        expect(project_from.inventory_items.count).to eq 3
+        expect(project_to.inventory_items.count).to eq 2
+      end
+    end
+
+    context 'when inventory is not transferred successfully' do
+      let(:random_item) { FactoryGirl.create(:inventory_item) }
+      it 'raises an error when InventoryItems to transfer are not found in source Project' do
+        project_from.transfer_inventory_items(project_to, [random_item.id])
+        expect(project_from.inventory_items.count).to eq 5
+        expect(project_to.inventory_items.count).to eq 0
       end
     end
   end
