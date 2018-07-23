@@ -135,6 +135,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         'client' => client,
         'client_contact' => client_contact,
         'img' => item_img(:medium),
+        'img_thumb' => item_img(:thumb),
         'state' => state,
         'status' => status,
         'storage_type' => storage_type,
