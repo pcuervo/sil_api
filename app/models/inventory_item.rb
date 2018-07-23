@@ -319,6 +319,16 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         bulk_item = BulkItem.find(item.actable_id)
         item.update_attributes(quantity: bulk_item.quantity)
       end
+
+      if 'UnitItem' == item.actable_type
+          unit = UnitItem.find(item.actable_id)
+          item.update_attributes({
+            serial_number: unit.serial_number,
+            brand: unit.brand,
+            model: unit.model,
+            quantity: 1
+          })
+      end
     end
     # BulkItem.all.each do |bulk| 
     #   item = bulk.acting_as
