@@ -70,7 +70,6 @@ module Api
 
         stats = {
           'inventory_by_type' => InventoryItem.inventory_by_type(project_ids),
-          'rent_by_month' => client_contact.get_contact_rent_history,
           'total_number_items' => client_contact.inventory_items.count,
           'total_high_value_items' => client_contact.total_high_value_items
         }
