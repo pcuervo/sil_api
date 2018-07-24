@@ -7,8 +7,8 @@ module Api
       respond_to :json
 
       def show
-        # user = User.find(params[:id])
-        respond_with ClientContact.find(params[:id])
+        user = User.find(params[:id])
+        respond_with ClientContact.find(user.actable_id)
       end
 
       def index
@@ -72,8 +72,7 @@ module Api
           'inventory_by_type' => InventoryItem.inventory_by_type(project_ids),
           'rent_by_month' => client_contact.get_contact_rent_history,
           'total_number_items' => client_contact.inventory_items.count,
-          'total_high_value_items' => client_contact.total_high_value_items,
-          'occupied_units' => client_contact.occuppied_quantity(Time.now.month, Time.now.year)
+          'total_high_value_items' => client_contact.total_high_value_items
         }
 
         render json: { stats: stats }, status: 200
