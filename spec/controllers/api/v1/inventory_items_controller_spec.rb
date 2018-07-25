@@ -336,4 +336,42 @@ describe Api::V1::InventoryItemsController do
       it { should respond_with 200 }
     end
   end
+
+  describe 'POST #quick_search' do
+    context 'when successful' do
+      let(:user) { FactoryGirl.create(:user) }
+      before { create_items_for_quick_search('SN', 10) }
+
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :quick_search, { keyword: 'sn' }, format: :json
+      end
+
+      it 'returns InventoryItems that have occurrence of "SN" in serial number' do
+        items_response = json_response[:inventory_items]
+        expect(items_response.count).to eql 10
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context 'when not successful' do
+      let(:user) { FactoryGirl.create(:user) }
+      before { create_items_for_quick_search('SN', 10) }
+
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :quick_search, { }, format: :json
+      end
+
+      it 'raises error when keyword not present' do
+        error_response = json_response[:errors]
+        expect(error_response).to eql 'La palabra clave no puede estar vacía.'
+      end
+
+      it { should respond_with 422 }
+    end
+  end
 end

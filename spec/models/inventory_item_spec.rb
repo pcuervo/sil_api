@@ -192,4 +192,26 @@ describe InventoryItem do
       expect(InventoryItem.recent).to match_array([@inventory_item3, @inventory_item2, @inventory_item4, @inventory_item1])
     end
   end
+
+  describe '.quick_search' do
+    before{ create_items_for_quick_search('SN', 20) }
+
+    context 'when successful' do
+      
+      it "returns records that have occurrence of keyword 'SN'" do
+        items = InventoryItem.quick_search('sn')
+        
+        expect(items.count).to eq 20
+      end
+    end
+
+    context 'when not successful' do
+      
+      it "returns 0 records" do
+        items = InventoryItem.quick_search('ESTONIDEPEDOEXISTE')
+
+        expect(items.count).to eq 0
+      end
+    end
+  end
 end

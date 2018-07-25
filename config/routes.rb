@@ -46,6 +46,8 @@ Sil::Application.routes.draw do
           post 'cancel_item_entry_request/',    action: 'cancel_item_entry_request'
           post 'destroy/',                      action: 'destroy'
           post 'update/',                       action: 'update'
+          # usados
+          post 'quick_search/',                 action: 'quick_search'
         end
       end
       resources :unit_items, only: %i[index show] do

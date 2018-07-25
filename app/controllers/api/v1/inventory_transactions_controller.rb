@@ -28,7 +28,6 @@ module Api
       end
 
       def last_checkout_folio
-        puts 'were HERE'
         last_folio = CheckOutTransaction.where('folio != ?', '-').order(folio: :desc).first
         return render json: { folio: last_folio.folio }, status: :ok if last_folio.present?
 

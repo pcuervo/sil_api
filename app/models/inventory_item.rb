@@ -331,22 +331,11 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
           })
       end
     end
-    # BulkItem.all.each do |bulk| 
-    #   item = bulk.acting_as
-    #   item.update_attributes(quantity: bulk.quantity)
-    # end
-
-    # UnitItem.all.each do |unit|
-    #   item = unit.acting_as
-    #   item.update_attributes({
-    #     serial_number: unit.serial_number,
-    #     brand: unit.brand,
-    #     model: unit.model,
-    #     quantity: 1
-    #   })
-    # end
   end
 
+  def self.quick_search(keyword)
+    InventoryItem.where('lower(name) LIKE ? OR lower(barcode) LIKE ? OR lower(serial_number) LIKE ?', "%#{keyword.downcase}%", "%#{keyword.downcase}%", "%#{keyword.downcase}%")
+  end
   # Scopes
 
   scope :recent, lambda {

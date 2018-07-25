@@ -1,5 +1,5 @@
 class InventoryItemSerializer < ActiveModel::Serializer
-  attributes :id, :name, :item_type, :actable_type, :validity_expiration_date, :status, :value, :created_at, :item_img_thumb, :quantity, :project_data, :owner, :serial_number, :brand, :model, :extra_parts
+  attributes :id, :name, :item_type, :actable_type, :validity_expiration_date, :status, :value, :created_at, :item_img_thumb, :quantity, :project_data, :owner, :serial_number, :brand, :model, :extra_parts, :barcode
 
   def item_img_thumb
     object.item_img(:thumb)
