@@ -331,7 +331,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         estimated_issue_date: '',
         delivery_company: delivery_company,
         delivery_company_contact: delivery_company_contact,
-        quantity: quantity,
+        quantity: quantity_to_add,
         folio: folio
       )
     end
