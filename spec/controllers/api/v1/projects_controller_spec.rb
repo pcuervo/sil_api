@@ -345,4 +345,25 @@ describe Api::V1::ProjectsController do
       it { should respond_with 422 }
     end
   end
+
+  describe 'POST #inventory' do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:project) { create_project_with_items(3) }
+
+    context 'when successful' do
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :inventory, id: project.id
+      end
+
+      it "when Project's inventory is returned correctly" do
+        puts json_response.to_yaml
+        project_response = json_response[:projects]
+        expect(project_response.count).to eq 3
+      end
+
+      it { should respond_with 200 }
+    end
+  end
 end

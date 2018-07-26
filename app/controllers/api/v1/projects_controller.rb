@@ -7,6 +7,9 @@ module Api
       before_action only: %i[transfer_inventory transfer_inventory_items] do
         set_transfer_projects
       end
+      before_action only: [:inventory]do
+        set_project
+      end
 
       respond_to :json
 
@@ -179,6 +182,15 @@ module Api
         render json: { success: 'Se ha transferido el inventario con éxito' }, status: 200, location: [:api, @project_from]
       end
 
+      def inventory
+        unless @project
+          render json: { errors: 'No existe el proyecto' }, status: 422
+          return
+        end
+
+        render json: @project.inventory_items, status: 200
+      end
+
       private
 
       def project_params
@@ -188,6 +200,10 @@ module Api
       def set_transfer_projects
         @project_from = Project.find_by(id: params[:from_project_id])
         @project_to = Project.find_by(id: params[:to_project_id])
+      end
+
+      def set_project
+        @project = Project.find_by(id: params[:id])
       end
     end
   end
