@@ -48,6 +48,7 @@ Sil::Application.routes.draw do
           post 'update/',                       action: 'update'
           # usados
           post 'quick_search/',                 action: 'quick_search'
+          post 're_entry/', action: 're_entry'
         end
       end
       resources :unit_items, only: %i[index show] do

@@ -374,4 +374,63 @@ describe Api::V1::InventoryItemsController do
       it { should respond_with 422 }
     end
   end
+
+  describe 'POST #re_entry' do
+    let(:user) { FactoryGirl.create(:user) }
+    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 100) }
+    let(:entry_date) { Date.today }
+    let(:delivery_company) { FactoryGirl.create(:supplier) }
+    let(:state) { InventoryItem::GOOD }
+   
+    context 'when successful' do
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :re_entry, 
+          { 
+            id: inventory_item.id, 
+            entry_date: entry_date,
+            delivery_company: delivery_company,
+            delivery_company_contact: 'Juan Repartidor',
+            state: state,
+            additional_comments: 'Comentarios adicionales',
+            quantity: 100
+          },
+          format: :json
+      end
+
+      it 'adds quantity to InventoryItem' do
+        inventory_item.reload
+
+        expect(inventory_item.quantity).to eq 200
+        expect(json_response).to have_key(:success)
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context 'when not successful' do
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :re_entry, 
+          { 
+            id: inventory_item.id, 
+            entry_date: entry_date,
+            delivery_company: delivery_company,
+            delivery_company_contact: 'Juan Repartidor',
+            state: state,
+            additional_comments: 'Comentarios adicionales',
+            quantity: -100
+          },
+          format: :json
+      end
+
+      it 'should return errors' do
+        expect(json_response).to have_key(:errors)
+      end
+
+      it { should respond_with 422 }
+    end
+  end
 end

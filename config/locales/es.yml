@@ -90,3 +90,5 @@ es:
   custom_errors:
     warehouse_location:
         invalid_quantity_to_locate: "La cantidad a ubicar es mayor a la cantidad disponbile"
+    inventory_item:
+        invalid_quantity_to_add: "La cantidad a agregar debe ser mayor que 0"

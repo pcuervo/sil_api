@@ -1,7 +1,7 @@
 module Api
   module V1
     class InventoryItemsController < ApplicationController
-      before_action only: %i[create authorize_entry authorize_withdrawal request_item_entry cancel_item_entry_request destroy stats_pm_ae] do
+      before_action only: %i[create authorize_entry authorize_withdrawal request_item_entry cancel_item_entry_request destroy stats_pm_ae re_entry] do
         authenticate_with_token! request.headers['Authorization']
       end
       after_action :send_notification_authorize_entry, only: [:authorize_entry]
@@ -234,26 +234,43 @@ module Api
       end
 
       def re_entry
-        inventory_item = InventoryItem.find(params[:id])
-        if ! inventory_item.present?
+        @inventory_item = InventoryItem.find(params[:id])
+        if ! @inventory_item.present?
           render json: { errors: "No se encontró el artículo." }, status: 422
           return
         end
-    
-        #@todo: 
-        inventory_item.update({
-          status: InventoryItem::IN_STOCK,
-          state: params[:state]})
-        inventory_item.quantity = inventory_item.quantity.to_i + params[:quantity].to_i
-        if inventory_item.save
-          @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', inventory_item.id, 'BulkItem').first
-          log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso granel", '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
-          send_notifications_re_entry
-          render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  inventory_item.name + '"!' }, status: 201  
-          return
+
+        begin
+          @inventory_item.add(
+            params[:quantity].to_i, 
+            params[:state], 
+            params[:entry_date],
+            'Reingreso',
+            params[:delivery_company], 
+            params[:delivery_company_contact], 
+            params[:additional_comments]
+          )
+        rescue SilExceptions::InvalidQuantityToAdd => e
+          render json: { errors: e.message }, status: 422 
+        else
+          render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  @inventory_item.name + '"!' }, status: 201
         end
+
+         
+        #@todo: 
+        # inventory_item.update({
+        #   status: InventoryItem::IN_STOCK,
+        #   state: params[:state]})
+        # inventory_item.quantity = inventory_item.quantity.to_i + params[:quantity].to_i
+        # if inventory_item.save
+        #   @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', inventory_item.id, 'BulkItem').first
+        #   log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso granel", '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
+        #   send_notifications_re_entry
+        #   render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  inventory_item.name + '"!' }, status: 201  
+        #   return
+        # end
     
-        render json: { errors: inventory_item.errors }, status: 422 
+        # render json: { errors: inventory_item.errors }, status: 422 
       end
 
       def quick_search

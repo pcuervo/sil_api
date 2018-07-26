@@ -127,7 +127,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         'project' => project.litobel_id + ' / ' + project.name,
         'project_number' => project.litobel_id,
         'project_id' => project_id,
-        'pm_id' => self.pm_id,
+        'pm_id' => pm_id,
         'ae_id' => ae_id,
         'pm' => pm,
         'ae' => ae,
@@ -314,22 +314,44 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     ae.id
   end
 
+  def add(quantity_to_add, state, entry_date, concept, delivery_company, delivery_company_contact, additional_comments, folio = '-')
+    raise SilExceptions::InvalidQuantityToAdd unless quantity_to_add > 0
+
+    update(
+      quantity: quantity + quantity_to_add,
+      status: IN_STOCK,
+      state: state
+    )
+    if save!
+      CheckInTransaction.create(
+        inventory_item_id: id,
+        concept: concept,
+        additional_comments: additional_comments,
+        entry_date: entry_date,
+        estimated_issue_date: '',
+        delivery_company: delivery_company,
+        delivery_company_contact: delivery_company_contact,
+        quantity: quantity,
+        folio: folio
+      )
+    end
+  end
+
   def self.migrate_items
     InventoryItem.all.each do |item|
-      if 'BulkItem' == item.actable_type
+      if item.actable_type == 'BulkItem'
         bulk_item = BulkItem.find(item.actable_id)
         item.update_attributes(quantity: bulk_item.quantity)
       end
 
-      if 'UnitItem' == item.actable_type
-          unit = UnitItem.find(item.actable_id)
-          item.update_attributes({
-            serial_number: unit.serial_number,
-            brand: unit.brand,
-            model: unit.model,
-            quantity: 1
-          })
-      end
+      next unless item.actable_type == 'UnitItem'
+      unit = UnitItem.find(item.actable_id)
+      item.update_attributes(
+        serial_number: unit.serial_number,
+        brand: unit.brand,
+        model: unit.model,
+        quantity: 1
+      )
     end
   end
 

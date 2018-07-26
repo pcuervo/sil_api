@@ -194,23 +194,56 @@ describe InventoryItem do
   end
 
   describe '.quick_search' do
-    before{ create_items_for_quick_search('SN', 20) }
+    before { create_items_for_quick_search('SN', 20) }
 
     context 'when successful' do
-      
       it "returns records that have occurrence of keyword 'SN'" do
         items = InventoryItem.quick_search('sn')
-        
+
         expect(items.count).to eq 20
       end
     end
 
     context 'when not successful' do
-      
-      it "returns 0 records" do
+      it 'returns 0 records' do
         items = InventoryItem.quick_search('ESTONIDEPEDOEXISTE')
 
         expect(items.count).to eq 0
+      end
+    end
+  end
+
+  describe '.add' do
+    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 100) }
+    let(:entry_date) { Date.today }
+    let(:delivery_company) { FactoryGirl.create(:supplier) }
+    let(:state) { InventoryItem::GOOD }
+
+    context 'when successful' do
+      let(:quantity) { 100 }
+
+      it 'adds quantity to the inventory of current InventoryItem' do
+        inventory_item.add(quantity, state, entry_date, 'Reingreso', delivery_company.id, 'Juan Repartidor', 'Reingreso por surtido')
+
+        last_transaction = CheckInTransaction.last
+
+        expect(inventory_item.quantity).to eq 200
+        expect(last_transaction.quantity).to eq 200
+        expect(last_transaction.concept).to eq 'Reingreso'
+        expect(CheckInTransaction.all.count).to eq 1
+      end
+    end
+
+    context 'when not successful' do
+      let(:quantity_zero) { 0 }
+      let(:negative_quantity) { -1 }
+
+      it 'raises an error when quantity to add is zero' do
+        expect { inventory_item.add(quantity_zero, state, entry_date, 'Reingreso', delivery_company.id, 'Juan Repartidor', 'Reingreso por surtido') }.to raise_error(SilExceptions::InvalidQuantityToAdd, 'La cantidad a agregar debe ser mayor que 0')
+      end
+
+      it 'raises an error when quantity to add is less than zero' do
+        expect { inventory_item.add(negative_quantity, state, entry_date, 'Reingreso', delivery_company.id, 'Juan Repartidor', 'Reingreso por surtido') }.to raise_error(SilExceptions::InvalidQuantityToAdd, 'La cantidad a agregar debe ser mayor que 0')
       end
     end
   end
