@@ -220,7 +220,7 @@ module Api
 
         stats['total_number_items'] = InventoryItem.where('project_id IN (?)', project_ids).count
         stats['total_number_projects'] = current_user.projects.count
-        stats['current_rent'] = InventoryItem.estimated_current_rent(project_ids)
+        #stats['current_rent'] = InventoryItem.estimated_current_rent(project_ids)
         stats['inventory_by_type'] = InventoryItem.inventory_by_type(project_ids)
         # stats['occupation_by_month'] = InventoryItem.occupation_by_month
 

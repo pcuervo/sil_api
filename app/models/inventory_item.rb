@@ -68,6 +68,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
       projects_id = []
       projects.each { |p| projects_id.push(p.id) }
       inventory_items = inventory_items.where('project_id IN (?)', projects_id)
+      puts inventory_items.count.to_yaml
     end
 
     if params[:ae_id].present?
