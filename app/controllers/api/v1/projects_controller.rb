@@ -105,7 +105,7 @@ module Api
         user = User.find(params[:id])
         projects = user.projects
 
-        render json: { projects: projects }, status: 200, location: [:api, user]
+        respond_with projects
       end
 
       def add_users
