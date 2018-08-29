@@ -7,8 +7,7 @@ module Api
       respond_to :json
 
       def show
-        user = User.find(params[:id])
-        respond_with ClientContact.find(user.actable_id)
+        respond_with ClientContact.find(params[:id])
       end
 
       def index
