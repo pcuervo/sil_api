@@ -10,6 +10,11 @@ module Api
         respond_with ClientContact.find(params[:id])
       end
 
+      def by_user
+        user = User.find(params[:id])
+        respond_with ClientContact.find(user.actable_id)
+      end
+
       def index
         respond_with ClientContact.all.order(:created_at)
       end

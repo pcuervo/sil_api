@@ -94,6 +94,7 @@ Sil::Application.routes.draw do
       resources :client_contacts, only: %i[show index create update destroy] do
         collection do
           get 'get_by_client/',    action: 'by_client'
+          get 'by_user/:id',    action: 'by_user'
           post 'inventory_items',  action: 'inventory_items'
           get 'stats/:id',         action: 'stats'
           post 'update',           action: 'update'
