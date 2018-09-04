@@ -406,6 +406,14 @@ describe Api::V1::InventoryItemsController do
         expect(json_response).to have_key(:success)
       end
 
+      it 'logs an InventoryTransaction with a CheckIn folio' do
+        last_transaction = CheckInTransaction.last
+
+        expect(last_transaction.quantity).to eq 100
+        expect(last_transaction.folio).not_to eq '-'
+        expect(last_transaction.folio).to include 'FE-'
+      end
+
       it { should respond_with 201 }
     end
 

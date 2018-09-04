@@ -53,7 +53,7 @@ group :development, :test do
   gem 'spring'
   gem 'factory_girl_rails', '4.5.0'
   gem 'ffaker'
-
+  #gem 'byebug'
 end
 
 group :test do

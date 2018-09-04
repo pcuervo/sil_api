@@ -195,7 +195,11 @@ class InventoryTransaction < ActiveRecord::Base
   def self.next_checkout_folio
     return 'FS-0000001' if CheckOutTransaction.last.blank?
 
-    last_folio = CheckOutTransaction.last.folio
+    last_transaction = CheckOutTransaction.where('folio != ?', '-').order(folio: :desc)
+    
+    return 'FS-0000001' unless last_transaction.exists?
+
+    last_folio = last_transaction.first.folio
     return 'FS-0000001' if last_folio == '-'
 
     next_folio_num = self.next_folio_num(last_folio)
@@ -206,7 +210,10 @@ class InventoryTransaction < ActiveRecord::Base
   def self.next_checkin_folio
     return 'FE-0000001' if CheckInTransaction.last.blank?
 
-    last_folio = CheckInTransaction.last.folio
+    last_transaction = CheckInTransaction.where('folio != ?', '-').order(folio: :desc)
+    return 'FE-0000001' unless last_transaction.exists?
+
+    last_folio = last_transaction.first.folio
     return 'FE-0000001' if last_folio == '-'
 
     next_folio_num = self.next_folio_num(last_folio)

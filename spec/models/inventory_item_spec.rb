@@ -228,7 +228,7 @@ describe InventoryItem do
         last_transaction = CheckInTransaction.last
 
         expect(inventory_item.quantity).to eq 200
-        expect(last_transaction.quantity).to eq 200
+        expect(last_transaction.quantity).to eq 100
         expect(last_transaction.concept).to eq 'Reingreso'
         expect(CheckInTransaction.all.count).to eq 1
       end

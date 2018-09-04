@@ -241,6 +241,7 @@ module Api
         end
 
         begin
+          last_folio = InventoryTransaction.next_checkin_folio
           @inventory_item.add(
             params[:quantity].to_i, 
             params[:state], 
@@ -248,7 +249,8 @@ module Api
             'Reingreso',
             params[:delivery_company], 
             params[:delivery_company_contact], 
-            params[:additional_comments]
+            params[:additional_comments],
+            last_folio
           )
         rescue SilExceptions::InvalidQuantityToAdd => e
           render json: { errors: e.message }, status: 422 
