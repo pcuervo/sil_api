@@ -60,8 +60,6 @@ RSpec.describe InventoryTransaction, type: :model do
       check_in = FactoryGirl.create :check_in_transaction
       check_in.update_attribute(:folio, InventoryTransaction.next_checkin_folio)
 
-      puts check_in.folio.to_yaml
-
       expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000001'
     end
   end

@@ -36,10 +36,7 @@ class ClientContact < ActiveRecord::Base
     projects = self.client.projects
     total = 0
     projects.each do |project| 
-      puts 'project '
-
       total = total + project.inventory_items.total_high_value_items
-      puts total.to_s
     end
     total
   end
