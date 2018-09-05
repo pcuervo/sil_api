@@ -111,6 +111,7 @@ Sil::Application.routes.draw do
           get 'last_checkin_folio', action: 'last_checkin_folio'
           post 'by_folio', action: 'by_folio'
           post 'latest', action: 'latest'
+          post 'latest_by_user', action: 'latest_by_user'
         end
       end
       resources :warehouse_locations, only: %i[show index] do

@@ -61,6 +61,21 @@ module Api
 
         render json: InventoryTransaction.latest(transactions), status: :ok
       end
+
+      def latest_by_user
+        type = params[:type]
+        num = params[:num_transactions]
+        user = User.find(params[:user_id])
+        item_ids = []
+
+        user.projects.each { |p| p.inventory_items.pluck(:id).map { |id| item_ids.push(id) } }
+
+        if type == 'check_in'
+          transactions = CheckInTransaction.where('inventory_item_id IN (?)', item_ids).order(folio: :desc).limit(num)
+          render json: transactions, status: :ok and return
+        end
+        
+      end
     end
   end
 end
