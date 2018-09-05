@@ -67,7 +67,6 @@ module Api
       end
 
       def destroy
-        puts 'we here?'
         project = Project.find(params[:id])
         if project.destroy!
           render json: project, status: 201, location: [:api, project]

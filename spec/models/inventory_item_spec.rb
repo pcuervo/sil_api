@@ -194,13 +194,13 @@ describe InventoryItem do
   end
 
   describe '.quick_search' do
-    before { create_items_for_quick_search('SN', 20) }
+    before { create_items_for_quick_search('SN', 5) }
 
     context 'when successful' do
       it "returns records that have occurrence of keyword 'SN'" do
         items = InventoryItem.quick_search('sn')
 
-        expect(items.count).to eq 20
+        expect(items.count).to eq 5
       end
     end
 

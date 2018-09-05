@@ -36,11 +36,9 @@ class DeliveryRequest < ActiveRecord::Base
   end
 
   def set_items_in_stock
-    puts 'before setting status'
     delivery_request_items.each do |dri|
       dri.inventory_item.status = InventoryItem::IN_STOCK
       dri.inventory_item.save
-      puts 'status: ' + dri.inventory_item.status.to_s
     end
   end
 

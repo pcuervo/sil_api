@@ -54,7 +54,6 @@ module Api
       def reject_delivery
         @delivery_request = DeliveryRequest.find(params[:id])
         @delivery_request.set_items_in_stock
-        puts 'after setting status'
         @delivery_request.destroy
         render json: { success: '¡Se ha rechazado el envío! Se le enviará una notificación al usuario que la solicitó.' }, status: 201
       end

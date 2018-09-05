@@ -9,7 +9,6 @@ RSpec.describe DeliveryRequest, type: :model do
     it 'returns true when the delivery request has been authorized and quantities were not modified' do
       delivery_request.authorize(delivery_guy.id, litobel_supplier.id, 'adicionales')
 
-      puts DeliveryRequest.all.count.to_yaml
       expect(DeliveryRequest.all.count).to eql 0
       expect(DeliveryRequestItem.all.count).to eql 0
       expect(Delivery.all.count).to eql 1

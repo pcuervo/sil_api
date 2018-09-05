@@ -143,16 +143,12 @@ class ClientContact < ActiveRecord::Base
 
     return 0 if ! occupied_units_per_month.present?
 
-    self.projects.each do |p|
-      puts p.inventory_items.to_yaml
-    end
     occupied_units_per_month.each do |o| 
       monthly_rent = {}
       month = o.month_year.split('-').first
       year = o.month_year.split('-').last
       current_month_rent = 0
-      puts 'get_contact_rent_history'
-      puts month + '/' + year
+
       current_month_rent = current_month_rent + self.get_rent( month.to_i, year.to_i )
       next if current_month_rent == 0
       

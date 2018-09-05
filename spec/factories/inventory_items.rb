@@ -10,6 +10,6 @@ FactoryGirl.define do
     quantity 100
     brand 'Marquis'
     model 'Modes'
-    sequence(:barcode) { |n| FFaker::Vehicle.vin + n.to_s + rand(6).to_s }
+    sequence(:barcode) { |n| FFaker::Vehicle.vin + n.to_s + rand(10).to_s }
   end
 end

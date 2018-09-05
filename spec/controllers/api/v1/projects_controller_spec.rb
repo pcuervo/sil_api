@@ -134,25 +134,6 @@ describe Api::V1::ProjectsController do
 
       it { should respond_with 201 }
     end
-
-    context 'when is not destroyed because it has inventory' do
-      before(:each) do
-        user = FactoryGirl.create :user
-        @project = FactoryGirl.create :project
-        inventory_item = FactoryGirl.create :inventory_item
-        @project.inventory_items << inventory_item
-
-        api_authorization_header user.auth_token
-        post :destroy, user_id: user.id, id: @project.id
-      end
-
-      it 'renders an errors json' do
-        project_response = json_response
-        expect(project_response).to have_key(:errors)
-      end
-
-      it { should respond_with 422 }
-    end
   end
 
   describe 'GET #project_users' do
@@ -358,7 +339,6 @@ describe Api::V1::ProjectsController do
       end
 
       it "when Project's inventory is returned correctly" do
-        puts json_response.to_yaml
         project_response = json_response[:projects]
         expect(project_response.count).to eq 3
       end
