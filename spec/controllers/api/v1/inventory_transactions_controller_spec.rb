@@ -96,4 +96,37 @@ describe Api::V1::InventoryTransactionsController do
       it { should respond_with 200 }
     end
   end
+
+  describe "GET #latest" do
+    let(:user) { FactoryGirl.create(:user, role: User::ADMIN) }
+
+    before do
+      3.times { FactoryGirl.create :check_in_transaction }
+      3.times { FactoryGirl.create :check_out_transaction }
+    end
+      
+    context 'when returning latest CheckIns' do
+      before(:each) do
+        api_authorization_header user.auth_token
+        get :latest, { type: 'check_in', num_transactions: 10 }
+      end
+
+      it "returns 3 CheckIn transactions" do
+        inventory_transaction_response = json_response[:inventory_transactions]
+        expect(inventory_transaction_response.size).to eq(3)
+      end
+    end
+
+    context 'when returning latest CheckOuts' do
+      before(:each) do
+        api_authorization_header user.auth_token
+        get :latest, { type: 'check_out', num_transactions: 10 }
+      end
+
+      it "returns 3 CheckOut transactions" do
+        inventory_transaction_response = json_response[:inventory_transactions]
+        expect(inventory_transaction_response.size).to eq(3)
+      end
+    end
+  end
 end

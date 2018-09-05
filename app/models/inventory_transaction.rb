@@ -229,4 +229,6 @@ class InventoryTransaction < ActiveRecord::Base
     next_folio_num = '0' + next_folio_num.to_s while next_folio_num.to_s.length < total_digits
     next_folio_num
   end
+
+  scope :latest, ->(num) { order(created_at: :desc).limit(num) }
 end

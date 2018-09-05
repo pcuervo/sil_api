@@ -84,4 +84,17 @@ RSpec.describe Project, type: :model do
       end
     end
   end
+
+  describe '.latest_transactions' do
+    let(:project) { create_project_with_items(5) }
+
+    context 'when latest CheckIn Transactions are returend' do
+      it 'returns 3 transactions' do
+        transactions = project.latest_transactions(3, 'check_in')
+
+        expect(transactions.count).to eq 3
+        expect(transactions.first.class.name).to eq 'CheckInTransaction'
+      end
+    end
+  end
 end

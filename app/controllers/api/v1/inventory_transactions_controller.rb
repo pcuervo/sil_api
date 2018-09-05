@@ -51,6 +51,16 @@ module Api
         transactions = InventoryTransaction.by_folio(params[:folio])
         render json: transactions, status: :ok
       end
+
+      def latest
+        type = params[:type]
+        transactions = params[:num_transactions]
+
+        render json: CheckInTransaction.latest(transactions), status: :ok and return if type == 'check_in'
+        render json: CheckOutTransaction.latest(transactions), status: :ok and return if type == 'check_out'
+
+        render json: InventoryTransaction.latest(transactions), status: :ok
+      end
     end
   end
 end

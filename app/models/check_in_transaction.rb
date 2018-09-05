@@ -3,4 +3,5 @@ class CheckInTransaction < ActiveRecord::Base
 
   validates :entry_date, presence: true
 
+  scope :latest, ->(num) { where('folio != ?', '-').order(folio: :desc).limit(num) }
 end

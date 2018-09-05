@@ -110,6 +110,7 @@ Sil::Application.routes.draw do
           get 'last_checkout_folio', action: 'last_checkout_folio'
           get 'last_checkin_folio', action: 'last_checkin_folio'
           post 'by_folio', action: 'by_folio'
+          post 'latest', action: 'latest'
         end
       end
       resources :warehouse_locations, only: %i[show index] do
