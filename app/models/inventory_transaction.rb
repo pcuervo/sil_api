@@ -59,7 +59,13 @@ class InventoryTransaction < ActiveRecord::Base
       entry_exit_date = i.actable_type == 'CheckInTransaction' ? transaction.entry_date : transaction.exit_date
       deliver_pickup_contact = i.actable_type == 'CheckInTransaction' ? transaction.delivery_company_contact : transaction.pickup_company_contact
       deliver_pickup_supplier_id = i.actable_type == 'CheckInTransaction' ? transaction.delivery_company : transaction.pickup_company
-      delivery_pickup_supplier = Supplier.find(deliver_pickup_supplier_id)
+      delivery_pickup_supplier = Supplier.find_by(id: deliver_pickup_supplier_id)
+
+      supplier = if delivery_pickup_supplier.present?
+                  deliver_pickup_supplier.name
+                else
+                  '-'
+                end
 
       transaction = if i.actable_type == 'CheckOutTransaction'
                       CheckOutTransaction.find(i.actable_id)
@@ -82,7 +88,7 @@ class InventoryTransaction < ActiveRecord::Base
         'quantity'               => i.quantity,
         'entry_exit_date'        => entry_exit_date,
         'deliver_pickup_contact' => deliver_pickup_contact,
-        'supplier'               => delivery_pickup_supplier.name,
+        'supplier'               => supplier,
         'additional_comments'    => i.additional_comments,
         'folio'                  => folio,
         'concept'                => i.concept
