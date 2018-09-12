@@ -61,8 +61,10 @@ class InventoryTransaction < ActiveRecord::Base
       deliver_pickup_supplier_id = i.actable_type == 'CheckInTransaction' ? transaction.delivery_company : transaction.pickup_company
       delivery_pickup_supplier = Supplier.find_by(id: deliver_pickup_supplier_id)
 
+      puts delivery_pickup_supplier.to_yaml
+
       supplier = if delivery_pickup_supplier.present?
-                  deliver_pickup_supplier.name
+                  delivery_pickup_supplier.name
                 else
                   '-'
                 end
