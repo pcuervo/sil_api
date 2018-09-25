@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe ClientContact do
-  before { @client_contact = FactoryGirl.build(:client_contact) }
+  before { @client_contact = FactoryBot.build(:client_contact) }
 
   it { should respond_to(:first_name) }
   it { should respond_to(:last_name) }
@@ -18,12 +18,12 @@ describe ClientContact do
 
   describe ".inventory_items" do
     before(:each) do
-      @client = FactoryGirl.create :client
-      @client_contact = FactoryGirl.create :client_contact
+      @client = FactoryBot.create :client
+      @client_contact = FactoryBot.create :client_contact
       @client.client_contacts << @client_contact
-      project = FactoryGirl.create :project
+      project = FactoryBot.create :project
       3.times do |i|
-        item = FactoryGirl.create :inventory_item 
+        item = FactoryBot.create :inventory_item 
         project.inventory_items << item
       end 
       @client.projects << project

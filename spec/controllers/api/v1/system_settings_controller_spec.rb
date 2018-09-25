@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Api::V1::SystemSettingsController, type: :controller do
   describe "GET #show" do
     before(:each) do
-      @system_settings = FactoryGirl.create :system_setting
+      @system_settings = FactoryBot.create :system_setting
       get :show, id: @system_settings.id
     end
 
@@ -19,8 +19,8 @@ RSpec.describe Api::V1::SystemSettingsController, type: :controller do
   describe "POST #update" do
     context "when SystemSettings are successfully updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @system_settings = FactoryGirl.create :system_setting
+        @user = FactoryBot.create :user
+        @system_settings = FactoryBot.create :system_setting
         api_authorization_header @user.auth_token
         patch :update, { id: @system_settings.id, system_settings: { cost_per_location: 650, units_per_location: 100, cost_high_value: 50 } }, format: :json
       end

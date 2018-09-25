@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Api::V1::ProjectsController do
   describe 'GET #show' do
     before(:each) do
-      @project = FactoryGirl.create :project
+      @project = FactoryBot.create :project
       get :show, id: @project.id
     end
 
@@ -18,7 +18,7 @@ describe Api::V1::ProjectsController do
 
   describe 'GET #index' do
     before(:each) do
-      5.times { FactoryGirl.create :project }
+      5.times { FactoryBot.create :project }
       get :index
     end
 
@@ -33,15 +33,15 @@ describe Api::V1::ProjectsController do
   describe 'POST #create' do
     context 'when project is succesfully created' do
       before(:each) do
-        user = FactoryGirl.create :user
-        client = FactoryGirl.create :client
-        client_contact = FactoryGirl.create :client_contact
+        user = FactoryBot.create :user
+        client = FactoryBot.create :client
+        client_contact = FactoryBot.create :client_contact
 
-        pm = FactoryGirl.create :user
+        pm = FactoryBot.create :user
         pm.role = User::PROJECT_MANAGER
-        ae = FactoryGirl.create :user
+        ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
-        @project_attributes = FactoryGirl.attributes_for :project
+        @project_attributes = FactoryBot.attributes_for :project
         @project_attributes[:client_id] = client.id
         api_authorization_header user.auth_token
         post :create, user_id: user.id, client_contact_id: client_contact.id, pm_id: pm.id, ae_id: ae.id, project: @project_attributes
@@ -57,10 +57,10 @@ describe Api::V1::ProjectsController do
 
     context 'when project is not created' do
       before(:each) do
-        user = FactoryGirl.create :user
-        pm = FactoryGirl.create :user
+        user = FactoryBot.create :user
+        pm = FactoryBot.create :user
         pm.role = User::PROJECT_MANAGER
-        ae = FactoryGirl.create :user
+        ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
         @invalid_project_attributes = { name: 'Proyecto Inválido' }
 
@@ -85,8 +85,8 @@ describe Api::V1::ProjectsController do
   describe 'PUT/PATCH #update' do
     context 'when project is successfully updated' do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @project = FactoryGirl.create :project
+        @user = FactoryBot.create :user
+        @project = FactoryBot.create :project
         api_authorization_header @user.auth_token
         patch :update, { id: @project.id,
                          project: { litobel_id: 'hp_new_id', name: 'new_name' } }, format: :json
@@ -103,9 +103,9 @@ describe Api::V1::ProjectsController do
 
     context 'when is not updated because litobel_id is already taken' do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @project = FactoryGirl.create :project
-        @invalid_project = FactoryGirl.create :project
+        @user = FactoryBot.create :user
+        @project = FactoryBot.create :project
+        @invalid_project = FactoryBot.create :project
         api_authorization_header @user.auth_token
         patch :update, { id: @invalid_project.id,
                          project: { litobel_id: @project.litobel_id } }, format: :json
@@ -126,8 +126,8 @@ describe Api::V1::ProjectsController do
   describe 'DELETE #destroy' do
     context 'when is destroyed correctly' do
       before(:each) do
-        user = FactoryGirl.create :user
-        project = FactoryGirl.create :project
+        user = FactoryBot.create :user
+        project = FactoryBot.create :project
         api_authorization_header user.auth_token
         delete :destroy, user_id: user.id, id: project.id
       end
@@ -138,10 +138,10 @@ describe Api::V1::ProjectsController do
 
   describe 'GET #project_users' do
     before(:each) do
-      project = FactoryGirl.create :project
+      project = FactoryBot.create :project
 
       3.times do
-        user = FactoryGirl.create :user
+        user = FactoryBot.create :user
         project.users << user
       end
 
@@ -158,9 +158,9 @@ describe Api::V1::ProjectsController do
 
   describe 'GET #project_client' do
     before(:each) do
-      project = FactoryGirl.create :project
+      project = FactoryBot.create :project
       @client = project.client
-      client_contact = FactoryGirl.create :client_contact
+      client_contact = FactoryBot.create :client_contact
       @client.client_contacts << client_contact
 
       get :project_client, id: project.id
@@ -176,9 +176,9 @@ describe Api::V1::ProjectsController do
 
   describe 'GET #by_user' do
     before(:each) do
-      project_a = FactoryGirl.create :project
-      project_b = FactoryGirl.create :project
-      @user = FactoryGirl.create :user
+      project_a = FactoryBot.create :project
+      project_b = FactoryBot.create :project
+      @user = FactoryBot.create :user
       @user.projects << project_a
       @user.projects << project_b
 
@@ -196,13 +196,13 @@ describe Api::V1::ProjectsController do
   describe 'POST #add_users' do
     context 'when user are added to project' do
       before(:each) do
-        user = FactoryGirl.create :user
-        @pm = FactoryGirl.create :user
+        user = FactoryBot.create :user
+        @pm = FactoryBot.create :user
         @pm.role = User::PROJECT_MANAGER
-        @ae = FactoryGirl.create :user
+        @ae = FactoryBot.create :user
         @ae.role = User::ACCOUNT_EXECUTIVE
 
-        @project = FactoryGirl.create :project
+        @project = FactoryBot.create :project
         api_authorization_header user.auth_token
         post :add_users, new_pm_id: @pm.id, new_ae_id: @ae.id, project_id: @project.id
       end
@@ -217,8 +217,8 @@ describe Api::V1::ProjectsController do
 
     context 'when user are not added to project' do
       before(:each) do
-        user = FactoryGirl.create :user
-        @project = FactoryGirl.create :project
+        user = FactoryBot.create :user
+        @project = FactoryBot.create :project
         api_authorization_header user.auth_token
         post :add_users, project_id: @project.id
       end
@@ -236,10 +236,10 @@ describe Api::V1::ProjectsController do
   describe 'POST #remove_user' do
     context 'when a user is removed from project' do
       before(:each) do
-        user = FactoryGirl.create :user
-        @ae = FactoryGirl.create :user
+        user = FactoryBot.create :user
+        @ae = FactoryBot.create :user
         @ae.role = User::ACCOUNT_EXECUTIVE
-        @project = FactoryGirl.create :project
+        @project = FactoryBot.create :project
         @project.users << @ae
         @project.save
 
@@ -261,11 +261,11 @@ describe Api::V1::ProjectsController do
   end
 
   describe 'POST #transfer_inventory' do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { FactoryBot.create(:user) }
     let(:from_project) { create_project_with_items(5) }
 
     context 'when an Inventory is transferred successfully between Projects' do
-      let(:to_project) { FactoryGirl.create(:project) }
+      let(:to_project) { FactoryBot.create(:project) }
       before(:each) do
         api_authorization_header user.auth_token
         post :transfer_inventory, from_project_id: from_project.id, to_project_id: to_project.id
@@ -293,12 +293,12 @@ describe Api::V1::ProjectsController do
   end
 
   describe 'POST #transfer_inventory_items' do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { FactoryBot.create(:user) }
     let(:from_project) { create_project_with_items(5) }
     let(:item_to_transfer) { from_project.inventory_items.first }
 
     context 'when an Inventory is transferred successfully between Projects' do
-      let(:to_project) { FactoryGirl.create(:project) }
+      let(:to_project) { FactoryBot.create(:project) }
       before(:each) do
         api_authorization_header user.auth_token
         post :transfer_inventory_items, from_project_id: from_project.id, to_project_id: to_project.id, items_ids: [item_to_transfer.id]
@@ -328,7 +328,7 @@ describe Api::V1::ProjectsController do
   end
 
   describe 'POST #inventory' do
-    let(:user) { FactoryGirl.create(:user) }
+    let(:user) { FactoryBot.create(:user) }
     let(:project) { create_project_with_items(3) }
 
     context 'when successful' do

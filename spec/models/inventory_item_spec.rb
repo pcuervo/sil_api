@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe InventoryItem do
-  let(:inventory_item) { FactoryGirl.build :inventory_item }
+  let(:inventory_item) { FactoryBot.build :inventory_item }
   subject { inventory_item }
 
   it { should respond_to(:name) }
@@ -29,7 +29,7 @@ describe InventoryItem do
   describe '.search' do
     before(:each) do
       @params = {}
-      @inventory_item = FactoryGirl.create :inventory_item
+      @inventory_item = FactoryBot.create :inventory_item
     end
 
     it 'returns an array of InventoryItems given a keyword' do
@@ -53,7 +53,7 @@ describe InventoryItem do
 
   describe '.get_details' do
     before(:each) do
-      @inventory_item = FactoryGirl.create :inventory_item
+      @inventory_item = FactoryBot.create :inventory_item
     end
 
     it 'returns details of InventoryItem' do
@@ -64,9 +64,9 @@ describe InventoryItem do
 
   describe '.warehouse_locations' do
     before(:each) do
-      @inventory_item = FactoryGirl.create :inventory_item
-      @warehouse_location = FactoryGirl.create :warehouse_location
-      @item_location = FactoryGirl.create :item_location
+      @inventory_item = FactoryBot.create :inventory_item
+      @warehouse_location = FactoryBot.create :warehouse_location
+      @item_location = FactoryBot.create :item_location
       @item_location.quantity = @inventory_item.quantity
       @item_location.save
       @inventory_item.item_locations << @item_location
@@ -82,18 +82,18 @@ describe InventoryItem do
 
   describe '.withdraw' do
     before(:each) do
-      @inventory_item = FactoryGirl.create :inventory_item
+      @inventory_item = FactoryBot.create :inventory_item
     end
 
     context 'withdraws whole quantity of InventoryItem with location successfuly' do
       before(:each) do
-        @warehouse_location = FactoryGirl.create :warehouse_location
-        @item_location = FactoryGirl.create :item_location
+        @warehouse_location = FactoryBot.create :warehouse_location
+        @item_location = FactoryBot.create :item_location
         @item_location.quantity = @inventory_item.quantity
         @item_location.save
         @inventory_item.item_locations << @item_location
         @warehouse_location.item_locations << @item_location
-        @supplier = FactoryGirl.create :supplier
+        @supplier = FactoryBot.create :supplier
         @withdraw = @inventory_item.withdraw(Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test', @inventory_item.quantity)
       end
 
@@ -117,13 +117,13 @@ describe InventoryItem do
 
     context 'withdraws partial quantity of InventoryItem from one location successfuly' do
       before(:each) do
-        @warehouse_location = FactoryGirl.create :warehouse_location
-        @item_location = FactoryGirl.create :item_location
+        @warehouse_location = FactoryBot.create :warehouse_location
+        @item_location = FactoryBot.create :item_location
         @item_location.quantity = @inventory_item.quantity
         @item_location.save
         @inventory_item.item_locations << @item_location
         @warehouse_location.item_locations << @item_location
-        @supplier = FactoryGirl.create :supplier
+        @supplier = FactoryBot.create :supplier
         @withdraw = @inventory_item.withdraw(Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test', 1)
       end
 
@@ -143,13 +143,13 @@ describe InventoryItem do
 
     context 'withdraws partial quantity of InventoryItem from multiple locations successfuly' do
       before(:each) do
-        @warehouse_location = FactoryGirl.create :warehouse_location
-        @item_location = FactoryGirl.create :item_location
+        @warehouse_location = FactoryBot.create :warehouse_location
+        @item_location = FactoryBot.create :item_location
         @item_location.quantity = @inventory_item.quantity
         @item_location.save
 
-        @warehouse_location2 = FactoryGirl.create :warehouse_location
-        @item_location2 = FactoryGirl.create :item_location
+        @warehouse_location2 = FactoryBot.create :warehouse_location
+        @item_location2 = FactoryBot.create :item_location
         @item_location2.quantity = @inventory_item.quantity
         @item_location2.save
 
@@ -160,7 +160,7 @@ describe InventoryItem do
         @inventory_item.item_locations << @item_location2
         @warehouse_location.item_locations << @item_location
         @warehouse_location2.item_locations << @item_location2
-        @supplier = FactoryGirl.create :supplier
+        @supplier = FactoryBot.create :supplier
         @withdraw = @inventory_item.withdraw(Time.now, Time.now + 10.days, @supplier.id, 'John Doe', 'This is just a test', 101)
       end
 
@@ -182,10 +182,10 @@ describe InventoryItem do
 
   describe '.recent' do
     before(:each) do
-      @inventory_item1 = FactoryGirl.create :inventory_item
-      @inventory_item2 = FactoryGirl.create :inventory_item
-      @inventory_item3 = FactoryGirl.create :inventory_item
-      @inventory_item4 = FactoryGirl.create :inventory_item
+      @inventory_item1 = FactoryBot.create :inventory_item
+      @inventory_item2 = FactoryBot.create :inventory_item
+      @inventory_item3 = FactoryBot.create :inventory_item
+      @inventory_item4 = FactoryBot.create :inventory_item
     end
 
     it 'returns the most updated records' do
@@ -214,9 +214,9 @@ describe InventoryItem do
   end
 
   describe '.add' do
-    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 100) }
+    let(:inventory_item) { FactoryBot.create(:inventory_item, quantity: 100) }
     let(:entry_date) { Date.today }
-    let(:delivery_company) { FactoryGirl.create(:supplier) }
+    let(:delivery_company) { FactoryBot.create(:supplier) }
     let(:state) { InventoryItem::GOOD }
 
     context 'when successful' do

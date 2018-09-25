@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Api::V1::InventoryItemsController do
   describe 'GET #show' do
     before(:each) do
       @inventory_item = create_item_with_location
-      get :show, id: @inventory_item.id
+      get :show, params: { id: @inventory_item.id }
     end
 
     it 'returns the information about an inventory item on a hash' do
@@ -18,7 +20,7 @@ describe Api::V1::InventoryItemsController do
 
   describe 'GET #index' do
     before(:each) do
-      5.times { FactoryGirl.create :inventory_item }
+      5.times { FactoryBot.create :inventory_item }
       get :index
     end
 
@@ -34,16 +36,16 @@ describe Api::V1::InventoryItemsController do
   describe 'POST #create' do
     context 'when is succesfully created' do
       before(:each) do
-        user = FactoryGirl.create :user
-        project = FactoryGirl.create :project
-        client = FactoryGirl.create :client
+        user = FactoryBot.create :user
+        project = FactoryBot.create :project
+        client = FactoryBot.create :client
 
-        @inventory_item_attributes = FactoryGirl.attributes_for :inventory_item
+        @inventory_item_attributes = FactoryBot.attributes_for :inventory_item
         @inventory_item_attributes[:project_id] = project.id
         @inventory_item_attributes[:client_id] = client.id
 
         api_authorization_header user.auth_token
-        post :create, user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', folio: InventoryTransaction.next_checkin_folio, entry_date: Date.today
+        post :create, params: { user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', folio: InventoryTransaction.next_checkin_folio, entry_date: Date.today }
       end
 
       it 'renders the json representation for the inventory item just created' do
@@ -59,11 +61,11 @@ describe Api::V1::InventoryItemsController do
 
     context 'when is not created' do
       before(:each) do
-        user = FactoryGirl.create :user
+        user = FactoryBot.create :user
         @invalid_inventory_item_attributes = { user_id: user.id }
 
         api_authorization_header user.auth_token
-        post :create, user_id: user.id, inventory_item: @invalid_inventory_item_attributes, item_img_ext: 'jpg'
+        post :create, params: { user_id: user.id, inventory_item: @invalid_inventory_item_attributes, item_img_ext: 'jpg' }
       end
 
       it 'renders an errors json' do
@@ -83,22 +85,22 @@ describe Api::V1::InventoryItemsController do
 
   describe 'GET #authorize_entry' do
     before(:each) do
-      @admin = FactoryGirl.create :user
+      @admin = FactoryBot.create :user
       @admin.role = User::ADMIN
       @admin.save
-      @wh_admin = FactoryGirl.create :user
+      @wh_admin = FactoryBot.create :user
       @wh_admin.role = User::WAREHOUSE_ADMIN
       @wh_admin.save
 
-      project = FactoryGirl.create :project
+      project = FactoryBot.create :project
 
-      @item = FactoryGirl.create :inventory_item
+      @item = FactoryBot.create :inventory_item
       @item.status = InventoryItem::PENDING_ENTRY
       @item.project_id = project.id
       @item.save
 
       api_authorization_header @admin.auth_token
-      post :authorize_entry, id: @item.id
+      post :authorize_entry, params: { id: @item.id }
     end
 
     it 'returns a success message' do
@@ -126,8 +128,8 @@ describe Api::V1::InventoryItemsController do
   describe 'POST #multiple_withdrawal' do
     context 'when multiple InventoryItems with location are succesfully withdrawn' do
       before(:each) do
-        user = FactoryGirl.create :user
-        supplier = FactoryGirl.create :supplier
+        user = FactoryBot.create :user
+        supplier = FactoryBot.create :supplier
 
         inventory_items = []
         3.times do |_t|
@@ -140,7 +142,7 @@ describe Api::V1::InventoryItemsController do
         end
 
         api_authorization_header user.auth_token
-        post :multiple_withdrawal, inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'
+        post :multiple_withdrawal, params: { inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test' }
       end
 
       it 'returns the number of withdrawn items along with success message' do
@@ -159,8 +161,8 @@ describe Api::V1::InventoryItemsController do
 
     context 'when multiple InventoryItems with location are partially withdrawn' do
       before(:each) do
-        user = FactoryGirl.create :user
-        supplier = FactoryGirl.create :supplier
+        user = FactoryBot.create :user
+        supplier = FactoryBot.create :supplier
 
         inventory_items = []
         3.times do |_t|
@@ -173,7 +175,7 @@ describe Api::V1::InventoryItemsController do
         end
 
         api_authorization_header user.auth_token
-        post :multiple_withdrawal, inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'
+        post :multiple_withdrawal, params: { inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test' }
       end
 
       it 'returns the number of withdrawn items along with success message' do
@@ -192,14 +194,14 @@ describe Api::V1::InventoryItemsController do
 
     context 'when multiple InventoryItems could not be withdrawn' do
       before(:each) do
-        user = FactoryGirl.create :user
-        supplier = FactoryGirl.create :supplier
+        user = FactoryBot.create :user
+        supplier = FactoryBot.create :supplier
 
         inventory_items = []
         3.times do
-          inventory_item = FactoryGirl.create :inventory_item
-          warehouse_location = FactoryGirl.create :warehouse_location
-          item_location = FactoryGirl.create :item_location
+          inventory_item = FactoryBot.create :inventory_item
+          warehouse_location = FactoryBot.create :warehouse_location
+          item_location = FactoryBot.create :item_location
           inventory_item.item_locations << item_location
           warehouse_location.item_locations << item_location
           inventory_item.status = InventoryItem::OUT_OF_STOCK
@@ -212,7 +214,7 @@ describe Api::V1::InventoryItemsController do
         end
 
         api_authorization_header user.auth_token
-        post :multiple_withdrawal, inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test'
+        post :multiple_withdrawal, params: { inventory_items: inventory_items, exit_date: Time.now, estimated_return_date: Time.now + 10.days, delivery_company: supplier.id, delivery_company_contact: 'John Doe', additional_comments: 'This is just a test' }
       end
 
       it 'returns the number of withdrawn items along with success message' do
@@ -229,18 +231,18 @@ describe Api::V1::InventoryItemsController do
   describe 'POST #request_item_entry' do
     context 'when is succesfully requested' do
       before(:each) do
-        @admin = FactoryGirl.create :user
+        @admin = FactoryBot.create :user
         @admin.role = User::ADMIN
         @admin.save
-        @warehouse_admin = FactoryGirl.create :user
+        @warehouse_admin = FactoryBot.create :user
         @warehouse_admin.role = User::WAREHOUSE_ADMIN
         @warehouse_admin.save
 
-        user = FactoryGirl.create :user
-        @requested_item_attributes = FactoryGirl.attributes_for :inventory_item_request
+        user = FactoryBot.create :user
+        @requested_item_attributes = FactoryBot.attributes_for :inventory_item_request
 
         api_authorization_header user.auth_token
-        post :request_item_entry, inventory_item_request: @requested_item_attributes
+        post :request_item_entry, params: { inventory_item_request: @requested_item_attributes }
       end
 
       it 'renders the json representation for the inventory item just requested' do
@@ -260,13 +262,13 @@ describe Api::V1::InventoryItemsController do
   describe 'GET #pending_entry_requests' do
     context 'when is succesfully requested' do
       before(:each) do
-        user = FactoryGirl.create :user
+        user = FactoryBot.create :user
 
-        project = FactoryGirl.create :project
-        ae = FactoryGirl.create :user
-        pm = FactoryGirl.create :user
+        project = FactoryBot.create :project
+        ae = FactoryBot.create :user
+        pm = FactoryBot.create :user
         3.times.each do
-          item_request = FactoryGirl.create :inventory_item_request
+          item_request = FactoryBot.create :inventory_item_request
           item_request.project_id = project.id
           item_request.pm_id = pm.id
           item_request.ae_id = ae.id
@@ -288,8 +290,8 @@ describe Api::V1::InventoryItemsController do
 
   # Helpers to create and setup tests.
   def create_item_with_location
-    inventory_item = FactoryGirl.create :inventory_item
-    warehouse_location = FactoryGirl.create :warehouse_location
+    inventory_item = FactoryBot.create :inventory_item
+    warehouse_location = FactoryBot.create :warehouse_location
     ItemLocation.create(inventory_item_id: inventory_item.id, warehouse_location_id: warehouse_location.id, quantity: inventory_item.quantity)
 
     inventory_item
@@ -297,24 +299,26 @@ describe Api::V1::InventoryItemsController do
 
   describe 'POST #update' do
     context 'when InventoryItem is successfully updated' do
-      let(:user) { FactoryGirl.create(:user) }
-      let(:inventory_item) { FactoryGirl.create(:inventory_item) }
+      let(:user) { FactoryBot.create(:user) }
+      let(:inventory_item) { FactoryBot.create(:inventory_item) }
       before(:each) do
         api_authorization_header user.auth_token
 
         post :update, {
-          id: inventory_item.id,
-          inventory_item: {
-            name: 'My new name',
-            serial_number: 'OTHER123',
-            brand: 'NewBrand',
-            model: 'NewModel',
-            state: 2,
-            value: 2000.0,
-            description: 'A new description',
-            extra_parts: 'Part 1, part 2, part3',
-            storage_type: 'Temporal',
-            validity_expiration_date: '2059-07-14'
+          params: {
+            id: inventory_item.id,
+            inventory_item: {
+              name: 'My new name',
+              serial_number: 'OTHER123',
+              brand: 'NewBrand',
+              model: 'NewModel',
+              state: 2,
+              value: 2000.0,
+              description: 'A new description',
+              extra_parts: 'Part 1, part 2, part3',
+              storage_type: 'Temporal',
+              validity_expiration_date: '2059-07-14'
+            }
           }
         }, format: :json
       end
@@ -339,13 +343,13 @@ describe Api::V1::InventoryItemsController do
 
   describe 'POST #quick_search' do
     context 'when successful' do
-      let(:user) { FactoryGirl.create(:user) }
+      let(:user) { FactoryBot.create(:user) }
       before { create_items_for_quick_search('SN', 10) }
 
       before(:each) do
         api_authorization_header user.auth_token
 
-        post :quick_search, { keyword: 'sn' }, format: :json
+        post :quick_search, params: { keyword: 'sn' }, format: :json
       end
 
       it 'returns InventoryItems that have occurrence of "SN" in serial number' do
@@ -357,13 +361,13 @@ describe Api::V1::InventoryItemsController do
     end
 
     context 'when not successful' do
-      let(:user) { FactoryGirl.create(:user) }
+      let(:user) { FactoryBot.create(:user) }
       before { create_items_for_quick_search('SN', 10) }
 
       before(:each) do
         api_authorization_header user.auth_token
 
-        post :quick_search, { }, format: :json
+        post :quick_search, format: :json
       end
 
       it 'raises error when keyword not present' do
@@ -376,27 +380,27 @@ describe Api::V1::InventoryItemsController do
   end
 
   describe 'POST #re_entry' do
-    let(:user) { FactoryGirl.create(:user) }
-    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 100) }
+    let(:user) { FactoryBot.create(:user) }
+    let(:inventory_item) { FactoryBot.create(:inventory_item, quantity: 100) }
     let(:entry_date) { Date.today }
-    let(:delivery_company) { FactoryGirl.create(:supplier) }
+    let(:delivery_company) { FactoryBot.create(:supplier) }
     let(:state) { InventoryItem::GOOD }
-   
+
     context 'when successful' do
       before(:each) do
         api_authorization_header user.auth_token
 
-        post :re_entry, 
-          { 
-            id: inventory_item.id, 
-            entry_date: entry_date,
-            delivery_company: delivery_company,
-            delivery_company_contact: 'Juan Repartidor',
-            state: state,
-            additional_comments: 'Comentarios adicionales',
-            quantity: 100
-          },
-          format: :json
+        post :re_entry,
+             params: {
+               id: inventory_item.id,
+               entry_date: entry_date,
+               delivery_company: delivery_company,
+               delivery_company_contact: 'Juan Repartidor',
+               state: state,
+               additional_comments: 'Comentarios adicionales',
+               quantity: 100
+             },
+             format: :json
       end
 
       it 'adds quantity to InventoryItem' do
@@ -421,17 +425,17 @@ describe Api::V1::InventoryItemsController do
       before(:each) do
         api_authorization_header user.auth_token
 
-        post :re_entry, 
-          { 
-            id: inventory_item.id, 
-            entry_date: entry_date,
-            delivery_company: delivery_company,
-            delivery_company_contact: 'Juan Repartidor',
-            state: state,
-            additional_comments: 'Comentarios adicionales',
-            quantity: -100
-          },
-          format: :json
+        post :re_entry,
+             params: {
+               id: inventory_item.id,
+               entry_date: entry_date,
+               delivery_company: delivery_company,
+               delivery_company_contact: 'Juan Repartidor',
+               state: state,
+               additional_comments: 'Comentarios adicionales',
+               quantity: -100
+             },
+             format: :json
       end
 
       it 'should return errors' do

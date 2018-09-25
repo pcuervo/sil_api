@@ -55,9 +55,4 @@ class Project < ActiveRecord::Base
     items_to_transfer = inventory_items.where('id IN (?)', items_ids)
     items_to_transfer.each { |item| item.update_attributes(project_id: to_project.id) }
   end
-
-  def latest_transactions(num_transactions, type)
-    item_ids = inventory_items.pluck(:id)
-    CheckInTransaction.where('inventory_item_id IN (?)', item_ids).limit(num_transactions)
-  end
 end

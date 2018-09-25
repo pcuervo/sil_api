@@ -1,5 +1,5 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :supplier do
-    name 'Litobel'
+    name { 'Litobel' }
   end
 end

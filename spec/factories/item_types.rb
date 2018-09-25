@@ -1,6 +1,6 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :item_type do
-    name 'Laptop'
+    name { 'Laptop' }
   end
 
 end

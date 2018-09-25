@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Api::V1::InventoryTransactionsController do
   describe "GET #show" do
     before(:each) do
-      check_in = FactoryGirl.create :check_in_transaction
+      check_in = FactoryBot.create :check_in_transaction
       @inventory_transaction = check_in.acting_as
       get :show, id: @inventory_transaction.id
     end
@@ -18,8 +18,8 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #index" do
     before(:each) do
-      user = FactoryGirl.create(:user)
-      5.times { FactoryGirl.create(:check_in_transaction) }
+      user = FactoryBot.create(:user)
+      5.times { FactoryBot.create(:check_in_transaction) }
 
       api_authorization_header user.auth_token
       get :index
@@ -35,8 +35,8 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #check_ins" do
     before(:each) do
-      3.times { FactoryGirl.create :check_in_transaction }
-      user = FactoryGirl.create(:user)
+      3.times { FactoryBot.create :check_in_transaction }
+      user = FactoryBot.create(:user)
 
       api_authorization_header user.auth_token
       get :check_ins
@@ -50,8 +50,8 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #check_outs" do
     before(:each) do
-      @user = FactoryGirl.create(:user, role: User::ADMIN)
-      3.times { FactoryGirl.create :check_out_transaction }
+      @user = FactoryBot.create(:user, role: User::ADMIN)
+      3.times { FactoryBot.create :check_out_transaction }
 
       api_authorization_header @user.auth_token
       get :check_outs
@@ -66,7 +66,7 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "GET #last_checkout_folio" do
     before(:each) do
-      FactoryGirl.create :check_out_transaction
+      FactoryBot.create :check_out_transaction
     end
 
     context "when there are no new folios" do
@@ -98,11 +98,11 @@ describe Api::V1::InventoryTransactionsController do
   end
 
   describe "POST #latest" do
-    let(:user) { FactoryGirl.create(:user, role: User::ADMIN) }
+    let(:user) { FactoryBot.create(:user, role: User::ADMIN) }
 
     before do
-      3.times { FactoryGirl.create :check_in_transaction }
-      3.times { FactoryGirl.create :check_out_transaction }
+      3.times { FactoryBot.create :check_in_transaction }
+      3.times { FactoryBot.create :check_out_transaction }
     end
       
     context 'when returning latest CheckIns' do
@@ -132,7 +132,7 @@ describe Api::V1::InventoryTransactionsController do
 
   describe "POST #latest_by_user" do
     let(:project) { create_project_with_items(5) }
-    let(:user) { FactoryGirl.create(:user, role: User::ADMIN) }
+    let(:user) { FactoryBot.create(:user, role: User::ADMIN) }
 
     before { add_users_to_project(project) }
       

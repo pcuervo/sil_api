@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Api::V1::UsersController do
   describe "GET #show" do
     before(:each) do
-      @user = FactoryGirl.create :user
+      @user = FactoryBot.create :user
       get :show, id: @user.id, format: :json
     end
 
@@ -19,8 +19,8 @@ describe Api::V1::UsersController do
 
     context "when is successfully created" do
       before(:each) do
-        @user_attributes = FactoryGirl.attributes_for :user
-        @user = FactoryGirl.create :user
+        @user_attributes = FactoryBot.attributes_for :user
+        @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
         post :create, { id: @user.id,
                         user: @user_attributes }, format: :json
@@ -38,7 +38,7 @@ describe Api::V1::UsersController do
       before(:each) do
         @invalid_user_attributes = { password: "12345678",
                                      password_confirmation: "12345678" }
-        @user = FactoryGirl.create :user
+        @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
         post :create, { id: @user.id,
                         user: @invalid_user_attributes }, format: :json
@@ -83,7 +83,7 @@ describe Api::V1::UsersController do
 
     context "when is successfully updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
+        @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
         patch :update, { id: @user.id,
                          user: { email: "newmail@example.com" } }, format: :json
@@ -99,7 +99,7 @@ describe Api::V1::UsersController do
 
     context "when is not updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
+        @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
         patch :update, { id: @user.id,
                          user: { email: "bademail.com", role: 5 } }, format: :json
@@ -121,7 +121,7 @@ describe Api::V1::UsersController do
 
   describe "DELETE #destroy" do
     before(:each) do
-      @user = FactoryGirl.create :user
+      @user = FactoryBot.create :user
       api_authorization_header @user.auth_token
 
       delete :destroy, id: @user.auth_token
@@ -132,7 +132,7 @@ describe Api::V1::UsersController do
 
   describe "POST #change_password" do
     before(:each) do
-      @user = FactoryGirl.create :user
+      @user = FactoryBot.create :user
       api_authorization_header @user.auth_token
 
       post :change_password, user: { password: 'holama123', password_confirmation: 'holama123' }

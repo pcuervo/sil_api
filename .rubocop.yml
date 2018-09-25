@@ -18,7 +18,6 @@ AllCops:
   Exclude:
     - 'db/**/*'
     - 'config/**/*'
-    - 'spec/**/*'
 
 Metrics/BlockLength:
   Exclude:

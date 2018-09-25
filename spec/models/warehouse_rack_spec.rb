@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe WarehouseRack, type: :model do
-  let(:warehouse_rack) { FactoryGirl.create :warehouse_rack }
+  let(:warehouse_rack) { FactoryBot.create :warehouse_rack }
   subject { warehouse_rack }
 
   it { should respond_to(:name) }
@@ -14,7 +14,7 @@ RSpec.describe WarehouseRack, type: :model do
 
   describe '.add_initial_locations' do
     before(:each) do
-      @warehouse_rack = FactoryGirl.create :warehouse_rack
+      @warehouse_rack = FactoryBot.create :warehouse_rack
       @warehouse_rack.add_initial_locations 10
     end
 
@@ -26,11 +26,11 @@ RSpec.describe WarehouseRack, type: :model do
 
   describe '.empty?' do
     before(:each) do
-      @warehouse_rack = FactoryGirl.create :warehouse_rack
+      @warehouse_rack = FactoryBot.create :warehouse_rack
       @warehouse_rack.add_initial_locations 10
       @location = @warehouse_rack.warehouse_locations.first
-      @inventory_item = FactoryGirl.create :inventory_item
-      @item_location = FactoryGirl.create :item_location
+      @inventory_item = FactoryBot.create :inventory_item
+      @item_location = FactoryBot.create :item_location
     end
 
     it 'return true if WarehouseRack is empty' do
@@ -46,13 +46,13 @@ RSpec.describe WarehouseRack, type: :model do
 
   describe '.empty' do
     before(:each) do
-      @item_location = FactoryGirl.create :item_location
+      @item_location = FactoryBot.create :item_location
       @location = @item_location.warehouse_location
       @inventory_item = @item_location.inventory_item
       # Add another item
-      item = FactoryGirl.create :inventory_item
+      item = FactoryBot.create :inventory_item
       @location.locate(item, 1)
-      @rack = FactoryGirl.create :warehouse_rack
+      @rack = FactoryBot.create :warehouse_rack
       @rack.warehouse_locations << @location
     end
 

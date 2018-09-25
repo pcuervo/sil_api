@@ -70,7 +70,7 @@ RSpec.configure do |config|
   #Including to test requests
   config.include Request::JsonHelpers, :type => :controller
   config.include Request::HeadersHelpers, :type => :controller
-  config.include Devise::TestHelpers, :type => :controller
+  config.include Devise::Test::ControllerHelpers, :type => :controller
   # Factories and other helpers
   [:model, :controller].each do |type| 
     config.include ExtendedFactories::DeliveryHelpers, :type => type

@@ -3,8 +3,8 @@ require 'spec_helper'
 RSpec.describe Api::V1::NotificationsController, type: :controller do
   describe "GET #index" do
     before(:each) do
-      user = FactoryGirl.create :user
-      3.times{ FactoryGirl.create :notification }
+      user = FactoryBot.create :user
+      3.times{ FactoryBot.create :notification }
       
       Notification.all.each { |n| user.notifications << n }
 
@@ -22,8 +22,8 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
 
   describe "GET #unread" do
     before(:each) do
-      user = FactoryGirl.create :user
-      3.times{ FactoryGirl.create :notification }
+      user = FactoryBot.create :user
+      3.times{ FactoryBot.create :notification }
       read_notification = Notification.first
       read_notification.status = Notification::READ
       read_notification.save
@@ -48,8 +48,8 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
 
   describe "GET #num_unread" do
     before(:each) do
-      user = FactoryGirl.create :user
-      3.times{ FactoryGirl.create :notification }
+      user = FactoryBot.create :user
+      3.times{ FactoryBot.create :notification }
       read_notification = Notification.first
       read_notification.status = Notification::READ
       read_notification.save
@@ -74,8 +74,8 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
 
   describe "GET #read" do
     before(:each) do
-      user = FactoryGirl.create :user
-      3.times{ FactoryGirl.create :notification }
+      user = FactoryBot.create :user
+      3.times{ FactoryBot.create :notification }
       read_notification = Notification.first
       read_notification.status = Notification::READ
       read_notification.save
@@ -101,8 +101,8 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
   describe "POST #destroy" do
     context "when Notification is succesfully destroyed" do
       before(:each) do
-        user = FactoryGirl.create :user
-        notification = FactoryGirl.create :notification
+        user = FactoryBot.create :user
+        notification = FactoryBot.create :notification
         api_authorization_header user.auth_token
         post :destroy, id: notification.id
       end
@@ -113,8 +113,8 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
 
   describe "POST #mark_as_read" do
     before(:each) do
-      user = FactoryGirl.create :user
-      5.times{ FactoryGirl.create :notification }
+      user = FactoryBot.create :user
+      5.times{ FactoryBot.create :notification }
 
       api_authorization_header user.auth_token
       current_user = User.find_by(auth_token: request.headers['Authorization'])

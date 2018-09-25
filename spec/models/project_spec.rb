@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Project, type: :model do
-  let(:project) { FactoryGirl.create :project }
+  let(:project) { FactoryBot.create :project }
   subject { project }
 
   it { should respond_to(:name) }
@@ -20,12 +20,12 @@ RSpec.describe Project, type: :model do
 
   describe '.destroy' do
     before(:each) do
-      @project = FactoryGirl.create :project
+      @project = FactoryBot.create :project
     end
 
     context 'destroys project if it has no inventory added' do
       before(:each) do
-        @project = FactoryGirl.create :project
+        @project = FactoryBot.create :project
       end
 
       it 'returns true if project was successfully destroyed' do
@@ -34,9 +34,9 @@ RSpec.describe Project, type: :model do
       end
 
       it 'removes project managers, account executives and client users from project after destroying' do
-        pm = FactoryGirl.create :user
+        pm = FactoryBot.create :user
         pm.role = User::PROJECT_MANAGER
-        ae = FactoryGirl.create :user
+        ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
 
         destroyed_project = @project.destroy
@@ -49,7 +49,7 @@ RSpec.describe Project, type: :model do
 
   describe '.transfer_inventory' do
     let(:project_from) { create_project_with_items(5) }
-    let(:project_to) { FactoryGirl.create(:project) }
+    let(:project_to) { FactoryBot.create(:project) }
 
     context 'when inventory is transferred successfully' do
       it 'transfers all InventoryItems from one Project to another' do
@@ -63,7 +63,7 @@ RSpec.describe Project, type: :model do
 
   describe '.transfer_inventory_items' do
     let(:project_from) { create_project_with_items(5) }
-    let(:project_to) { FactoryGirl.create(:project) }
+    let(:project_to) { FactoryBot.create(:project) }
     let(:items_ids) { [project_from.inventory_items.first.id, project_from.inventory_items.last.id] }
 
     context 'when inventory is transferred successfully' do
@@ -76,24 +76,11 @@ RSpec.describe Project, type: :model do
     end
 
     context 'when inventory is not transferred successfully' do
-      let(:random_item) { FactoryGirl.create(:inventory_item) }
+      let(:random_item) { FactoryBot.create(:inventory_item) }
       it 'raises an error when InventoryItems to transfer are not found in source Project' do
         project_from.transfer_inventory_items(project_to, [random_item.id])
         expect(project_from.inventory_items.count).to eq 5
         expect(project_to.inventory_items.count).to eq 0
-      end
-    end
-  end
-
-  describe '.latest_transactions' do
-    let(:project) { create_project_with_items(5) }
-
-    context 'when latest CheckIn Transactions are returend' do
-      it 'returns 3 transactions' do
-        transactions = project.latest_transactions(3, 'check_in')
-
-        expect(transactions.count).to eq 3
-        expect(transactions.first.class.name).to eq 'CheckInTransaction'
       end
     end
   end

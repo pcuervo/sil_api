@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
   describe "GET #show" do 
     before(:each) do
-      @warehouse_rack = FactoryGirl.create :warehouse_rack
+      @warehouse_rack = FactoryBot.create :warehouse_rack
       get :show, id: @warehouse_rack.id
     end
 
@@ -19,7 +19,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
 
   describe "GET #index" do 
     before(:each) do
-      3.times { FactoryGirl.create :warehouse_rack }
+      3.times { FactoryBot.create :warehouse_rack }
       get :index
     end
 
@@ -33,9 +33,9 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
 
   describe "GET #available_locations" do
     before(:each) do
-      warehouse_rack = FactoryGirl.create :warehouse_rack
+      warehouse_rack = FactoryBot.create :warehouse_rack
       5.times do 
-        location = FactoryGirl.create :warehouse_location
+        location = FactoryBot.create :warehouse_location
         warehouse_rack.warehouse_locations << location
       end
 
@@ -51,8 +51,8 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
   describe "POST #create" do
     context "when rack is succesfully created" do
       before(:each) do
-        user = FactoryGirl.create :user
-        @rack_attributes = FactoryGirl.attributes_for :warehouse_rack
+        user = FactoryBot.create :user
+        @rack_attributes = FactoryBot.attributes_for :warehouse_rack
 
         api_authorization_header user.auth_token
         post :create, { user_id: user.id, warehouse_rack: @rack_attributes, units: 50  }
@@ -71,8 +71,8 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
   describe "POST #destroy" do
     context "when rack is succesfully destroyed" do
       before(:each) do
-        user = FactoryGirl.create :user
-        warehouse_rack = FactoryGirl.create :warehouse_rack
+        user = FactoryBot.create :user
+        warehouse_rack = FactoryBot.create :warehouse_rack
         api_authorization_header user.auth_token
         post :destroy, id: warehouse_rack.id
       end
@@ -82,12 +82,12 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
 
     context "when rack cannot be destroyed because has WarehouseLocations" do
       before(:each) do
-        user = FactoryGirl.create :user
-        warehouse_rack = FactoryGirl.create :warehouse_rack
+        user = FactoryBot.create :user
+        warehouse_rack = FactoryBot.create :warehouse_rack
         warehouse_rack.add_initial_locations 10
         location = warehouse_rack.warehouse_locations.first
-        inventory_item = FactoryGirl.create :inventory_item
-        item_location = FactoryGirl.create :item_location
+        inventory_item = FactoryBot.create :inventory_item
+        item_location = FactoryBot.create :item_location
         inventory_item.item_locations << item_location
         location.item_locations << item_location
 
@@ -112,12 +112,12 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
   describe "POST #empty" do
     context "when rack is succesfully emptied" do
       before(:each) do
-        user = FactoryGirl.create :user
-        @warehouse_rack = FactoryGirl.create :warehouse_rack
+        user = FactoryBot.create :user
+        @warehouse_rack = FactoryBot.create :warehouse_rack
         @warehouse_rack.add_initial_locations 10
         location = @warehouse_rack.warehouse_locations.first
-        inventory_item = FactoryGirl.create :inventory_item
-        item_location = FactoryGirl.create :item_location
+        inventory_item = FactoryBot.create :inventory_item
+        item_location = FactoryBot.create :item_location
         inventory_item.item_locations << item_location
         location.item_locations << item_location
 

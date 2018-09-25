@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe InventoryItemRequest, type: :model do
-  let(:inventory_item_request) { FactoryGirl.build :inventory_item_request }
+  let(:inventory_item_request) { FactoryBot.build :inventory_item_request }
   subject { inventory_item_request }
 
   it { should respond_to(:name) }
@@ -16,11 +16,11 @@ RSpec.describe InventoryItemRequest, type: :model do
 
   describe '.details' do
     before(:each) do
-      project = FactoryGirl.create :project
-      ae = FactoryGirl.create :user
-      pm = FactoryGirl.create :user
+      project = FactoryBot.create :project
+      ae = FactoryBot.create :user
+      pm = FactoryBot.create :user
       3.times.each do
-        item_request = FactoryGirl.create :inventory_item_request
+        item_request = FactoryBot.create :inventory_item_request
         item_request.project_id = project.id
         item_request.pm_id = pm.id
         item_request.ae_id = ae.id

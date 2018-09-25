@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe WithdrawRequest, type: :model do
-  before { @withdraw_request = FactoryGirl.build(:withdraw_request) }
+  before { @withdraw_request = FactoryBot.build(:withdraw_request) }
 
   it { should respond_to(:exit_date) }
   it { should respond_to(:pickup_company_id) }
@@ -11,9 +11,9 @@ RSpec.describe WithdrawRequest, type: :model do
 
   describe '.update_items_status_to_pending' do
     before(:each) do
-      @withdraw_request = FactoryGirl.create :withdraw_request
-      @withdraw_request_item = FactoryGirl.create :withdraw_request_item
-      @inventory_item = FactoryGirl.create :inventory_item
+      @withdraw_request = FactoryBot.create :withdraw_request
+      @withdraw_request_item = FactoryBot.create :withdraw_request_item
+      @inventory_item = FactoryBot.create :inventory_item
       @withdraw_request_item.inventory_item = @inventory_item
       @withdraw_request_item.save!
       @withdraw_request.withdraw_request_items << @withdraw_request_item
@@ -28,9 +28,9 @@ RSpec.describe WithdrawRequest, type: :model do
 
   describe '.authorize' do
     before(:each) do
-      @withdraw_request_item = FactoryGirl.create :withdraw_request_item
+      @withdraw_request_item = FactoryBot.create :withdraw_request_item
       @withdraw_request = @withdraw_request_item.withdraw_request
-      @inventory_item = FactoryGirl.create :inventory_item
+      @inventory_item = FactoryBot.create :inventory_item
 
       @withdraw_request_item.inventory_item = @inventory_item
       @withdraw_request_item.save

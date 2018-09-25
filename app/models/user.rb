@@ -4,7 +4,6 @@ class User < ActiveRecord::Base
   after_create :assign_token
   # before_destroy :remove_from_projects
 
-  validates :auth_token, uniqueness: true
   validates :role, inclusion: { in: [1, 2, 3, 4, 5, 6], message: '%{value} is not a valid role' }
   validates :first_name, :last_name, :email, :role, presence: true
 

@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :check_out_transaction do
     inventory_item
-    concept "Salida"
+    concept { "Salida" }
     additional_comments { FFaker::HipsterIpsum.paragraph }
     exit_date { FFaker::Time.date }
     estimated_return_date { FFaker::Time.date }

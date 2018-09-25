@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Api::V1::ItemTypesController, type: :controller do
   describe "GET #show" do
     before(:each) do
-      @item_type = FactoryGirl.create :item_type
+      @item_type = FactoryBot.create :item_type
       get :show, id: @item_type.id
     end
 
@@ -17,7 +17,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
 
   describe "GET #index" do
     before(:each) do
-      FactoryGirl.create :item_type
+      FactoryBot.create :item_type
       get :index
     end
 
@@ -32,8 +32,8 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
   describe "POST #create" do
     context "when item_type is succesfully created" do
       before(:each) do
-        user = FactoryGirl.create :user
-        @item_type_attributes = FactoryGirl.attributes_for :item_type
+        user = FactoryBot.create :user
+        @item_type_attributes = FactoryBot.attributes_for :item_type
         api_authorization_header user.auth_token
 
         post :create, { user_id: user.id, item_type: @item_type_attributes }
@@ -49,7 +49,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
 
     context "when item_type is not created" do
       before(:each) do
-        user = FactoryGirl.create :user
+        user = FactoryBot.create :user
         @invalid_item_type_attributes = { name: '' }
         api_authorization_header user.auth_token
 
@@ -73,8 +73,8 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
   describe "POST #update" do
     context "when item_type is successfully updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @item_type = FactoryGirl.create :item_type
+        @user = FactoryBot.create :user
+        @item_type = FactoryBot.create :item_type
         api_authorization_header @user.auth_token
         post :update, { id: @item_type.id,
                         item_type: { name: 'new_name' } }, 
@@ -91,8 +91,8 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
 
     context "when is not updated because name is not present" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @item_type = FactoryGirl.create :item_type
+        @user = FactoryBot.create :user
+        @item_type = FactoryBot.create :item_type
         api_authorization_header @user.auth_token
         patch :update, { id: @item_type.id,
                           item_type: { name: '' } }, format: :json
@@ -113,8 +113,8 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
   describe "DELETE #destroy" do
     context "when is destroyed correctly" do
       before(:each) do
-        user = FactoryGirl.create :user
-        item_type = FactoryGirl.create :item_type
+        user = FactoryBot.create :user
+        item_type = FactoryBot.create :item_type
         api_authorization_header user.auth_token
         delete :destroy, { user_id: user.id, id: item_type.id }
       end

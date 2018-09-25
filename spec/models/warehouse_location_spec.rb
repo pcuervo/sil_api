@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe WarehouseLocation, type: :model do
-  let(:warehouse_location) { FactoryGirl.create :warehouse_location }
+  let(:warehouse_location) { FactoryBot.create :warehouse_location }
 
   it { should respond_to(:name) }
   it { should respond_to(:status) }
@@ -12,7 +12,7 @@ describe WarehouseLocation, type: :model do
   it { should validate_presence_of :name }
 
   describe '.locate_in_new' do
-    let(:inventory_item) { FactoryGirl.create :inventory_item }
+    let(:inventory_item) { FactoryBot.create :inventory_item }
     
     context 'when InventoryItem is fully located in new WarehouseLocation' do
       it 'returns the ID of new ItemLocation and records a new WarehouseTransaction' do
@@ -50,7 +50,7 @@ describe WarehouseLocation, type: :model do
   end
   
   describe '.locate_in_existing' do
-    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 500) }
+    let(:inventory_item) { FactoryBot.create(:inventory_item, quantity: 500) }
     before { warehouse_location.locate_in_new(inventory_item, 200) }
     let(:item_location) { ItemLocation.last }
     
@@ -76,7 +76,7 @@ describe WarehouseLocation, type: :model do
   end
 
   describe '.in_location?' do
-    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 500) }
+    let(:inventory_item) { FactoryBot.create(:inventory_item, quantity: 500) }
     
     context 'when InventoryItem is not located in WarehouseLocation' do
       it 'returns false' do
@@ -94,7 +94,7 @@ describe WarehouseLocation, type: :model do
   end
 
   describe '.locate' do
-    let(:inventory_item) { FactoryGirl.create(:inventory_item, quantity: 500) }
+    let(:inventory_item) { FactoryBot.create(:inventory_item, quantity: 500) }
     
     context 'locates an InventoryItem successfully in a new WarehouseLocation' do
       it 'returns the ID of new ItemLocation and records a new WarehouseTransaction' do
@@ -124,7 +124,7 @@ describe WarehouseLocation, type: :model do
     end
 
     context 'locates InventoryItem in two WarehouseLocations successfully' do
-      let(:another_warehouse_location) { FactoryGirl.create :warehouse_location }
+      let(:another_warehouse_location) { FactoryBot.create :warehouse_location }
 
       it 'records each WarehouseTransaction' do
         warehouse_location.locate(inventory_item, 200)
@@ -139,7 +139,7 @@ describe WarehouseLocation, type: :model do
     end
 
     context 'cannot locate InventoryItem' do
-      let(:another_warehouse_location) { FactoryGirl.create :warehouse_location }
+      let(:another_warehouse_location) { FactoryBot.create :warehouse_location }
 
       it 'raises an error when trying to locate a zero or less pieces' do
         expect{ warehouse_location.locate(inventory_item, 0) }.to raise_error(SilExceptions::InvalidQuantityToLocate)
@@ -160,7 +160,7 @@ describe WarehouseLocation, type: :model do
 
   describe '.remove_item' do
     before(:each) do
-      @item_location = FactoryGirl.create :item_location
+      @item_location = FactoryBot.create :item_location
       @location = @item_location.warehouse_location
     end
 
@@ -175,7 +175,7 @@ describe WarehouseLocation, type: :model do
 
   describe '.remove_quantity' do
     before(:each) do
-      @item_location = FactoryGirl.create :item_location
+      @item_location = FactoryBot.create :item_location
       @item_location.quantity = 100
       @item_location.save
       @location = @item_location.warehouse_location
@@ -221,11 +221,11 @@ describe WarehouseLocation, type: :model do
 
   describe '.empty' do
     before(:each) do
-      @item_location = FactoryGirl.create :item_location
+      @item_location = FactoryBot.create :item_location
       @location = @item_location.warehouse_location
       inventory_item = @item_location.inventory_item
       # Add another item
-      item = FactoryGirl.create :inventory_item
+      item = FactoryBot.create :inventory_item
       @location.locate(item, 1)
     end
 
@@ -243,11 +243,11 @@ describe WarehouseLocation, type: :model do
 
   describe '.mark_as_full' do
     before(:each) do
-      @item_location = FactoryGirl.create :item_location
+      @item_location = FactoryBot.create :item_location
       @location = @item_location.warehouse_location
       inventory_item = @item_location.inventory_item
       # Add another item
-      item = FactoryGirl.create :inventory_item
+      item = FactoryBot.create :inventory_item
       @location.locate(item, 1)
     end
 

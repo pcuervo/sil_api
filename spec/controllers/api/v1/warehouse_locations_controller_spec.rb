@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
   describe "GET #show" do 
     before(:each) do
-      @warehouse_location = FactoryGirl.create :warehouse_location
+      @warehouse_location = FactoryBot.create :warehouse_location
       get :show, id: @warehouse_location.id
     end
 
@@ -18,7 +18,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
   describe "GET #index" do 
     before(:each) do
-      3.times { FactoryGirl.create :warehouse_location }
+      3.times { FactoryBot.create :warehouse_location }
       get :index
     end
 
@@ -32,10 +32,10 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
   describe "POST #locate_item" do 
     before(:each) do
-      user = FactoryGirl.create :user
-      inventory_item = FactoryGirl.create :inventory_item
+      user = FactoryBot.create :user
+      inventory_item = FactoryBot.create :inventory_item
 
-      @warehouse_location = FactoryGirl.create :warehouse_location
+      @warehouse_location = FactoryBot.create :warehouse_location
 
       api_authorization_header user.auth_token
       post :locate_item, { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
@@ -53,9 +53,9 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
   describe "POST #relocate_item" do 
     before(:each) do
-      user = FactoryGirl.create :user
-      @item_location = FactoryGirl.create :item_location
-      @warehouse_location = FactoryGirl.create :warehouse_location
+      user = FactoryBot.create :user
+      @item_location = FactoryBot.create :item_location
+      @warehouse_location = FactoryBot.create :warehouse_location
 
       api_authorization_header user.auth_token
       post :relocate_item, { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: 1, quantity: @item_location.quantity }
@@ -75,9 +75,9 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
     context "when is successfully updated" do
       before(:each) do
-        user = FactoryGirl.create :user
+        user = FactoryBot.create :user
         api_authorization_header user.auth_token
-        @warehouse_location = FactoryGirl.create :warehouse_location
+        @warehouse_location = FactoryBot.create :warehouse_location
         post :update, { id: @warehouse_location.id, name: "NewNameBro", quantity: 50 }, format: :json
       end
 

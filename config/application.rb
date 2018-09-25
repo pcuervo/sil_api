@@ -23,7 +23,7 @@ module Sil
     # don't generate RSpec tests for views and helpers
     config.generators do |g|
       g.test_framework :rspec, fixture: true
-      g.fixture_replacement :factory_girl, dir: 'spec/factories'
+      g.fixture_replacement :factory_bot, dir: 'spec/factories'
       g.view_specs false
       g.helper_specs false
       g.stylesheets = false
@@ -33,7 +33,7 @@ module Sil
 
     config.middleware.insert_before 0, Rack::Cors do
       allow do
-        origins '*'
+        origins 'http://localhost:8888'
         resource '*', :headers => :any, :methods => [:get, :post, :options]
       end
     end

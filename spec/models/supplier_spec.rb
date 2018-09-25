@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Supplier, type: :model do
-  let(:supplier) { FactoryGirl.create :supplier }
+  let(:supplier) { FactoryBot.create :supplier }
   subject { supplier }
 
   it { should validate_presence_of :name }

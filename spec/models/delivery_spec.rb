@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe Delivery, type: :model do
-  let(:delivery) { FactoryGirl.create :delivery }
+  let(:delivery) { FactoryBot.create :delivery }
 
   it { should validate_presence_of :company }
   it { should validate_presence_of :addressee }
@@ -15,7 +15,7 @@ describe Delivery, type: :model do
       @items = []
       3.times do |_t|
         delivery_item = {}
-        item = FactoryGirl.create :inventory_item
+        item = FactoryBot.create :inventory_item
 
         delivery_item[:item_id] = item.id
         delivery_item[:quantity] = 1
@@ -43,8 +43,8 @@ describe Delivery, type: :model do
       @items = []
       2.times do |_t|
         delivery_item = {}
-        location = FactoryGirl.create :warehouse_location
-        item = FactoryGirl.create :inventory_item
+        location = FactoryBot.create :warehouse_location
+        item = FactoryBot.create :inventory_item
         location.locate(item, 1)
 
         delivery_item[:item_id] = item.id
@@ -62,14 +62,14 @@ describe Delivery, type: :model do
   end
 
   describe 'Delivery.by_keyword' do
-    let(:another_delivery) { FactoryGirl.create :delivery }
+    let(:another_delivery) { FactoryBot.create :delivery }
     before(:each) do
       create_litobel_supplier
 
       @items = []
       3.times do |t|
         delivery_item = {}
-        item = FactoryGirl.create :inventory_item
+        item = FactoryBot.create :inventory_item
         item.update(name: 'MiItem' + t.to_s)
 
         delivery_item[:item_id] = item.id

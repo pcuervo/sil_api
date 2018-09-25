@@ -10,7 +10,7 @@ describe Transactionable do
 
   describe "#log_checkin_transaction" do
     before do
-      @unit_item = FactoryGirl.create :inventory_item
+      @unit_item = FactoryBot.create :inventory_item
     end
 
     it "returns true when the check in transaction was recorded" do

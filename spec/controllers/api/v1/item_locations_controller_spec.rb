@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Api::V1::ItemLocationsController, type: :controller do
   describe "GET #show" do
     before(:each) do
-      @item_location = FactoryGirl.create :item_location
+      @item_location = FactoryBot.create :item_location
       @inventory_item = @item_location.inventory_item
       @location = @item_location.warehouse_location
       get :show, id: @item_location.id
@@ -21,7 +21,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
 
   describe "GET #index" do
     before(:each) do
-      5.times{ FactoryGirl.create :item_location }
+      5.times{ FactoryBot.create :item_location }
       get :index
     end
 
@@ -36,10 +36,10 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
   describe "POST #create" do
     context "when is succesfully created" do
       before(:each) do
-        user = FactoryGirl.create :user
-        @inventory_item = FactoryGirl.create :inventory_item
-        @warehouse_location = FactoryGirl.create :warehouse_location
-        @item_location_attributes = FactoryGirl.attributes_for :item_location
+        user = FactoryBot.create :user
+        @inventory_item = FactoryBot.create :inventory_item
+        @warehouse_location = FactoryBot.create :warehouse_location
+        @item_location_attributes = FactoryBot.attributes_for :item_location
 
         api_authorization_header user.auth_token
         post :create, { inventory_item_id: @inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
@@ -57,10 +57,10 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
 
     context "when a unit item is succesfully added to a location" do
       before(:each) do
-        user = FactoryGirl.create :user
-        inventory_item = FactoryGirl.create :inventory_item
-        @warehouse_location = FactoryGirl.create :warehouse_location
-        @item_location_attributes = FactoryGirl.attributes_for :item_location
+        user = FactoryBot.create :user
+        inventory_item = FactoryBot.create :inventory_item
+        @warehouse_location = FactoryBot.create :warehouse_location
+        @item_location_attributes = FactoryBot.attributes_for :item_location
 
         api_authorization_header user.auth_token
         post :create, { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
@@ -74,10 +74,10 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
 
     context "when a bundle item is succesfully added to a single location" do
       before(:each) do
-        user = FactoryGirl.create :user
-        inventory_item = FactoryGirl.create :inventory_item
-        @warehouse_location = FactoryGirl.create :warehouse_location
-        @item_location_attributes = FactoryGirl.attributes_for :item_location
+        user = FactoryBot.create :user
+        inventory_item = FactoryBot.create :inventory_item
+        @warehouse_location = FactoryBot.create :warehouse_location
+        @item_location_attributes = FactoryBot.attributes_for :item_location
 
         api_authorization_header user.auth_token
         post :create, { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
@@ -91,7 +91,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
 
     context "when is not created because inventory item is not present" do
       before(:each) do
-        user = FactoryGirl.create :user
+        user = FactoryBot.create :user
         api_authorization_header user.auth_token
         post :create, { quantity: 1 }
       end
@@ -111,8 +111,8 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
 
     context "when is not created because location is not present" do
       before(:each) do
-        user = FactoryGirl.create :user
-        inventory_item = FactoryGirl.create :inventory_item
+        user = FactoryBot.create :user
+        inventory_item = FactoryBot.create :inventory_item
         api_authorization_header user.auth_token
         post :create, { quantity: 1, inventory_item_id: inventory_item.id }
       end

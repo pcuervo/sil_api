@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Api::V1::SuppliersController do
   describe "GET #show" do 
     before(:each) do
-      @supplier = FactoryGirl.create :supplier
+      @supplier = FactoryBot.create :supplier
       get :show, id: @supplier.id
     end
 
@@ -32,8 +32,8 @@ describe Api::V1::SuppliersController do
   describe "POST #create" do
     context "When supplier is successfully created" do 
       before(:each) do
-        user = FactoryGirl.create :user
-        @supplier_attributes = FactoryGirl.attributes_for :supplier
+        user = FactoryBot.create :user
+        @supplier_attributes = FactoryBot.attributes_for :supplier
         api_authorization_header user.auth_token
         post :create, { supplier: @supplier_attributes }
       end
@@ -48,8 +48,8 @@ describe Api::V1::SuppliersController do
 
     context "when is not created" do 
       before(:each) do
-        user = FactoryGirl.create :user
-        supplier = FactoryGirl.create :supplier
+        user = FactoryBot.create :user
+        supplier = FactoryBot.create :supplier
         @invalid_supplier_attributes = { name: supplier.name }
 
         api_authorization_header user.auth_token
@@ -72,8 +72,8 @@ describe Api::V1::SuppliersController do
 
   describe "POST #update" do
     before(:each) do
-      user = FactoryGirl.create :user
-      supplier = FactoryGirl.create :supplier
+      user = FactoryBot.create :user
+      supplier = FactoryBot.create :supplier
       api_authorization_header user.auth_token
 
       post :update, { id: supplier.id, supplier: { name: 'new_name' } }
@@ -92,8 +92,8 @@ describe Api::V1::SuppliersController do
 
   describe "DELETE #destroy" do
     before(:each) do
-      user = FactoryGirl.create :user
-      supplier = FactoryGirl.create :supplier
+      user = FactoryBot.create :user
+      supplier = FactoryBot.create :supplier
       api_authorization_header user.auth_token
       delete :destroy, id: supplier.id
     end

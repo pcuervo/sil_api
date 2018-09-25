@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :inventory_transaction do
     inventory_item
-    concept "Entrada unitaria"
+    concept { "Entrada unitaria" }
     additional_comments { FFaker::HipsterIpsum.paragraph }
   end
 

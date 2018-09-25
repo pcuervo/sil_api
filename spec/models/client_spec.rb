@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe Client, type: :model do
-  let(:client){ FactoryGirl.create :client }
+  let(:client){ FactoryBot.create :client }
   subject{ client }
 
   it { should validate_presence_of :name }
@@ -11,7 +11,7 @@ RSpec.describe Client, type: :model do
 
   describe "#client_contacts association" do
     before do
-      3.times { FactoryGirl.create :client_contact, client: client }
+      3.times { FactoryBot.create :client_contact, client: client }
     end
 
     it "destroys the associated client_contacts on self destruct" do

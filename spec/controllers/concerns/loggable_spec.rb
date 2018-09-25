@@ -10,8 +10,8 @@ describe Loggable do
 
   describe "#log_action" do
     before do
-      @admin = FactoryGirl.create :user
-      @new_user = FactoryGirl.create :user
+      @admin = FactoryBot.create :user
+      @new_user = FactoryBot.create :user
     end
 
     it "returns true when the user created was logged" do

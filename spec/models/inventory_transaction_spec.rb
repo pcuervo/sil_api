@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe InventoryTransaction, type: :model do
-  let(:inventory_transaction) { FactoryGirl.build :inventory_transaction }
+  let(:inventory_transaction) { FactoryBot.build :inventory_transaction }
   subject { inventory_transaction }
 
   it { should respond_to(:inventory_item_id) }
@@ -15,7 +15,7 @@ RSpec.describe InventoryTransaction, type: :model do
 
   describe '.check_ins' do
     before(:each) do
-      3.times { FactoryGirl.create :check_in_transaction }
+      3.times { FactoryBot.create :check_in_transaction }
     end
 
     it 'returns 3 records of type CheckInTransaction' do
@@ -26,7 +26,7 @@ RSpec.describe InventoryTransaction, type: :model do
 
   describe '.check_outs' do
     before(:each) do
-      3.times { FactoryGirl.create :check_out_transaction }
+      3.times { FactoryBot.create :check_out_transaction }
     end
 
     it 'returns 3 records of type CheckInTransaction' do
@@ -41,7 +41,7 @@ RSpec.describe InventoryTransaction, type: :model do
     end
 
     it 'returns the next folio when there are no previous transactions' do
-      FactoryGirl.create :check_out_transaction
+      FactoryBot.create :check_out_transaction
       expect(InventoryTransaction.next_checkout_folio).to eql 'FS-0000002'
     end
   end
@@ -52,12 +52,12 @@ RSpec.describe InventoryTransaction, type: :model do
     end
 
     it 'returns the next folio when there is one transaction without assigned folio' do
-      FactoryGirl.create :check_in_transaction
+      FactoryBot.create :check_in_transaction
       expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000002'
     end
 
     it 'returns the next folio when there are previous transactions' do
-      check_in = FactoryGirl.create :check_in_transaction
+      check_in = FactoryBot.create :check_in_transaction
       check_in.update_attribute(:folio, InventoryTransaction.next_checkin_folio)
 
       expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000003'

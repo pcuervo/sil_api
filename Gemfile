@@ -24,7 +24,7 @@ gem 'active_model_serializers', '0.9.3'
 # Used of MTI
 gem 'active_record-acts_as'
 
-gem 'rack-cors', :require => 'rack/cors'
+gem 'rack-cors', '1.0.1'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
@@ -36,7 +36,7 @@ gem 'rack-cors', :require => 'rack/cors'
 # gem 'capistrano-rails', group: :development
 
 gem "paperclip", "~> 4.3"
-gem 'aws-sdk-s3'
+gem 'aws-sdk'
 gem 'pg', '~> 0.20.0'
 gem 'kaminari'
 
@@ -50,8 +50,9 @@ gem 'web-console', '~> 2.0', group: :development
 group :development, :test do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  gem 'factory_girl_rails', '4.5.0'
+  gem "factory_bot_rails"
   gem 'ffaker'
+  gem 'rubocop-rspec'
   #gem 'byebug'
 end
 

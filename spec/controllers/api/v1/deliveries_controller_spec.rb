@@ -4,7 +4,7 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
   describe "GET #show" do
     let(:delivery) { create_delivery_with_user }
     before(:each) do
-      get :show, id: delivery.id
+      get :show, params: { id: delivery.id }
     end
 
     it "returns the information about an inventory item on a hash" do
@@ -18,8 +18,8 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
 
   describe "GET #index" do
     before(:each) do
-      5.times { FactoryGirl.create :delivery }
-      @user = FactoryGirl.create(:user, role: User::ADMIN)
+      5.times { FactoryBot.create :delivery }
+      @user = FactoryBot.create(:user, role: User::ADMIN)
 
       api_authorization_header @user.auth_token
       get :index
@@ -35,25 +35,30 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
 
   describe "POST #create" do
     before{ create_litobel_supplier }
+
     context "when is succesfully created by User Admin or WarehouseAdmin" do
       before(:each) do
-        @user = FactoryGirl.create(:user, role: User::ADMIN)
-        @delivery_user = FactoryGirl.create(:user, role: User::DELIVERY)
+        @user = FactoryBot.create(:user, role: User::ADMIN)
+        @delivery_user = FactoryBot.create(:user, role: User::DELIVERY)
 
         @items = []
         2.times do |t|
           item_data = {}
-          item = FactoryGirl.create :inventory_item 
+          item = FactoryBot.create :inventory_item 
           item_data[:item_id] = item.id 
           item_data[:quantity] = 1
           @items.push( item_data )
         end
         
-        @delivery_attributes = FactoryGirl.attributes_for :delivery
+        @delivery_attributes = FactoryBot.attributes_for :delivery
         @delivery_attributes[:delivery_user_id] = @delivery_user.id
 
         api_authorization_header @user.auth_token
-        post :create, { user_id: @user.id, delivery: @delivery_attributes, inventory_items: @items, item_img_ext: 'jpg' }
+        post :create, params: { 
+          user_id: @user.id, 
+          delivery: @delivery_attributes, 
+          inventory_items: @items
+        }
       end
 
       it "renders the json representation for the inventory item just created" do
@@ -72,31 +77,35 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
 
     context "when a Delivery request is succesfully created by User PM or AE" do
       before(:each) do
-        @admin = FactoryGirl.create :user
+        @admin = FactoryBot.create :user
         @admin.role = 1
         @admin.save
-        @warehouse_admin = FactoryGirl.create :user
+        @warehouse_admin = FactoryBot.create :user
         @warehouse_admin.role = 1
         @warehouse_admin.save
-        @user = FactoryGirl.create :user
-        @delivery_user = FactoryGirl.create :user
+        @user = FactoryBot.create :user
+        @delivery_user = FactoryBot.create :user
         @delivery_user.save
         @delivery_user.role = User::DELIVERY
 
         @items = []
         2.times do |t|
           item_data = {}
-          item = FactoryGirl.create :inventory_item 
+          item = FactoryBot.create :inventory_item 
           item_data[:item_id] = item.id 
           item_data[:quantity] = 1
           @items.push( item_data )
         end
         
-        @delivery_attributes = FactoryGirl.attributes_for :delivery
+        @delivery_attributes = FactoryBot.attributes_for :delivery
         @delivery_attributes[:delivery_user_id] = @delivery_user.id
 
         api_authorization_header @user.auth_token
-        post :create, { user_id: @user.id, delivery: @delivery_attributes, inventory_items: @items, item_img_ext: 'jpg' }
+        post :create, :params => { 
+          user_id: @user.id,
+          delivery: @delivery_attributes,
+          inventory_items: @items
+        }
       end
 
       it "renders the json representation for the inventory item just created" do
@@ -111,38 +120,15 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
 
       it { should respond_with 201 }
     end
-
-    # context "when is not created" do
-    #   before(:each) do
-    #     user = FactoryGirl.create :user
-    #     @invalid_inventory_item_attributes = { user_id: user.id }
-
-    #     api_authorization_header user.auth_token
-    #     post :create, { user_id: user.id, inventory_item: @invalid_inventory_item_attributes, item_img_ext: 'jpg' }
-    #   end
-
-    #   it "renders an errors json" do
-    #     inventory_item_response = json_response
-    #     expect(inventory_item_response).to have_key(:errors)
-    #   end
-
-    #   it "renders the json errors on why the inventory item could not be created" do
-    #     inventory_item_response = json_response
-
-    #     expect(inventory_item_response[:errors][:name]).to include "can't be blank"
-    #   end
-
-    #   it { should respond_with 422 }
-    # end
   end
 
   describe "POST #update" do
     context "when delivery is successfully updated" do
       before(:each) do
-        @user = FactoryGirl.create :user
-        @delivery = FactoryGirl.create :delivery
+        @user = FactoryBot.create :user
+        @delivery = FactoryBot.create :delivery
         api_authorization_header @user.auth_token
-        post :update, { id: @delivery.id,
+        post :update, params: { id: @delivery.id,
                           delivery: { company: 'La Nueva', status: 2 } }, format: :json
       end
 
@@ -158,14 +144,14 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
 
   describe "POST #by_keyword" do
     before(:each) do
-      FactoryGirl.create :supplier
-      @delivery = FactoryGirl.create :delivery
-      @another_delivery = FactoryGirl.create :delivery
+      FactoryBot.create :supplier
+      @delivery = FactoryBot.create :delivery
+      @another_delivery = FactoryBot.create :delivery
 
       @items = []
       5.times do |t| 
         delivery_item = {}
-        item = FactoryGirl.create :inventory_item
+        item = FactoryBot.create :inventory_item
         item.update(name: 'MiItem'+t.to_s)
         
         delivery_item[:item_id] = item.id
@@ -177,7 +163,7 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
       @other_items = [@items.first] 
       @another_delivery.add_items( @other_items, 'El Mamfred', 'With comments' )
 
-      post :by_keyword, { keyword: 'MiItem' }, format: :json
+      post :by_keyword, params: { keyword: 'MiItem' }, format: :json
     end
 
     it "returns all Deliveries with items that have an occurrence of the keyword, serial number or barcode" do

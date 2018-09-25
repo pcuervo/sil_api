@@ -3,8 +3,8 @@ require 'spec_helper'
 RSpec.describe Api::V1::WithdrawRequestsController, type: :controller do
   describe "GET #index" do
     before(:each) do
-      user = FactoryGirl.create :user
-      5.times { FactoryGirl.create :withdraw_request }
+      user = FactoryBot.create :user
+      5.times { FactoryBot.create :withdraw_request }
       get :index
     end
 
@@ -19,10 +19,10 @@ RSpec.describe Api::V1::WithdrawRequestsController, type: :controller do
   describe "POST #create" do
     context "when is succesfully created" do
       before(:each) do
-        user = FactoryGirl.create :user
-        item = FactoryGirl.create :inventory_item
-        @withdraw_request_attributes = FactoryGirl.attributes_for :withdraw_request
-        @withdraw_request_items = FactoryGirl.attributes_for :withdraw_request_item
+        user = FactoryBot.create :user
+        item = FactoryBot.create :inventory_item
+        @withdraw_request_attributes = FactoryBot.attributes_for :withdraw_request
+        @withdraw_request_items = FactoryBot.attributes_for :withdraw_request_item
         @withdraw_request_items[:inventory_item_id] = item.id
         @withdraw_request_attributes[:inventory_items] = []
         @withdraw_request_attributes[:inventory_items].push( @withdraw_request_items )
@@ -43,10 +43,10 @@ RSpec.describe Api::V1::WithdrawRequestsController, type: :controller do
   describe "POST #authorize_withdrawal" do
     context "when is succesfully created" do
       before(:each) do
-        user = FactoryGirl.create :user
-        @withdraw_request = FactoryGirl.create :withdraw_request
-        @withdraw_request_item = FactoryGirl.create :withdraw_request_item
-        @inventory_item = FactoryGirl.create :inventory_item
+        user = FactoryBot.create :user
+        @withdraw_request = FactoryBot.create :withdraw_request
+        @withdraw_request_item = FactoryBot.create :withdraw_request_item
+        @inventory_item = FactoryBot.create :inventory_item
 
         @withdraw_request_item.inventory_item = @inventory_item
         @withdraw_request_item.save

@@ -192,4 +192,6 @@ Sil::Application.routes.draw do
       end
     end
   end
+
+  match '*path', via: [:options], to: lambda {|_| [204, { 'Content-Type' => 'text/plain' }]}
 end

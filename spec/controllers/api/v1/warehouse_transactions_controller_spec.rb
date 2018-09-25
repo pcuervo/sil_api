@@ -3,7 +3,7 @@ require 'spec_helper'
 RSpec.describe Api::V1::WarehouseTransactionsController, type: :controller do
   describe "GET #index" do 
     before(:each) do
-      3.times { FactoryGirl.create :warehouse_transaction }
+      3.times { FactoryBot.create :warehouse_transaction }
       get :index
     end
 

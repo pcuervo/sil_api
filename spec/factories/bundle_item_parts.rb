@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :bundle_item_part do
     name { FFaker::Product.product_name }
     serial_number { FFaker::IdentificationMX.curp }

@@ -1,7 +1,7 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :notification do
     title { 'Entrada Pendiente' }
     message { FFaker::HipsterIpsum.phrase } 
-    inventory_item_id 1
+    inventory_item_id { 1 }
   end
 end

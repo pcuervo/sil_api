@@ -10,7 +10,7 @@ class ApplicationController < ActionController::Base
   include Transactionable
 
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_filter :allow_ajax_request_from_other_domains
+  before_action :allow_ajax_request_from_other_domains
 
   #I18n.locale = 'es'
 

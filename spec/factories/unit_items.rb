@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :unit_item do
     name { FFaker::Product.product_name + ' ' + FFaker::Product.model }
     description { FFaker::HipsterIpsum.paragraph }
@@ -8,8 +8,8 @@ FactoryGirl.define do
     barcode { FFaker::Vehicle.vin }
     brand { FFaker::Product.brand }
     model { FFaker::Product.model }
-    item_type 'Desktop'
-    state 1
-    value 10
+    item_type { 'Desktop' }
+    state { 1 }
+    value { 10 }
   end
 end

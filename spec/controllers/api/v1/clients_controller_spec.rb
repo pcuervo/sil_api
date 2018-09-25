@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Api::V1::ClientsController do
   describe "GET #show" do 
     before(:each) do
-      @client = FactoryGirl.create :client
+      @client = FactoryBot.create :client
       get :show, id: @client.id
     end
 
@@ -17,7 +17,7 @@ describe Api::V1::ClientsController do
 
   describe "GET #index" do
     before(:each) do
-      5.times { FactoryGirl.create :client }
+      5.times { FactoryBot.create :client }
       get :index
     end
 
@@ -32,8 +32,8 @@ describe Api::V1::ClientsController do
   describe "POST #create" do
     context "When client is successfully created" do 
       before(:each) do
-        user = FactoryGirl.create :user
-        @client_attributes = FactoryGirl.attributes_for :client
+        user = FactoryBot.create :user
+        @client_attributes = FactoryBot.attributes_for :client
         api_authorization_header user.auth_token
         post :create, { client: @client_attributes }
       end
@@ -48,8 +48,8 @@ describe Api::V1::ClientsController do
 
     context "when is not created" do 
       before(:each) do
-        user = FactoryGirl.create :user
-        client = FactoryGirl.create :client
+        user = FactoryBot.create :user
+        client = FactoryBot.create :client
         @invalid_client_attributes = { name: client.name }
 
         api_authorization_header user.auth_token
@@ -72,8 +72,8 @@ describe Api::V1::ClientsController do
 
   describe "PUT/PATCH #update" do
     before(:each) do
-      user = FactoryGirl.create :user
-      client = FactoryGirl.create :client
+      user = FactoryBot.create :user
+      client = FactoryBot.create :client
       api_authorization_header user.auth_token
 
       patch :update, { id: client.id, client: { name: 'new_name' } }
@@ -90,9 +90,9 @@ describe Api::V1::ClientsController do
 
     context "when is not successfully updated because project name already exists" do
       before(:each) do
-        user = FactoryGirl.create :user
-        client = FactoryGirl.create :client
-        invalid_client = FactoryGirl.create :client
+        user = FactoryBot.create :user
+        client = FactoryBot.create :client
+        invalid_client = FactoryBot.create :client
         api_authorization_header user.auth_token
 
         patch :update, { id: invalid_client.id, client: { name: client.name } }
@@ -114,8 +114,8 @@ describe Api::V1::ClientsController do
 
   describe "DELETE #destroy" do
     before(:each) do
-      user = FactoryGirl.create :user
-      client = FactoryGirl.create :client
+      user = FactoryBot.create :user
+      client = FactoryBot.create :client
       api_authorization_header user.auth_token
 
       delete :destroy, id: client.id
