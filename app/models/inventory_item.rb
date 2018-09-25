@@ -110,9 +110,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     inventory_items_details
   end
 
-  def get_details
-    puts project_id.to_yaml 
-    
+  def get_details    
     project = Project.find(project_id)
     pm = get_pm(project)
     ae = get_ae(project)

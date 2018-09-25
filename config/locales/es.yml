@@ -25,6 +25,8 @@ es:
       models:
         user:
           attributes:
+            auth_token:
+              taken: "Ya existe el código de autenticación"
             agency:
               required: "La agencia es obligatoria"
             email:

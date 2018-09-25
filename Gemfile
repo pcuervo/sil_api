@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby "2.3.1"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.0'
+gem 'rails', '5.0'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
@@ -22,7 +22,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 gem 'active_model_serializers', '0.9.3'
 
 # Used of MTI
-gem 'active_record-acts_as', '1.0.7'
+gem 'active_record-acts_as'
 
 gem 'rack-cors', :require => 'rack/cors'
 
@@ -36,8 +36,8 @@ gem 'rack-cors', :require => 'rack/cors'
 # gem 'capistrano-rails', group: :development
 
 gem "paperclip", "~> 4.3"
-gem 'aws-sdk', '< 2.0'
-gem "pg", "< 1.0"
+gem 'aws-sdk-s3'
+gem 'pg', '~> 0.20.0'
 gem 'kaminari'
 
 group :production do
@@ -45,10 +45,9 @@ group :production do
   gem 'puma'
 end
 
-group :development, :test do
-  # Access an IRB console on exception pages or by using <%= console %> in views
-  gem 'web-console', '~> 2.0'
+gem 'web-console', '~> 2.0', group: :development
 
+group :development, :test do
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'factory_girl_rails', '4.5.0'
@@ -57,8 +56,9 @@ group :development, :test do
 end
 
 group :test do
-  gem 'rspec-rails', '~> 3.1'
-  gem "shoulda-matchers"
+  gem 'rspec-rails', '~> 3.4'
+  gem 'shoulda-matchers', '~> 3.0', require: false
+  gem 'database_cleaner', '~> 1.5'
 end
 
 gem "devise"
