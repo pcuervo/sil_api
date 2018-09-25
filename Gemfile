@@ -35,7 +35,7 @@ gem 'rack-cors', '1.0.1'
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
-gem "paperclip", "~> 4.3"
+gem "paperclip", ">= 5.0"
 gem 'aws-sdk'
 gem 'pg', '~> 0.20.0'
 gem 'kaminari'
