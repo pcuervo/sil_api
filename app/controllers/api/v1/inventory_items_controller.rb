@@ -29,7 +29,7 @@ module Api
         item_img.original_filename = params[:filename]
         @inventory_item.item_img = item_img
 
-        if @inventory_item.save!
+        if @inventory_item.save
           log_checkin_transaction(params[:entry_date], @inventory_item.id, 'Entrada granel inicial', params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:inventory_item][:quantity], params[:folio])
 
           if params[:item_request_id].to_i > 0
