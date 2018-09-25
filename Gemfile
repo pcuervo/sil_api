@@ -36,7 +36,8 @@ gem 'rack-cors', '1.0.1'
 # gem 'capistrano-rails', group: :development
 
 gem "paperclip", ">= 5.0"
-gem 'aws-sdk', '~> 2.3'
+gem 'aws-sdk', '>= 2.0.0'
+gem 'aws-sdk-s3'
 gem 'pg', '~> 0.20.0'
 gem 'kaminari'
 
@@ -53,7 +54,7 @@ group :development, :test do
   gem "factory_bot_rails"
   gem 'ffaker'
   gem 'rubocop-rspec'
-  #gem 'byebug'
+  gem 'byebug'
 end
 
 group :test do
