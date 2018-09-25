@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-#ruby "2.2"
+ruby "2.3.1"
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.0'
@@ -57,7 +57,6 @@ group :development, :test do
 end
 
 group :test do
-  #gem "rspec-rails", "~> 2.14"
   gem 'rspec-rails', '~> 3.1'
   gem "shoulda-matchers"
 end

@@ -53,14 +53,14 @@ RSpec.describe InventoryTransaction, type: :model do
 
     it 'returns the next folio when there is one transaction without assigned folio' do
       FactoryGirl.create :check_in_transaction
-      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000001'
+      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000002'
     end
 
     it 'returns the next folio when there are previous transactions' do
       check_in = FactoryGirl.create :check_in_transaction
       check_in.update_attribute(:folio, InventoryTransaction.next_checkin_folio)
 
-      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000002'
+      expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000003'
     end
   end
 end
