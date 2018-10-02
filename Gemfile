@@ -61,6 +61,7 @@ group :test do
   gem 'rspec-rails', '~> 3.4'
   gem 'shoulda-matchers', '~> 3.0', require: false
   gem 'database_cleaner', '~> 1.5'
+  gem 'simplecov', require: false
 end
 
 gem "devise"

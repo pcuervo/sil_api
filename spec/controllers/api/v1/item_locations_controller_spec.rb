@@ -6,7 +6,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
       @item_location = FactoryBot.create :item_location
       @inventory_item = @item_location.inventory_item
       @location = @item_location.warehouse_location
-      get :show, id: @item_location.id
+      get :show, params: { id: @item_location.id }
     end
 
     it "returns the information about an inventory location on a hash" do
@@ -42,7 +42,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
         @item_location_attributes = FactoryBot.attributes_for :item_location
 
         api_authorization_header user.auth_token
-        post :create, { inventory_item_id: @inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
+        post :create, params: { inventory_item_id: @inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
       end
 
       it "renders the json representation for the item location just created" do
@@ -63,7 +63,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
         @item_location_attributes = FactoryBot.attributes_for :item_location
 
         api_authorization_header user.auth_token
-        post :create, { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
+        post :create, params: { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
       end
 
       it "should render the json representation for the unit item and have quantity of 1" do
@@ -80,7 +80,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
         @item_location_attributes = FactoryBot.attributes_for :item_location
 
         api_authorization_header user.auth_token
-        post :create, { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
+        post :create, params: { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
       end
 
       it "should render the json representation for the unit item and have quantity of 1" do
@@ -93,7 +93,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
       before(:each) do
         user = FactoryBot.create :user
         api_authorization_header user.auth_token
-        post :create, { quantity: 1 }
+        post :create, params: { quantity: 1 }
       end
 
       it "renders an errors json" do
@@ -114,7 +114,7 @@ RSpec.describe Api::V1::ItemLocationsController, type: :controller do
         user = FactoryBot.create :user
         inventory_item = FactoryBot.create :inventory_item
         api_authorization_header user.auth_token
-        post :create, { quantity: 1, inventory_item_id: inventory_item.id }
+        post :create, params: { quantity: 1, inventory_item_id: inventory_item.id }
       end
 
       it "renders an errors json" do

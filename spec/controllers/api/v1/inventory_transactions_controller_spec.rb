@@ -5,7 +5,7 @@ describe Api::V1::InventoryTransactionsController do
     before(:each) do
       check_in = FactoryBot.create :check_in_transaction
       @inventory_transaction = check_in.acting_as
-      get :show, id: @inventory_transaction.id
+      get :show, params: { id: @inventory_transaction.id }
     end
 
     it "returns the information about an inventory transaction on a hash" do
@@ -108,7 +108,7 @@ describe Api::V1::InventoryTransactionsController do
     context 'when returning latest CheckIns' do
       before(:each) do
         api_authorization_header user.auth_token
-        get :latest, { type: 'check_in', num_transactions: 10 }
+        get :latest, params: { type: 'check_in', num_transactions: 10 }
       end
 
       it "returns 3 CheckIn transactions" do
@@ -120,7 +120,7 @@ describe Api::V1::InventoryTransactionsController do
     context 'when returning latest CheckOuts' do
       before(:each) do
         api_authorization_header user.auth_token
-        get :latest, { type: 'check_out', num_transactions: 10 }
+        get :latest, params: { type: 'check_out', num_transactions: 10 }
       end
 
       it "returns 3 CheckOut transactions" do
@@ -141,7 +141,7 @@ describe Api::V1::InventoryTransactionsController do
 
       before(:each) do
         api_authorization_header user.auth_token
-        post :latest_by_user, { user_id: client_user.id, type: 'check_in', num_transactions: 3 }
+        post :latest_by_user, params: { user_id: client_user.id, type: 'check_in', num_transactions: 3 }
       end
 
       it "returns 3 CheckIn transactions" do

@@ -70,9 +70,11 @@ module Api
 
         user.projects.each { |p| p.inventory_items.pluck(:id).map { |id| item_ids.push(id) } }
 
+        transaction_ids = InventoryTransaction.where('inventory_item_id IN (?)', item_ids).limit(num).pluck(:actable_id)
+
         if type == 'check_in'
-          transactions = CheckInTransaction.where('inventory_item_id IN (?)', item_ids).order(folio: :desc).limit(num)
-          render json: transactions, status: :ok and return
+          checkin_transactions = CheckInTransaction.where('id IN (?)', transaction_ids).order(folio: :desc)
+          render json: checkin_transactions, status: :ok and return
         end
         
       end

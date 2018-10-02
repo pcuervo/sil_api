@@ -12,12 +12,12 @@ module Api
       end
 
       def create
-        if params[:inventory_item_id].nil? || params[:inventory_item_id].empty?
+        if params[:inventory_item_id].blank?
           render json: { errors: 'No se ha encontrado el artículo.' }, status: 422
           return
         end
 
-        if params[:warehouse_location_id].nil? || params[:warehouse_location_id].empty?
+        if params[:warehouse_location_id].blank?
           render json: { errors: 'No se ha encontrado la ubicación.' }, status: 422
           return
         end
