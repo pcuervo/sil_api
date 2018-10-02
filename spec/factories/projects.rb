@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :project do
     name { 'Project_' + random_number }
-    litobel_id { FFaker::IdentificationMX.rfc }
+    litobel_id { FFaker::SSNMX.ssn }
     client
   end
 end

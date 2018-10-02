@@ -4,7 +4,7 @@ describe Api::V1::UsersController do
   describe "GET #show" do
     before(:each) do
       @user = FactoryBot.create :user
-      get :show, id: @user.id, format: :json
+      get :show, params: { id: @user.id }, format: :json
     end
 
     it "returns the information about a user on a hash" do
@@ -22,7 +22,7 @@ describe Api::V1::UsersController do
         @user_attributes = FactoryBot.attributes_for :user
         @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
-        post :create, { id: @user.id,
+        post :create, params: { id: @user.id,
                         user: @user_attributes }, format: :json
       end
 
@@ -40,7 +40,7 @@ describe Api::V1::UsersController do
                                      password_confirmation: "12345678" }
         @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
-        post :create, { id: @user.id,
+        post :create, params: { id: @user.id,
                         user: @invalid_user_attributes }, format: :json
       end
 
@@ -54,23 +54,16 @@ describe Api::V1::UsersController do
         expect(user_response[:errors][:email]).to include "No puede estar vacío"
       end
 
-      it "renders the json errors when the role is invalid" do
-        @invalid_user_attributes = { email: "test@test.com", first_name: 'Mic', last_name: 'Cab', password: 'holama123', password_confirmation: 'holama123', role: 8 }
-        post :create, { user: @invalid_user_attributes }, format: :json
-        user_response = json_response
-        expect(user_response[:errors][:role]).to include "#{@invalid_user_attributes[:role]} is not a valid role"
-      end
-
       it "renders the json errors when the name is missing" do
         @invalid_user_attributes = { email: "test@test.com", last_name: 'Cab', password: 'holama123', password_confirmation: 'holama123', role: 2 }
-        post :create, { user: @invalid_user_attributes }, format: :json
+        post :create, params: { user: @invalid_user_attributes }, format: :json
         user_response = json_response
         expect(user_response[:errors][:first_name]).to include "El nombre no puede estar vacío"
       end
 
       it "renders the json errors when the last name is missing" do
         @invalid_user_attributes = { email: "test@test.com", first_name: 'Mig', password: 'holama123', password_confirmation: 'holama123', role: 2 }
-        post :create, { user: @invalid_user_attributes }, format: :json
+        post :create, params: { user: @invalid_user_attributes }, format: :json
         user_response = json_response
         expect(user_response[:errors][:last_name]).to include "El apellido no puede estar vacío"
       end
@@ -85,7 +78,7 @@ describe Api::V1::UsersController do
       before(:each) do
         @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
-        patch :update, { id: @user.id,
+        patch :update, params: { id: @user.id,
                          user: { email: "newmail@example.com" } }, format: :json
       end
 
@@ -101,7 +94,7 @@ describe Api::V1::UsersController do
       before(:each) do
         @user = FactoryBot.create :user
         api_authorization_header @user.auth_token
-        patch :update, { id: @user.id,
+        patch :update, params: { id: @user.id,
                          user: { email: "bademail.com", role: 5 } }, format: :json
       end
 
@@ -124,7 +117,7 @@ describe Api::V1::UsersController do
       @user = FactoryBot.create :user
       api_authorization_header @user.auth_token
 
-      delete :destroy, id: @user.auth_token
+      delete :destroy, params: { id: @user.auth_token }
     end
 
     it { should respond_with 204 }
@@ -135,7 +128,7 @@ describe Api::V1::UsersController do
       @user = FactoryBot.create :user
       api_authorization_header @user.auth_token
 
-      post :change_password, user: { password: 'holama123', password_confirmation: 'holama123' }
+      post :change_password, params: { user: { password: 'holama123', password_confirmation: 'holama123' } }
     end
 
     it "renders a success message about the password change" do

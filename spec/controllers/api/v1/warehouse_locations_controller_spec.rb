@@ -4,7 +4,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
   describe "GET #show" do 
     before(:each) do
       @warehouse_location = FactoryBot.create :warehouse_location
-      get :show, id: @warehouse_location.id
+      get :show, params: { id: @warehouse_location.id }
     end
 
     it "returns the information about a warehouse_location in JSON format" do
@@ -38,7 +38,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
       @warehouse_location = FactoryBot.create :warehouse_location
 
       api_authorization_header user.auth_token
-      post :locate_item, { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
+      post :locate_item, params: { inventory_item_id: inventory_item.id, warehouse_location_id: @warehouse_location.id, quantity: 1 }
     end
 
     context "when item is successfully located" do
@@ -58,7 +58,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
       @warehouse_location = FactoryBot.create :warehouse_location
 
       api_authorization_header user.auth_token
-      post :relocate_item, { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: 1, quantity: @item_location.quantity }
+      post :relocate_item, params: { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: 1, quantity: @item_location.quantity }
     end
 
     context "when UnitItem is successfully relocated" do
@@ -78,7 +78,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
         user = FactoryBot.create :user
         api_authorization_header user.auth_token
         @warehouse_location = FactoryBot.create :warehouse_location
-        post :update, { id: @warehouse_location.id, name: "NewNameBro", quantity: 50 }, format: :json
+        post :update, params: { id: @warehouse_location.id, name: "NewNameBro", quantity: 50 }, format: :json
       end
 
       it "renders the json representation for the updated WarehouseLocation" do

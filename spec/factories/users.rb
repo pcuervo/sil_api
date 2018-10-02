@@ -3,7 +3,7 @@ FactoryBot.define do
 
   factory :user do
   	first_name { "Juan" }
-  	last_name { "Pérez" }
+  	last_name { "Camaney" }
     email
     password { "holama123" }
     password_confirmation { "holama123" }

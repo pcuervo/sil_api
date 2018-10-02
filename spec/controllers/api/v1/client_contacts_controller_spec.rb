@@ -4,7 +4,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
   describe "GET #show" do
     before(:each) do
       @client_contact = FactoryBot.create :client_contact
-      get :show, id: @client_contact.id
+      get :show, params: { id: @client_contact.id }
     end
 
     it "returns client_contact info in JSON format" do
@@ -37,7 +37,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         @client_contact_attributes = FactoryBot.attributes_for :client_contact
         @client_contact_attributes[:client_id] = client.id
         api_authorization_header user.auth_token
-        post :create, { client_contact: @client_contact_attributes }
+        post :create, params: { client_contact: @client_contact_attributes }
       end
 
       it "return a JSON representation of the created client contact" do

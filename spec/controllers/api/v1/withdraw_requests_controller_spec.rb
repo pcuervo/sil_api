@@ -27,7 +27,7 @@ RSpec.describe Api::V1::WithdrawRequestsController, type: :controller do
         @withdraw_request_attributes[:inventory_items] = []
         @withdraw_request_attributes[:inventory_items].push( @withdraw_request_items )
         api_authorization_header user.auth_token
-        post :create, { withdraw_request: @withdraw_request_attributes }
+        post :create, params: { withdraw_request: @withdraw_request_attributes }
       end
 
       it "renders the json representation for the WithdrawRequest just created" do
@@ -55,7 +55,7 @@ RSpec.describe Api::V1::WithdrawRequestsController, type: :controller do
         @withdraw_request.save
 
         api_authorization_header user.auth_token
-        post :authorize_withdrawal, { id: @withdraw_request.id, pickup_company_contact: 'El rober', additional_comments: 'adicionales', quantities: '' }
+        post :authorize_withdrawal, params: { id: @withdraw_request.id, pickup_company_contact: 'El rober', additional_comments: 'adicionales', quantities: '' }
       end
 
       it "renders the json representation for the WithdrawRequest just created" do

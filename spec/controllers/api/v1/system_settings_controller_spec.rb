@@ -4,7 +4,7 @@ RSpec.describe Api::V1::SystemSettingsController, type: :controller do
   describe "GET #show" do
     before(:each) do
       @system_settings = FactoryBot.create :system_setting
-      get :show, id: @system_settings.id
+      get :show, params: { id: @system_settings.id }, format: :json
     end
 
     it "returns the SystemSettings in JSON format" do
@@ -22,7 +22,7 @@ RSpec.describe Api::V1::SystemSettingsController, type: :controller do
         @user = FactoryBot.create :user
         @system_settings = FactoryBot.create :system_setting
         api_authorization_header @user.auth_token
-        patch :update, { id: @system_settings.id, system_settings: { cost_per_location: 650, units_per_location: 100, cost_high_value: 50 } }, format: :json
+        patch :update, params: { id: @system_settings.id, system_settings: { cost_per_location: 650, units_per_location: 100, cost_high_value: 50 } }, format: :json
       end
 
       it "renders the json representation for the updated SystemSettings" do

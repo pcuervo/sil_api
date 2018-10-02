@@ -4,7 +4,7 @@ describe Api::V1::ClientsController do
   describe "GET #show" do 
     before(:each) do
       @client = FactoryBot.create :client
-      get :show, id: @client.id
+      get :show, params: { id: @client.id }
     end
 
     it "returns the information about a client in JSON format" do
@@ -35,7 +35,7 @@ describe Api::V1::ClientsController do
         user = FactoryBot.create :user
         @client_attributes = FactoryBot.attributes_for :client
         api_authorization_header user.auth_token
-        post :create, { client: @client_attributes }
+        post :create, params: { client: @client_attributes }
       end
 
       it "renders the JSON representation for the client record just created" do
@@ -53,7 +53,7 @@ describe Api::V1::ClientsController do
         @invalid_client_attributes = { name: client.name }
 
         api_authorization_header user.auth_token
-        post :create, { client: @invalid_client_attributes }
+        post :create, params: { client: @invalid_client_attributes }
       end
 
       it "renders an errors json" do
@@ -71,15 +71,15 @@ describe Api::V1::ClientsController do
   end
 
   describe "PUT/PATCH #update" do
-    before(:each) do
-      user = FactoryBot.create :user
-      client = FactoryBot.create :client
-      api_authorization_header user.auth_token
-
-      patch :update, { id: client.id, client: { name: 'new_name' } }
-    end
-
     context "when is successfully updated" do
+      before(:each) do
+        user = FactoryBot.create :user
+        client = FactoryBot.create :client
+        api_authorization_header user.auth_token
+  
+        patch :update, params: { id: client.id, client: { name: 'new_name' } }
+      end
+
       it "renders the json representation for the updated client" do
         client_response = json_response[:client]
         expect(client_response[:name]).to eq('new_name')
@@ -88,14 +88,14 @@ describe Api::V1::ClientsController do
       it { should respond_with 201 }
     end
 
-    context "when is not successfully updated because project name already exists" do
+    context "when is not successfully updated because client name already exists" do
       before(:each) do
         user = FactoryBot.create :user
         client = FactoryBot.create :client
         invalid_client = FactoryBot.create :client
         api_authorization_header user.auth_token
 
-        patch :update, { id: invalid_client.id, client: { name: client.name } }
+        patch :update, params: { id: invalid_client.id, client: { name: client.name } }
       end
 
       it "renders an errors json" do
@@ -118,7 +118,7 @@ describe Api::V1::ClientsController do
       client = FactoryBot.create :client
       api_authorization_header user.auth_token
 
-      delete :destroy, id: client.id
+      delete :destroy, params: { id: client.id }
     end
 
     it { should respond_with 204 }
