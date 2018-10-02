@@ -54,7 +54,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         client = FactoryBot.create :client
         @invalid_client_contact_attributes = { last_name: 'Cabral' }
         api_authorization_header user.auth_token
-        post :create, { client_id: client.id, client_contact: @invalid_client_contact_attributes } 
+        post :create, params: { client_id: client.id, client_contact: @invalid_client_contact_attributes } 
       end
 
       it "render an errors JSON" do  
@@ -77,7 +77,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         user = FactoryBot.create :user
         client_contact = FactoryBot.create :client_contact
         api_authorization_header user.auth_token
-        post :update, { id: client_contact.id, client_contact: { first_name: 'Miguel', last_name: 'Cabral' } } 
+        post :update, params: { id: client_contact.id, client_contact: { first_name: 'Miguel', last_name: 'Cabral' } } 
       end
 
       it "should return a JSON representation of the updated client contact" do
@@ -95,7 +95,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         client_contact = FactoryBot.create :client_contact
         invalid_client_contact = FactoryBot.create :client_contact
         api_authorization_header user.auth_token
-        post :update, { id: invalid_client_contact.id, client_contact: { email: client_contact.email } }
+        post :update, params: { id: invalid_client_contact.id, client_contact: { email: client_contact.email } }
       end     
 
       it "should render an errors JSON" do 
@@ -116,7 +116,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         user = FactoryBot.create :user
         client_contact = FactoryBot.create :client_contact
         api_authorization_header user.auth_token
-        post :update, { id: client_contact.id, client_contact: { client_id: 'invalid_id' } }
+        post :update, params: { id: client_contact.id, client_contact: { client_id: 'invalid_id' } }
       end     
 
       it "should render an errors JSON" do 
@@ -137,7 +137,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
         user = FactoryBot.create :user
         client_contact = FactoryBot.create :client_contact
         api_authorization_header user.auth_token
-        post :update, { id: client_contact.id, client_contact: { discount: 1.5 } } 
+        post :update, params: { id: client_contact.id, client_contact: { discount: 1.5 } } 
       end
 
       it "should return a JSON representation of the updated client contact" do
@@ -154,7 +154,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
       user = FactoryBot.create :user
       client_contact = FactoryBot.create :client_contact
       api_authorization_header user.auth_token
-      delete :destroy, id: client_contact.id
+      delete :destroy, params: { id: client_contact.id }
     end
 
     it { should respond_with 200 }
@@ -175,7 +175,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
       end 
       @client.projects << project
 
-      get :inventory_items, id: user.id
+      get :inventory_items, params: { id: user.id }
     end
 
     it "returns hash containing inventory items that belong to a client contact" do

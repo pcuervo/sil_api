@@ -4,7 +4,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
   describe "GET #show" do
     before(:each) do
       @item_type = FactoryBot.create :item_type
-      get :show, id: @item_type.id
+      get :show, params: { id: @item_type.id }
     end
 
     it "returns the information about item_type in JSON format" do
@@ -36,7 +36,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
         @item_type_attributes = FactoryBot.attributes_for :item_type
         api_authorization_header user.auth_token
 
-        post :create, { user_id: user.id, item_type: @item_type_attributes }
+        post :create, params: { user_id: user.id, item_type: @item_type_attributes }
       end
 
       it "renders the item_type record just created in JSON format" do
@@ -53,7 +53,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
         @invalid_item_type_attributes = { name: '' }
         api_authorization_header user.auth_token
 
-        post :create, { user_id: user.id, item_type: @invalid_item_type_attributes }
+        post :create, params: { user_id: user.id, item_type: @invalid_item_type_attributes }
       end
 
       it "renders an errors json" do 
@@ -76,7 +76,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
         @user = FactoryBot.create :user
         @item_type = FactoryBot.create :item_type
         api_authorization_header @user.auth_token
-        post :update, { id: @item_type.id,
+        post :update, params: { id: @item_type.id,
                         item_type: { name: 'new_name' } }, 
                         format: :json
       end
@@ -94,7 +94,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
         @user = FactoryBot.create :user
         @item_type = FactoryBot.create :item_type
         api_authorization_header @user.auth_token
-        patch :update, { id: @item_type.id,
+        patch :update, params: { id: @item_type.id,
                           item_type: { name: '' } }, format: :json
       end
 
@@ -116,7 +116,7 @@ RSpec.describe Api::V1::ItemTypesController, type: :controller do
         user = FactoryBot.create :user
         item_type = FactoryBot.create :item_type
         api_authorization_header user.auth_token
-        delete :destroy, { user_id: user.id, id: item_type.id }
+        delete :destroy, params: { user_id: user.id, id: item_type.id }
       end
 
       it { should respond_with 201 }

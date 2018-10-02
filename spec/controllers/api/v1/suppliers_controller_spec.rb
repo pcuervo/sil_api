@@ -4,7 +4,7 @@ describe Api::V1::SuppliersController do
   describe "GET #show" do 
     before(:each) do
       @supplier = FactoryBot.create :supplier
-      get :show, id: @supplier.id
+      get :show, params: { id: @supplier.id }
     end
 
     it "returns the information about a supplier in JSON format" do
@@ -35,7 +35,7 @@ describe Api::V1::SuppliersController do
         user = FactoryBot.create :user
         @supplier_attributes = FactoryBot.attributes_for :supplier
         api_authorization_header user.auth_token
-        post :create, { supplier: @supplier_attributes }
+        post :create, params: { supplier: @supplier_attributes }
       end
 
       it "renders the JSON representation for the supplier record just created" do
@@ -53,7 +53,7 @@ describe Api::V1::SuppliersController do
         @invalid_supplier_attributes = { name: supplier.name }
 
         api_authorization_header user.auth_token
-        post :create, { supplier: @invalid_supplier_attributes }
+        post :create, params: { supplier: @invalid_supplier_attributes }
       end
 
       it "renders an errors json" do
@@ -76,7 +76,7 @@ describe Api::V1::SuppliersController do
       supplier = FactoryBot.create :supplier
       api_authorization_header user.auth_token
 
-      post :update, { id: supplier.id, supplier: { name: 'new_name' } }
+      post :update, params: { id: supplier.id, supplier: { name: 'new_name' } }
     end
 
     context "when is successfully updated" do
@@ -95,7 +95,7 @@ describe Api::V1::SuppliersController do
       user = FactoryBot.create :user
       supplier = FactoryBot.create :supplier
       api_authorization_header user.auth_token
-      delete :destroy, id: supplier.id
+      delete :destroy, params: { id: supplier.id }
     end
 
     it { should respond_with 204 }

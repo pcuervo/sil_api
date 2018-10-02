@@ -4,7 +4,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
   describe "GET #show" do 
     before(:each) do
       @warehouse_rack = FactoryBot.create :warehouse_rack
-      get :show, id: @warehouse_rack.id
+      get :show, params: { id: @warehouse_rack.id }
     end
 
     it "returns the information about a warehouse_rack in JSON format" do
@@ -39,7 +39,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
         warehouse_rack.warehouse_locations << location
       end
 
-      get :available_locations, id: warehouse_rack.id
+      get :available_locations, params: { id: warehouse_rack.id }
     end
 
     it "return 5 WarehouseLocations in JSON format" do
@@ -55,7 +55,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
         @rack_attributes = FactoryBot.attributes_for :warehouse_rack
 
         api_authorization_header user.auth_token
-        post :create, { user_id: user.id, warehouse_rack: @rack_attributes, units: 50  }
+        post :create, params: { user_id: user.id, warehouse_rack: @rack_attributes, units: 50  }
       end
 
       it "renders the WarehouseRack just created in JSON format" do
@@ -74,7 +74,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
         user = FactoryBot.create :user
         warehouse_rack = FactoryBot.create :warehouse_rack
         api_authorization_header user.auth_token
-        post :destroy, id: warehouse_rack.id
+        post :destroy, params: { id: warehouse_rack.id }
       end
 
       it { should respond_with 204 }
@@ -92,7 +92,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
         location.item_locations << item_location
 
         api_authorization_header user.auth_token
-        post :destroy, id: warehouse_rack.id
+        post :destroy, params: { id: warehouse_rack.id }
       end
 
       it "renders an errors json" do
@@ -122,7 +122,7 @@ RSpec.describe Api::V1::WarehouseRacksController, type: :controller do
         location.item_locations << item_location
 
         api_authorization_header user.auth_token
-        post :empty, id: @warehouse_rack.id
+        post :empty, params: { id: @warehouse_rack.id }
       end
 
       it "empties rack and registers WarehouseTransactions" do

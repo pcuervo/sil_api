@@ -104,7 +104,7 @@ RSpec.describe Api::V1::NotificationsController, type: :controller do
         user = FactoryBot.create :user
         notification = FactoryBot.create :notification
         api_authorization_header user.auth_token
-        post :destroy, id: notification.id
+        post :destroy, params: { id: notification.id }
       end
 
       it { should respond_with 204 }

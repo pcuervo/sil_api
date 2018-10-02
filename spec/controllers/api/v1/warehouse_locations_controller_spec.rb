@@ -58,7 +58,7 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
       @warehouse_location = FactoryBot.create :warehouse_location
 
       api_authorization_header user.auth_token
-      post :relocate_item, params: { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: 1, quantity: @item_location.quantity }
+      post :relocate_item, params: { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: @item_location.quantity }
     end
 
     context "when UnitItem is successfully relocated" do

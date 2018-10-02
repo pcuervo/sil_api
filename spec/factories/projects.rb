@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :project do
     name { 'Project_' + random_number }
-    litobel_id { FFaker::SSNMX.ssn }
+    litobel_id { FFaker::Vehicle.vin }
     client
   end
 end
