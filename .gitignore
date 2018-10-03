@@ -1,5 +1,5 @@
 config/database.yml
-log/development.log
+log/*
 config/s3.yml
 coverage/*
 .DS_Store
