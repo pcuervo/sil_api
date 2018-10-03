@@ -360,10 +360,11 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   def self.quick_search(keyword, in_stock)
     items = InventoryItem.where(
       'lower(name) LIKE ? OR lower(barcode) LIKE ? OR lower(serial_number) LIKE ?', 
-      "%#{keyword.downcase}%", "%#{keyword.downcase}%", "%#{keyword.downcase}%")
+      "%#{keyword.downcase}%", "%#{keyword.downcase}%", "%#{keyword.downcase}%"
+    )
     
     return items.in_stock if in_stock
-    
+
     items
   end
   # Scopes
