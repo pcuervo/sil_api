@@ -281,7 +281,8 @@ module Api
           return
         end
 
-        render json: InventoryItem.quick_search(params[:keyword]), status: 200  
+        in_stock = true
+        render json: InventoryItem.quick_search(params[:keyword], in_stock), status: 200  
       end
 
       private

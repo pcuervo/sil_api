@@ -194,19 +194,31 @@ describe InventoryItem do
   end
 
   describe '.quick_search' do
+    let(:in_stock){ true }
     before { create_items_for_quick_search('SN', 5) }
 
     context 'when successful' do
       it "returns records that have occurrence of keyword 'SN'" do
-        items = InventoryItem.quick_search('sn')
+        
+        items = InventoryItem.quick_search('sn', in_stock)
 
         expect(items.count).to eq 5
+      end
+
+      context 'only Items in stock' do
+        before { InventoryItem.last.update(status: InventoryItem::OUT_OF_STOCK) }
+        in_stock = true
+
+        it "returns only Items in stock" do
+          items = InventoryItem.quick_search('sn', in_stock)
+          expect(items.count).to eq 4
+        end
       end
     end
 
     context 'when not successful' do
       it 'returns 0 records' do
-        items = InventoryItem.quick_search('ESTONIDEPEDOEXISTE')
+        items = InventoryItem.quick_search('ESTONIDEPEDOEXISTE', in_stock)
 
         expect(items.count).to eq 0
       end
