@@ -4,6 +4,7 @@ class ItemLocation < ActiveRecord::Base
   after_destroy :update_location
 
   def update_location
+    puts 'we updating location'
     location = WarehouseLocation.find(warehouse_location_id)
     location.update_status
   end

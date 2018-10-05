@@ -6,6 +6,8 @@ class InventoryItemSerializer < ActiveModel::Serializer
   end
 
   def project_data
+    return if object.project_id.nil?
+    
     project_data = {}
     project = Project.find( object.project_id )
     project_data[:litobel_id] = project.litobel_id

@@ -26,7 +26,7 @@ module Api
         warehouse_rack = WarehouseRack.new(warehouse_rack_params)
 
         if warehouse_rack.save
-          warehouse_rack.add_initial_locations(params[:units].to_i)
+          warehouse_rack.add_initial_locations(params[:quantity].to_i)
           render json: warehouse_rack, status: 201, location: [:api, warehouse_rack]
           return
         end
@@ -85,7 +85,6 @@ module Api
         stats['total_items_with_pending_location'] = total_items_with_pending_location + total_items_with_pending_reentry_location
         stats['warehouse_occupation_percentage'] = warehouse_occupation_percentage
         stats['current_month_rent'] = current_month_rent
-        stats['rent_by_month'] = ClientContact.get_rent_history
 
         render json: { stats: stats }, status: 200
       end

@@ -257,4 +257,48 @@ describe WarehouseLocation, type: :model do
       expect(@location.status).to eq WarehouseLocation::NO_SPACE
     end
   end
+
+  describe '.relocate' do
+    let(:inventory_item) { FactoryBot.create(:inventory_item) }
+    let(:source_location){ FactoryBot.create(:warehouse_location) }
+    let(:destination_location){ FactoryBot.create(:warehouse_location) }
+
+    before { source_location.locate(inventory_item, inventory_item.quantity) }
+
+    context 'when successful' do
+      context 'full relocation' do
+        before do
+          source_location.relocate(inventory_item, inventory_item.quantity, destination_location)
+          source_location.reload
+          destination_location.reload
+        end
+
+        it 'should set destination_location to PARTIAL_SPACE' do
+          expect(destination_location.status).to eq WarehouseLocation::PARTIAL_SPACE
+        end
+
+        it 'should set in source_location to EMPTY' do
+          expect(source_location.status).to eq WarehouseLocation::EMPTY
+        end
+
+        it 'should move all quantity from source to destination location' do
+          new_item_location = ItemLocation.find_by(
+            inventory_item_id: inventory_item.id, 
+            warehouse_location_id: destination_location.id
+          )
+
+          expect(new_item_location.quantity).to eq inventory_item.quantity
+        end
+
+        it 'should record an ENTRY and a WITHDRAW WarehouseTransaction' do
+          transactions = WarehouseTransaction.all
+
+          expect(transactions.count).to eq 3
+          expect(transactions.first.concept).to eq WarehouseTransaction::ENTRY
+          expect(transactions.second.concept).to eq WarehouseTransaction::ENTRY
+          expect(transactions.third.concept).to eq WarehouseTransaction::WITHDRAW
+        end
+      end
+    end
+  end
 end
