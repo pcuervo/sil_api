@@ -35,7 +35,9 @@ describe Api::V1::InventoryItemsController do
 
   describe 'POST #create' do
     context 'when is succesfully created' do
+
       before(:each) do
+        @folio = InventoryTransaction.next_checkin_folio
         user = FactoryBot.create :user
         project = FactoryBot.create :project
         client = FactoryBot.create :client
@@ -45,7 +47,7 @@ describe Api::V1::InventoryItemsController do
         @inventory_item_attributes[:client_id] = client.id
 
         api_authorization_header user.auth_token
-        post :create, params: { user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', folio: InventoryTransaction.next_checkin_folio, entry_date: Date.today }
+        post :create, params: { user_id: user.id, inventory_item: @inventory_item_attributes, item_img_ext: 'jpg', entry_date: Date.today }
       end
 
       it 'renders the json representation for the inventory item just created' do
@@ -54,6 +56,12 @@ describe Api::V1::InventoryItemsController do
         expect(inventory_item_response[:brand]).to eql @inventory_item_attributes[:brand]
         expect(inventory_item_response[:model]).to eql @inventory_item_attributes[:model]
         expect(inventory_item_response[:quantity]).to eql @inventory_item_attributes[:quantity]
+      end
+
+      it 'should automatically add a transaction folio' do
+        last_transaction = CheckInTransaction.last
+
+        expect(last_transaction.folio).to eq @folio
       end
 
       it { should respond_with 201 }

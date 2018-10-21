@@ -30,7 +30,8 @@ module Api
         @inventory_item.item_img = item_img
 
         if @inventory_item.save
-          log_checkin_transaction(params[:entry_date], @inventory_item.id, 'Entrada granel inicial', params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:inventory_item][:quantity], params[:folio])
+          next_folio = InventoryTransaction.next_checkin_folio
+          log_checkin_transaction(params[:entry_date], @inventory_item.id, 'Entrada granel inicial', params[:estimated_issue_date], params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:inventory_item][:quantity], next_folio)
 
           if params[:item_request_id].to_i > 0
             @item_request = InventoryItemRequest.find(params[:item_request_id])
