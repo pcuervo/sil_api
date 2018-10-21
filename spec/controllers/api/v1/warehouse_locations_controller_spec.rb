@@ -52,19 +52,85 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
   end
 
   describe "POST #relocate_item" do 
-    before(:each) do
-      user = FactoryBot.create :user
-      @item_location = FactoryBot.create :item_location
-      @warehouse_location = FactoryBot.create :warehouse_location
+    let(:inventory_item) { FactoryBot.create(:inventory_item) }
+    let(:source_location){ FactoryBot.create(:warehouse_location) }
+    let(:destination_location){ FactoryBot.create(:warehouse_location) }
 
-      api_authorization_header user.auth_token
-      post :relocate_item, params: { item_location_id: @item_location.id, new_location_id: @warehouse_location.id, quantity: @item_location.quantity }
+    context "when full relocation" do
+      context 'when successful' do
+        before(:each) do
+          source_location.locate(inventory_item, inventory_item.quantity)
+    
+          user = FactoryBot.create :user
+          api_authorization_header user.auth_token
+          post :relocate_item, 
+                params: 
+                  { 
+                    inventory_item_id: inventory_item.id, 
+                    old_location_id: source_location.id,
+                    new_location_id: destination_location.id, 
+                    quantity: inventory_item.quantity
+                  }
+        end
+
+        it "returns a JSON of the new ItemLocation" do
+          item_location_response = json_response[:item_location]
+          expect(item_location_response[:quantity]).to eq( inventory_item.quantity )
+        end
+
+        it { should respond_with 201 }
+      end
+
+      context 'when not successful' do
+        before(:each) do
+          source_location.locate(inventory_item, inventory_item.quantity)
+          invalid_quantity = inventory_item.quantity+10
+    
+          user = FactoryBot.create :user
+          api_authorization_header user.auth_token
+          post :relocate_item, 
+                params: 
+                  { 
+                    inventory_item_id: inventory_item.id, 
+                    old_location_id: source_location.id,
+                    new_location_id: destination_location.id, 
+                    quantity: invalid_quantity
+                  }
+        end
+
+        it "returns an error" do
+          error = json_response[:errors]
+          expect(error).to eq( 'La cantidad a reubicar es mayor a la cantidad disponbile en la ubicación' )
+        end
+
+        it { should respond_with 422 }
+      end
     end
 
-    context "when UnitItem is successfully relocated" do
+    context "when partial relocation" do
+      before(:each) do
+        source_location.locate(inventory_item, inventory_item.quantity)
+  
+        user = FactoryBot.create :user
+        api_authorization_header user.auth_token
+        post :relocate_item, 
+              params: 
+                { 
+                  inventory_item_id: inventory_item.id, 
+                  old_location_id: source_location.id,
+                  new_location_id: destination_location.id, 
+                  quantity: inventory_item.quantity-10
+                }
+      end
+
       it "returns a JSON of the new ItemLocation" do
+        old_item_location = ItemLocation.find_by(
+          inventory_item_id: inventory_item.id,
+          warehouse_location_id: source_location.id
+        )
         item_location_response = json_response[:item_location]
-        expect(item_location_response[:quantity]).to eq( @item_location.quantity )
+        expect(item_location_response[:quantity]).to eq( inventory_item.quantity-10 )
+        expect(old_item_location.quantity).to eq( 10 )
       end
 
       it { should respond_with 201 }

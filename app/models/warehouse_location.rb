@@ -26,25 +26,6 @@ class WarehouseLocation < ActiveRecord::Base
     locate_in_existing(item_location.first, quantity)
   end
 
-  def in_location?(inventory_item_id)
-    ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, id).exists?
-  end
-
-  def locate_in_existing(item_location, quantity)
-    raise SilExceptions::InvalidQuantityToLocate if (item_location.quantity + quantity) > item_location.inventory_item.quantity
-
-    item_location.update(quantity: item_location.quantity + quantity)
-    WarehouseTransaction.create(
-      inventory_item_id: item_location.inventory_item.id,
-      warehouse_location_id: id,
-      quantity: quantity,
-      concept: WarehouseTransaction::ENTRY
-    )
-
-    update_status
-    item_location.id
-  end
-
   def locate_in_new(inventory_item, quantity)
     raise SilExceptions::InvalidQuantityToLocate if quantity > inventory_item.quantity
 
@@ -65,43 +46,44 @@ class WarehouseLocation < ActiveRecord::Base
     item_location.id
   end
 
-  # Relocates an existing InventoryItem to current WarehouseLocation
-  # * *Params:*
-  #   - +item_location_id+ -> ID of ItemLocation to relocate
-  #   - +quantity+ -> Item quantity
-  # * *Returns:*
-  #   - ID of new ItemLocation
-  # @todo REDEFINE THIS SHIT
+  def in_location?(inventory_item_id)
+    ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, id).exists?
+  end
+
+  def locate_in_existing(item_location, quantity)
+    raise SilExceptions::InvalidQuantityToLocate if (item_location.quantity + quantity) > item_location.inventory_item.quantity
+
+    item_location.update(quantity: item_location.quantity + quantity)
+    WarehouseTransaction.create(
+      inventory_item_id: item_location.inventory_item.id,
+      warehouse_location_id: id,
+      quantity: quantity,
+      concept: WarehouseTransaction::ENTRY
+    )
+
+    update_status
+    item_location.id
+  end
+
+  # Relocates an existing InventoryItem to new WarehouseLocation.
   def relocate(inventory_item, quantity, new_location)
     current_item_location = ItemLocation.find_by(
       inventory_item_id: inventory_item.id,
       warehouse_location_id: id
     )
-    puts current_item_location.to_yaml
-    # raise if not found (Item has not been previously located here!)
-    # raise if trying to relocate more quantity than available
+    raise SilExceptions::ItemNotInLocation if current_item_location.nil?
+    raise SilExceptions::InvalidQuantityToRelocate if current_item_location.quantity < quantity
 
     new_location.locate(inventory_item, quantity)
 
-    remove_item(inventory_item.id) if current_item_location.quantity == quantity
+    if current_item_location.quantity == quantity
+      remove_item(inventory_item.id) 
+      return
+    end
+    
+    remove_quantity(inventory_item.id, quantity, WarehouseTransaction::RELOCATION)
   end
-  # def relocate(item_location_id, quantity)
-  #   item_location = ItemLocation.find(item_location_id)
 
-  #   new_item_location = ItemLocation.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity)
-  #   WarehouseTransaction.create(inventory_item_id: item_location.inventory_item_id, warehouse_location_id: id, quantity: quantity, concept: WarehouseTransaction::RELOCATION)
-
-  #   new_item_location.save
-  #   item_location.destroy
-
-  #   new_item_location.id
-  # end
-
-  # Remove an item from current location
-  # * *Params:*
-  #   - +inventory_item_id+ -> ID of ItemLocation to relocate
-  # * *Returns:*
-  #   - bool if item was removed successfully
   def remove_item(inventory_item_id)
     item_location = item_locations.find_by(inventory_item_id: inventory_item_id)
 

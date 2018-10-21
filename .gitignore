@@ -4,3 +4,5 @@ config/s3.yml
 coverage/*
 .DS_Store
 tmp/*
+
+.byebug_history

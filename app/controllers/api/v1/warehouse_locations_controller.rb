@@ -62,19 +62,25 @@ module Api
       end
 
       def relocate_item
-        item_location = ItemLocation.find(params[:item_location_id])
-        location = WarehouseLocation.find(params[:new_location_id])
-        new_location_id = location.relocate(item_location.id,  item_location.quantity)
+        inventory_item = InventoryItem.find(params[:inventory_item_id])
+        old_location = WarehouseLocation.find(params[:old_location_id])
+        new_location = WarehouseLocation.find(params[:new_location_id])
+        quantity = params[:quantity].to_i
 
-        if new_location_id > 0
-          item_location = ItemLocation.find(new_location_id)
-          location.item_locations << item_location
-          location.update_status
+        old_location.relocate(inventory_item, quantity, new_location)
+        item_location = ItemLocation.find_by(
+          inventory_item_id: inventory_item.id,
+          warehouse_location_id: new_location.id
+        )
+
+        unless item_location.nil?
           render json: item_location, status: 201, location: [:api, item_location]
           return
         end
 
         render json: { errors: 'No se pudo ubicar el artículo, la ubicación "' + location.name + '" se encuentra llena.' }, status: 422
+      rescue StandardError => e
+        render json: { errors: e.message }, status: 422
       end
 
       def mark_as_full

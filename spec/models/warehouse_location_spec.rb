@@ -305,6 +305,70 @@ describe WarehouseLocation, type: :model do
         it 'should raise error when InventoryItem not in current WarehouseLocation' do
           expect{empty_location.relocate(inventory_item, inventory_item.quantity, destination_location)}.to raise_error(SilExceptions::ItemNotInLocation)
         end
+
+        it 'should raise error when trying to relocate more than the available quantity' do
+          expect{source_location.relocate(inventory_item, inventory_item.quantity+1, destination_location)}.to raise_error(SilExceptions::InvalidQuantityToLocate)
+        end
+      end
+    end
+
+    context 'partial relocation' do
+      let(:moved_quantity){ inventory_item.quantity-5 }
+      context 'when successful' do
+        before do
+          source_location.relocate(inventory_item, moved_quantity, destination_location)
+          source_location.reload
+          destination_location.reload
+        end
+
+        it 'should set destination_location to PARTIAL_SPACE' do
+          expect(destination_location.status).to eq WarehouseLocation::PARTIAL_SPACE
+        end
+
+        it 'should set in source_location to PARTIAL_SPACE' do
+          expect(source_location.status).to eq WarehouseLocation::PARTIAL_SPACE
+        end
+
+        it 'should move partial quantity from source to destination location' do
+          new_item_location = ItemLocation.find_by(
+            inventory_item_id: inventory_item.id, 
+            warehouse_location_id: destination_location.id
+          )
+          old_item_location = ItemLocation.find_by(
+            inventory_item_id: inventory_item.id,
+            warehouse_location_id: source_location.id
+          )
+
+          expect(new_item_location.quantity).to eq moved_quantity
+          expect(old_item_location.quantity).to eq inventory_item.quantity - moved_quantity
+        end
+
+        it 'should record an ENTRY and a RELOCATE WarehouseTransaction' do
+          transactions = WarehouseTransaction.all
+
+          expect(transactions.count).to eq 3
+          expect(transactions.first.concept).to eq WarehouseTransaction::ENTRY
+          expect(transactions.second.concept).to eq WarehouseTransaction::ENTRY
+          expect(transactions.third.concept).to eq WarehouseTransaction::RELOCATION
+        end
+      end
+
+      context 'when not successful' do
+        let(:inventory_item) { FactoryBot.create(:inventory_item, quantity: 100) }
+        let(:new_location){ FactoryBot.create(:warehouse_location) }
+        let(:new_destination){ FactoryBot.create(:warehouse_location) }
+        let(:located_quantity){ inventory_item.quantity-50 }
+        let(:moved_quantity){ inventory_item.quantity-40 }
+
+        before { new_location.locate(inventory_item, located_quantity) }
+
+        it 'should raise error when trying to partially relocate more than in location' do
+          expect{new_location.relocate(inventory_item, moved_quantity, new_destination)}.to raise_error(SilExceptions::InvalidQuantityToRelocate, 'La cantidad a reubicar es mayor a la cantidad disponbile en la ubicación')
+        end
+
+        # it 'should raise error when trying to relocate more than the available quantity' do
+        #   expect{source_location.relocate(inventory_item, inventory_item.quantity+1, destination_location)}.to raise_error(SilExceptions::InvalidQuantityToLocate)
+        # end
       end
     end
   end

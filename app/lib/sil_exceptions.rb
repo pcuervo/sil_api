@@ -20,4 +20,10 @@ module SilExceptions
         super(I18n.t('custom_errors.inventory_item.invalid_quantity_to_add'))
     end
   end
+  
+  class InvalidQuantityToRelocate < StandardError
+    def initialize
+        super(I18n.t('custom_errors.warehouse_location.invalid_quantity_to_relocate'))
+    end
+  end
 end
