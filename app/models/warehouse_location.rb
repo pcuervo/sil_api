@@ -77,6 +77,7 @@ class WarehouseLocation < ActiveRecord::Base
       inventory_item_id: inventory_item.id,
       warehouse_location_id: id
     )
+    puts current_item_location.to_yaml
     # raise if not found (Item has not been previously located here!)
     # raise if trying to relocate more quantity than available
 

@@ -265,8 +265,8 @@ describe WarehouseLocation, type: :model do
 
     before { source_location.locate(inventory_item, inventory_item.quantity) }
 
-    context 'when successful' do
-      context 'full relocation' do
+    context 'full relocation' do
+      context 'when successful' do
         before do
           source_location.relocate(inventory_item, inventory_item.quantity, destination_location)
           source_location.reload
@@ -297,6 +297,13 @@ describe WarehouseLocation, type: :model do
           expect(transactions.first.concept).to eq WarehouseTransaction::ENTRY
           expect(transactions.second.concept).to eq WarehouseTransaction::ENTRY
           expect(transactions.third.concept).to eq WarehouseTransaction::WITHDRAW
+        end
+      end
+
+      context 'when not successful' do
+        let(:empty_location){ FactoryBot.create(:warehouse_location) }
+        it 'should raise error when InventoryItem not in current WarehouseLocation' do
+          expect{empty_location.relocate(inventory_item, inventory_item.quantity, destination_location)}.to raise_error(SilExceptions::ItemNotInLocation)
         end
       end
     end
