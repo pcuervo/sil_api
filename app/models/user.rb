@@ -4,7 +4,7 @@ class User < ActiveRecord::Base
   after_create :assign_token
   # before_destroy :remove_from_projects
 
-  validates :role, inclusion: { in: [1, 2, 3, 4, 5, 6], message: '%{value} is not a valid role' }
+  validates :role, inclusion: { in: [1, 2, 3, 4, 5, 6, 7], message: '%{value} is not a valid role' }
   validates :first_name, :last_name, :email, :role, presence: true
 
   # Include default devise modules. Others available are:
@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
   WAREHOUSE_ADMIN = 4
   DELIVERY = 5
   CLIENT = 6
+  WAREHOUSE = 7
 
   has_attached_file :avatar,
                     styles: {

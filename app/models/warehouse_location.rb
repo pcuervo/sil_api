@@ -179,7 +179,7 @@ class WarehouseLocation < ActiveRecord::Base
       item = il.inventory_item
       inventory_items.push(
         'id' => item.id,
-        'img'           => item.item_img(:thumb),
+        'img'           => item.item_img(:medium),
         'name'          => item.name,
         'location_id'   => il.warehouse_location_id,
         'location'      => il.warehouse_location.name,

@@ -8,7 +8,7 @@ class WithdrawRequestSerializer < ActiveModel::Serializer
       withdraw_request_item[:quantity] = wri.quantity
       withdraw_request_item[:name] = wri.inventory_item.name
       withdraw_request_item[:item_type] = wri.inventory_item.item_type
-      withdraw_request_item[:item_img] = wri.inventory_item.item_img(:thumb)
+      withdraw_request_item[:item_img] = wri.inventory_item.item_img(:medium)
       withdraw_request_item[:actable_type] = wri.inventory_item.actable_type
       withdraw_request_items.push( withdraw_request_item )
     end
