@@ -107,7 +107,6 @@ class WarehouseLocation < ActiveRecord::Base
   # * *Returns:*
   #   - current quantity or error
   def remove_quantity(inventory_item_id, quantity, concept = 3)
-    # item_location = ItemLocation.where('inventory_item_id = ? AND warehouse_location_id = ?', inventory_item_id, id).first
     item_location = ItemLocation.find_by(
       inventory_item_id: inventory_item_id,
       warehouse_location_id: id
@@ -237,4 +236,11 @@ class WarehouseLocation < ActiveRecord::Base
   end
 
   def self.bulk_locate(_user_email, item_locations_arr); end
+
+  # def self.remove_extra 
+
+
+  #   inventory_difference = ItemLocation.select('inventory_items.id, SUM(item_locations.quantity)').joins(:inventory_item).group('inventory_items.id').having('SUM(item_locations.quantity) > inventory_items.quantity').pluck('inventory_items.id, SUM(item_locations.quantity)')
+
+  # end
 end

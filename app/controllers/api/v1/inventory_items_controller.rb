@@ -51,6 +51,12 @@ module Api
 
       def update
         inventory_item = InventoryItem.find( params[:id] )
+
+        if params[:item_img].present?
+          item_img = Paperclip.io_adapters.for(params[:item_img])
+          item_img.original_filename = params[:filename]
+          inventory_item.item_img = item_img
+        end
     
         if inventory_item.update( inventory_item_params )
           
