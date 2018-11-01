@@ -81,7 +81,8 @@ class InventoryTransaction < ActiveRecord::Base
           'serial_number' => inventory_item.serial_number,
           'status'        => inventory_item.status_name,
           'quantity'      => inventory_item.quantity,
-          'img'           => inventory_item.item_img(:medium)
+          'img'           => inventory_item.item_img(:medium),
+          'thumb'         => inventory_item.item_img(:thumb)
         },
         'id'                     => i.id,
         'actable_type'           => i.actable_type,
