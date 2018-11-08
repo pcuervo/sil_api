@@ -164,6 +164,11 @@ describe Api::V1::InventoryItemsController do
         expect(InventoryItem.where('status = ?', InventoryItem::OUT_OF_STOCK).count).to eq 3
       end
 
+      it 'registers the transactions with a CheckOut folio' do
+        last_transaction = CheckOutTransaction.last
+        expect(last_transaction.folio).to eq 'FS-0000001'
+      end
+
       it { should respond_with 201 }
     end
 
