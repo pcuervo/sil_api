@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe Api::V1::ProjectsController do
@@ -62,10 +64,10 @@ describe Api::V1::ProjectsController do
         pm.role = User::PROJECT_MANAGER
         ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
-        invalid_project_attributes = FactoryBot.attributes_for(:project, :name => nil)
+        invalid_project_attributes = FactoryBot.attributes_for(:project, name: nil)
 
         api_authorization_header user.auth_token
-        #post :create, params: { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: @invalid_project_attributes }, format: :json
+        # post :create, params: { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: @invalid_project_attributes }, format: :json
         post :create, params: { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: invalid_project_attributes }, format: :json
       end
 
@@ -83,33 +85,38 @@ describe Api::V1::ProjectsController do
     end
   end
 
-  describe 'PUT/PATCH #update' do
-    context 'when project is successfully updated' do
+  describe 'POST #update' do
+    let(:user) { FactoryBot.create(:user) }
+    let(:project) { FactoryBot.create(:project) }
+    let(:client){ FactoryBot.create(:client, name: 'Miggy') }
+
+    context 'when successful' do
       before(:each) do
-        @user = FactoryBot.create :user
-        @project = FactoryBot.create :project
-        api_authorization_header @user.auth_token
-        patch :update, params: { id: @project.id,
-                         project: { litobel_id: 'hp_new_id', name: 'new_name' } }, format: :json
+        api_authorization_header user.auth_token
+        post :update, params: { id: project.id,
+                                project: { litobel_id: 'hp_new_id', name: 'new_name', client_id: client.id } 
+                              }, format: :json
       end
 
       it 'renders the json representation for the updated project' do
+        puts json_response.to_yaml
         project_response = json_response[:project]
         expect(project_response[:litobel_id]).to eql 'hp_new_id'
         expect(project_response[:name]).to eql 'new_name'
+        expect(project_response[:client][:name]).to eql 'Miggy'
       end
 
       it { should respond_with 200 }
     end
 
-    context 'when is not updated because litobel_id is already taken' do
+    context 'when not successful' do
       before(:each) do
         @user = FactoryBot.create :user
         @project = FactoryBot.create :project
         @invalid_project = FactoryBot.create :project
         api_authorization_header @user.auth_token
         patch :update, params: { id: @invalid_project.id,
-                         project: { litobel_id: @project.litobel_id } }, format: :json
+                                 project: { litobel_id: @project.litobel_id } }, format: :json
       end
 
       it 'renders an errors json' do

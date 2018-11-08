@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Api
   module V1
     class ProjectsController < ApplicationController
@@ -7,7 +9,7 @@ module Api
       before_action only: %i[transfer_inventory transfer_inventory_items] do
         set_transfer_projects
       end
-      before_action only: [:inventory]do
+      before_action only: [:inventory] do
         set_project
       end
 
@@ -22,7 +24,7 @@ module Api
           render json: { errors: 'No se encontró el proyecto.' }, status: 422
           return
         end
-        #respond_with Project.find(params[:id])
+        # respond_with Project.find(params[:id])
         render json: Project.find(params[:id]), include: 'inventory_items'
       end
 

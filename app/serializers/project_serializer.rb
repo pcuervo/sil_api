@@ -1,5 +1,5 @@
 class ProjectSerializer < ActiveModel::Serializer
-  attributes :id, :name, :litobel_id, :created_at, :client, :users, :has_inventory, :inventory_items
+  attributes :id, :name, :litobel_id, :created_at, :client, :users, :has_inventory, :inventory_items, :client_id
 
   def has_inventory
     return true if object.inventory_items.count > 0
