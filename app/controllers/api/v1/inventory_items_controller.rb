@@ -180,7 +180,7 @@ module Api
           return
         end
 
-        render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: inventory_items.count }, status: 201
+        render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: inventory_items.count, folio: CheckOutTransaction.last.folio }, status: 201
       end
 
       def request_item_entry

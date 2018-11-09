@@ -1,4 +1,3 @@
-# encoding: UTF-8
 # This file is auto-generated from the current state of the database. Instead
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
@@ -11,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180612035050) do
+ActiveRecord::Schema.define(version: 20181109190237) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -19,9 +18,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
   create_table "ae_items", id: false, force: :cascade do |t|
     t.integer "user_id",           null: false
     t.integer "inventory_item_id", null: false
+    t.index ["user_id", "inventory_item_id"], name: "index_ae_items_on_user_id_and_inventory_item_id", unique: true, using: :btree
   end
-
-  add_index "ae_items", ["user_id", "inventory_item_id"], name: "index_ae_items_on_user_id_and_inventory_item_id", unique: true, using: :btree
 
   create_table "bulk_items", force: :cascade do |t|
     t.integer  "quantity",   default: 0
@@ -38,9 +36,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
     t.integer  "status",         default: 1
+    t.index ["bundle_item_id"], name: "index_bundle_item_parts_on_bundle_item_id", using: :btree
   end
-
-  add_index "bundle_item_parts", ["bundle_item_id"], name: "index_bundle_item_parts_on_bundle_item_id", using: :btree
 
   create_table "bundle_items", force: :cascade do |t|
     t.integer  "num_parts",   default: 0
@@ -77,9 +74,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
     t.float    "discount",      default: 1.0
+    t.index ["client_id"], name: "index_client_contacts_on_client_id", using: :btree
   end
-
-  add_index "client_contacts", ["client_id"], name: "index_client_contacts_on_client_id", using: :btree
 
   create_table "clients", force: :cascade do |t|
     t.string   "name"
@@ -89,7 +85,7 @@ ActiveRecord::Schema.define(version: 20180612035050) do
 
   create_table "deliveries", force: :cascade do |t|
     t.integer  "user_id"
-    t.integer  "delivery_user_id",                null: false
+    t.integer  "delivery_user_id",                  null: false
     t.string   "company"
     t.string   "addressee"
     t.string   "addressee_phone"
@@ -97,8 +93,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.string   "latitude"
     t.string   "longitude"
     t.text     "additional_comments"
-    t.datetime "created_at",                      null: false
-    t.datetime "updated_at",                      null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
     t.string   "image_file_name"
     t.string   "image_content_type"
     t.integer  "image_file_size"
@@ -106,9 +102,9 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "status",              default: 1
     t.datetime "date_time"
     t.integer  "supplier_id"
+    t.string   "folio",               default: "-"
+    t.index ["user_id"], name: "index_deliveries_on_user_id", using: :btree
   end
-
-  add_index "deliveries", ["user_id"], name: "index_deliveries_on_user_id", using: :btree
 
   create_table "delivery_items", force: :cascade do |t|
     t.integer  "inventory_item_id"
@@ -117,10 +113,9 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "part_id",           default: 0
     t.datetime "created_at",                    null: false
     t.datetime "updated_at",                    null: false
+    t.index ["delivery_id"], name: "index_delivery_items_on_delivery_id", using: :btree
+    t.index ["inventory_item_id"], name: "index_delivery_items_on_inventory_item_id", using: :btree
   end
-
-  add_index "delivery_items", ["delivery_id"], name: "index_delivery_items_on_delivery_id", using: :btree
-  add_index "delivery_items", ["inventory_item_id"], name: "index_delivery_items_on_inventory_item_id", using: :btree
 
   create_table "delivery_request_items", force: :cascade do |t|
     t.integer  "inventory_item_id"
@@ -129,10 +124,9 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "part_id",             default: 0
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
+    t.index ["delivery_request_id"], name: "index_delivery_request_items_on_delivery_request_id", using: :btree
+    t.index ["inventory_item_id"], name: "index_delivery_request_items_on_inventory_item_id", using: :btree
   end
-
-  add_index "delivery_request_items", ["delivery_request_id"], name: "index_delivery_request_items_on_delivery_request_id", using: :btree
-  add_index "delivery_request_items", ["inventory_item_id"], name: "index_delivery_request_items_on_inventory_item_id", using: :btree
 
   create_table "delivery_requests", force: :cascade do |t|
     t.integer  "user_id"
@@ -146,9 +140,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
     t.datetime "date_time"
+    t.index ["user_id"], name: "index_delivery_requests_on_user_id", using: :btree
   end
-
-  add_index "delivery_requests", ["user_id"], name: "index_delivery_requests_on_user_id", using: :btree
 
   create_table "inventory_item_requests", force: :cascade do |t|
     t.string   "name",                     default: " "
@@ -185,7 +178,7 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.datetime "item_img_updated_at"
     t.date     "validity_expiration_date"
     t.integer  "state",                                             default: 1
-    t.decimal  "value",                    precision: 10, scale: 2, default: 0.0
+    t.decimal  "value",                    precision: 10, scale: 2, default: "0.0"
     t.string   "storage_type"
     t.integer  "is_high_value",                                     default: 0
     t.integer  "quantity",                                          default: 0
@@ -193,11 +186,10 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.string   "brand",                                             default: " "
     t.string   "model",                                             default: " "
     t.text     "extra_parts"
+    t.index ["client_id"], name: "index_inventory_items_on_client_id", using: :btree
+    t.index ["project_id"], name: "index_inventory_items_on_project_id", using: :btree
+    t.index ["user_id"], name: "index_inventory_items_on_user_id", using: :btree
   end
-
-  add_index "inventory_items", ["client_id"], name: "index_inventory_items_on_client_id", using: :btree
-  add_index "inventory_items", ["project_id"], name: "index_inventory_items_on_project_id", using: :btree
-  add_index "inventory_items", ["user_id"], name: "index_inventory_items_on_user_id", using: :btree
 
   create_table "inventory_transactions", force: :cascade do |t|
     t.integer  "inventory_item_id"
@@ -208,9 +200,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "actable_id"
     t.string   "actable_type"
     t.integer  "quantity"
+    t.index ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id", using: :btree
   end
-
-  add_index "inventory_transactions", ["inventory_item_id"], name: "index_inventory_transactions_on_inventory_item_id", using: :btree
 
   create_table "item_locations", force: :cascade do |t|
     t.integer  "inventory_item_id"
@@ -218,11 +209,9 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "quantity",              default: 1
     t.datetime "created_at",                        null: false
     t.datetime "updated_at",                        null: false
-    t.integer  "units",                 default: 1
+    t.index ["inventory_item_id"], name: "index_item_locations_on_inventory_item_id", using: :btree
+    t.index ["warehouse_location_id"], name: "index_item_locations_on_warehouse_location_id", using: :btree
   end
-
-  add_index "item_locations", ["inventory_item_id"], name: "index_item_locations_on_inventory_item_id", using: :btree
-  add_index "item_locations", ["warehouse_location_id"], name: "index_item_locations_on_warehouse_location_id", using: :btree
 
   create_table "item_types", force: :cascade do |t|
     t.string   "name"
@@ -237,9 +226,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "actor_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_logs_on_user_id", using: :btree
   end
-
-  add_index "logs", ["user_id"], name: "index_logs_on_user_id", using: :btree
 
   create_table "notifications", force: :cascade do |t|
     t.string   "message"
@@ -253,17 +241,15 @@ ActiveRecord::Schema.define(version: 20180612035050) do
   create_table "notifications_users", id: false, force: :cascade do |t|
     t.integer "notification_id", null: false
     t.integer "user_id",         null: false
+    t.index ["notification_id", "user_id"], name: "index_notifications_users_on_notification_id_and_user_id", using: :btree
+    t.index ["user_id", "notification_id"], name: "index_notifications_users_on_user_id_and_notification_id", using: :btree
   end
-
-  add_index "notifications_users", ["notification_id", "user_id"], name: "index_notifications_users_on_notification_id_and_user_id", using: :btree
-  add_index "notifications_users", ["user_id", "notification_id"], name: "index_notifications_users_on_user_id_and_notification_id", using: :btree
 
   create_table "pm_items", id: false, force: :cascade do |t|
     t.integer "user_id",           null: false
     t.integer "inventory_item_id", null: false
+    t.index ["user_id", "inventory_item_id"], name: "index_pm_items_on_user_id_and_inventory_item_id", unique: true, using: :btree
   end
-
-  add_index "pm_items", ["user_id", "inventory_item_id"], name: "index_pm_items_on_user_id_and_inventory_item_id", unique: true, using: :btree
 
   create_table "projects", force: :cascade do |t|
     t.string   "name"
@@ -271,17 +257,15 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.integer  "client_id"
+    t.index ["client_id"], name: "index_projects_on_client_id", using: :btree
   end
-
-  add_index "projects", ["client_id"], name: "index_projects_on_client_id", using: :btree
 
   create_table "projects_users", id: false, force: :cascade do |t|
     t.integer "project_id", null: false
     t.integer "user_id",    null: false
+    t.index ["project_id", "user_id"], name: "index_projects_users_on_project_id_and_user_id", using: :btree
+    t.index ["user_id", "project_id"], name: "index_projects_users_on_user_id_and_project_id", using: :btree
   end
-
-  add_index "projects_users", ["project_id", "user_id"], name: "index_projects_users_on_project_id_and_user_id", using: :btree
-  add_index "projects_users", ["user_id", "project_id"], name: "index_projects_users_on_user_id_and_project_id", using: :btree
 
   create_table "suppliers", force: :cascade do |t|
     t.string   "name"
@@ -291,10 +275,10 @@ ActiveRecord::Schema.define(version: 20180612035050) do
 
   create_table "system_settings", force: :cascade do |t|
     t.integer  "units_per_location",                         default: 50
-    t.decimal  "cost_per_location",  precision: 8, scale: 2, default: 0.0
-    t.decimal  "cost_high_value",    precision: 8, scale: 2, default: 0.0
-    t.datetime "created_at",                                               null: false
-    t.datetime "updated_at",                                               null: false
+    t.decimal  "cost_per_location",  precision: 8, scale: 2, default: "0.0"
+    t.decimal  "cost_high_value",    precision: 8, scale: 2, default: "0.0"
+    t.datetime "created_at",                                                 null: false
+    t.datetime "updated_at",                                                 null: false
   end
 
   create_table "unit_items", force: :cascade do |t|
@@ -335,11 +319,10 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.datetime "avatar_updated_at"
     t.integer  "actable_id"
     t.string   "actable_type"
+    t.index ["auth_token"], name: "index_users_on_auth_token", unique: true, using: :btree
+    t.index ["email"], name: "index_users_on_email", unique: true, using: :btree
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
   end
-
-  add_index "users", ["auth_token"], name: "index_users_on_auth_token", unique: true, using: :btree
-  add_index "users", ["email"], name: "index_users_on_email", unique: true, using: :btree
-  add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   create_table "warehouse_locations", force: :cascade do |t|
     t.string   "name",              default: ""
@@ -348,9 +331,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "warehouse_rack_id"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+    t.index ["warehouse_rack_id"], name: "index_warehouse_locations_on_warehouse_rack_id", using: :btree
   end
-
-  add_index "warehouse_locations", ["warehouse_rack_id"], name: "index_warehouse_locations_on_warehouse_rack_id", using: :btree
 
   create_table "warehouse_racks", force: :cascade do |t|
     t.string   "name",       default: ""
@@ -366,13 +348,11 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "concept",               default: 1
     t.integer  "quantity",              default: 1
     t.integer  "part_id",               default: 0
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
-    t.integer  "units",                 default: 1000
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.index ["inventory_item_id"], name: "index_warehouse_transactions_on_inventory_item_id", using: :btree
+    t.index ["warehouse_location_id"], name: "index_warehouse_transactions_on_warehouse_location_id", using: :btree
   end
-
-  add_index "warehouse_transactions", ["inventory_item_id"], name: "index_warehouse_transactions_on_inventory_item_id", using: :btree
-  add_index "warehouse_transactions", ["warehouse_location_id"], name: "index_warehouse_transactions_on_warehouse_location_id", using: :btree
 
   create_table "withdraw_request_items", force: :cascade do |t|
     t.integer  "withdraw_request_id"
@@ -380,10 +360,9 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "quantity",            default: 1
     t.datetime "created_at",                      null: false
     t.datetime "updated_at",                      null: false
+    t.index ["inventory_item_id"], name: "index_withdraw_request_items_on_inventory_item_id", using: :btree
+    t.index ["withdraw_request_id"], name: "index_withdraw_request_items_on_withdraw_request_id", using: :btree
   end
-
-  add_index "withdraw_request_items", ["inventory_item_id"], name: "index_withdraw_request_items_on_inventory_item_id", using: :btree
-  add_index "withdraw_request_items", ["withdraw_request_id"], name: "index_withdraw_request_items_on_withdraw_request_id", using: :btree
 
   create_table "withdraw_requests", force: :cascade do |t|
     t.integer  "user_id"
@@ -391,9 +370,8 @@ ActiveRecord::Schema.define(version: 20180612035050) do
     t.integer  "pickup_company_id"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
+    t.index ["user_id"], name: "index_withdraw_requests_on_user_id", using: :btree
   end
-
-  add_index "withdraw_requests", ["user_id"], name: "index_withdraw_requests_on_user_id", using: :btree
 
   add_foreign_key "bundle_item_parts", "bundle_items"
   add_foreign_key "client_contacts", "clients"
@@ -406,8 +384,6 @@ ActiveRecord::Schema.define(version: 20180612035050) do
   add_foreign_key "inventory_items", "users"
   add_foreign_key "inventory_transactions", "inventory_items"
   add_foreign_key "item_locations", "inventory_items"
-  add_foreign_key "item_locations", "inventory_items"
-  add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "logs", "users"
   add_foreign_key "projects", "clients"

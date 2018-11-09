@@ -1,5 +1,5 @@
 class DeliverySerializer < ActiveModel::Serializer
-  attributes :id, :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments, :user, :delivery_items, :created_at, :updated_at, :date_time, :supplier, :delivery_user
+  attributes :id, :delivery_user_id, :company, :address, :addressee, :addressee_phone, :image, :latitude, :longitude, :status, :additional_comments, :user, :delivery_items, :created_at, :updated_at, :date_time, :supplier, :delivery_user, :folio
 
   def supplier
     supplier = Supplier.find_by_id( object.supplier_id )

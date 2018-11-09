@@ -307,7 +307,7 @@ describe WarehouseLocation, type: :model do
         end
 
         it 'should raise error when trying to relocate more than the available quantity' do
-          expect{source_location.relocate(inventory_item, inventory_item.quantity+1, destination_location)}.to raise_error(SilExceptions::InvalidQuantityToLocate)
+          expect{source_location.relocate(inventory_item, inventory_item.quantity+1, destination_location)}.to raise_error(SilExceptions::InvalidQuantityToRelocate)
         end
       end
     end

@@ -65,11 +65,23 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
         delivery_response = json_response[:delivery]
         expect(delivery_response[:address]).to eql @delivery_attributes[:address]
         expect(delivery_response[:delivery_user_id]).to eql @delivery_user.id
+        expect(delivery_response[:company]).to eql @delivery_attributes[:company]
+        expect(delivery_response[:addressee]).to eql @delivery_attributes[:addressee]
+        expect(delivery_response[:addressee_phone]).to eql @delivery_attributes[:addressee_phone]
+        expect(delivery_response[:status]).to eql @delivery_attributes[:status]
+        expect(delivery_response[:folio]).to eql CheckOutTransaction.last.folio
+        expect(delivery_response[:user][:email]).to eql @user.email
       end
 
       it "has at least 1 InventoryItem" do
         delivery = Delivery.last
         expect( delivery.delivery_items.count ).to eq 2
+      end
+
+      it 'should generate CheckOut folio' do
+        last_transaction = CheckOutTransaction.last
+
+        expect(last_transaction.folio).to eq 'FS-0000001'
       end
 
       it { should respond_with 201 }
