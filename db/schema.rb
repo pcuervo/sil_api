@@ -384,6 +384,8 @@ ActiveRecord::Schema.define(version: 20181109190237) do
   add_foreign_key "inventory_items", "users"
   add_foreign_key "inventory_transactions", "inventory_items"
   add_foreign_key "item_locations", "inventory_items"
+  add_foreign_key "item_locations", "inventory_items"
+  add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "item_locations", "warehouse_locations"
   add_foreign_key "logs", "users"
   add_foreign_key "projects", "clients"
