@@ -105,6 +105,21 @@ module Api
         render json: { errors: warehouse_update[:errors], located_items: warehouse_update[:located_items] }, status: 200
       end
 
+      def remove_item
+        inventory_item = InventoryItem.find(params[:inventory_item_id])
+        location = WarehouseLocation.find(params[:warehouse_location_id])
+
+
+        if location.remove_item(inventory_item.id)
+          render json: { success: 'Artículo removido de ubicación correctamente' }, status: 201
+          return
+        end
+
+        render json: { errors: 'No se pudo ubicar el artículo' }, status: 422
+      rescue StandardError => e
+        render json: { errors: e.message }, status: 422
+      end
+
       private
 
       def warehouse_location_params

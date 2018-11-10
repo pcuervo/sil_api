@@ -86,6 +86,7 @@ class WarehouseLocation < ActiveRecord::Base
 
   def remove_item(inventory_item_id)
     item_location = item_locations.find_by(inventory_item_id: inventory_item_id)
+    raise SilExceptions::ItemNotInLocation if item_location.nil?
 
     WarehouseTransaction.create(
       inventory_item_id: inventory_item_id,
@@ -95,7 +96,7 @@ class WarehouseLocation < ActiveRecord::Base
     )
     item_locations.delete(item_location)
     item_location.destroy
-    item_location.present?
+    #item_location.present?
   end
 
   # Remove a quantity of an item from current location. By default

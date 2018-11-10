@@ -77,6 +77,7 @@ class WarehouseRack < ActiveRecord::Base
         rack_items['items'].push(
           'id' => item.id,
           'img'           => item.item_img(:medium),
+          'thumb'         => item.item_img(:thumb),
           'name'          => item.name,
           'location_id'   => il.warehouse_location_id,
           'location'      => il.warehouse_location.name,

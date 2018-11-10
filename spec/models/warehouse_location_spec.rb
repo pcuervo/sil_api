@@ -159,16 +159,17 @@ describe WarehouseLocation, type: :model do
   end
 
   describe '.remove_item' do
-    before(:each) do
-      @item_location = FactoryBot.create :item_location
-      @location = @item_location.warehouse_location
-    end
+    let(:warehouse_location){ FactoryBot.create(:warehouse_location) }
+    let(:inventory_item){ FactoryBot.create(:inventory_item) }
+
+    before{ warehouse_location.locate(inventory_item, inventory_item.quantity) }
 
     context 'remove an UnitItem from current location' do
       it 'return a true if UnitItem was removed successfully' do
-        was_removed = @location.remove_item(@item_location.inventory_item)
+        warehouse_location.remove_item(inventory_item)
+        warehouse_location.reload
 
-        expect(was_removed).to eq true
+        expect(warehouse_location.status).to eq WarehouseLocation::EMPTY
       end
     end
   end

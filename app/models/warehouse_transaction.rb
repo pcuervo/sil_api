@@ -42,7 +42,7 @@ class WarehouseTransaction < ActiveRecord::Base
     when WITHDRAW
       'Salida'
     when EMPTIED
-      'Salida'
+      'Vaciada'
     end
   end
 end

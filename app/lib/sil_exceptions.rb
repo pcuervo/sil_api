@@ -17,7 +17,7 @@ module SilExceptions
 
   class ItemNotInLocation < StandardError
     def initialize
-        super(I18n.t('custom_errors.inventory_item.invalid_quantity_to_add'))
+        super(I18n.t('custom_errors.warehouse_location.item_not_in_location'))
     end
   end
   

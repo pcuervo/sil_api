@@ -93,5 +93,6 @@ es:
     warehouse_location:
         invalid_quantity_to_locate: "La cantidad a ubicar es mayor a la cantidad disponbile"
         invalid_quantity_to_relocate: "La cantidad a reubicar es mayor a la cantidad disponbile en la ubicación"
+        item_not_in_location: "Ese artículo no se encuentra en la ubicación"
     inventory_item:
         invalid_quantity_to_add: "La cantidad a agregar debe ser mayor que 0"

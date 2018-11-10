@@ -157,4 +157,44 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
 
   end
 
+  describe "POST #remove_item" do
+    let(:user){ FactoryBot.create(:user) }
+    let(:warehouse_location){ FactoryBot.create(:warehouse_location) }
+    let(:inventory_item){ FactoryBot.create(:inventory_item) }
+    
+    context "when successful" do
+      before(:each) do
+        warehouse_location.locate(inventory_item, inventory_item.quantity)
+        api_authorization_header user.auth_token
+
+        post :remove_item, params: { warehouse_location_id: warehouse_location.id, inventory_item_id: inventory_item.id }, format: :json
+      end
+
+      it "removes InventoryItem from WarehouseLocation" do
+        warehouse_location_response = json_response[:warehouse_location]
+        warehouse_location.reload
+
+        expect(warehouse_location.status).to eq WarehouseLocation::EMPTY
+        expect(ItemLocation.all.count).to eq 0
+      end
+
+      it { should respond_with 201 }
+    end
+
+    context 'not successful' do
+      let(:other_item){ FactoryBot.create(:inventory_item) }
+      before(:each) do
+        warehouse_location.locate(inventory_item, inventory_item.quantity)
+        api_authorization_header user.auth_token
+
+        post :remove_item, params: { warehouse_location_id: warehouse_location.id, inventory_item_id: other_item.id }, format: :json
+      end
+
+      it "raises error because InventoryItem does not exist in WarehouseLocation" do
+        expect(json_response[:errors]).to eq 'Ese artículo no se encuentra en la ubicación'
+      end
+
+      it { should respond_with 422 }
+    end
+  end
 end
