@@ -40,6 +40,7 @@ class Delivery < ActiveRecord::Base
       'longitude'           => longitude,
       'company'             => company,
       'image'               => image,
+      'folio'               => folio,
       'status'              => status,
       'supplier'            => get_supplier(supplier_id),
       'addressee'           => addressee,
