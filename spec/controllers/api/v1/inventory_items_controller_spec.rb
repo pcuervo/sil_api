@@ -35,10 +35,11 @@ describe Api::V1::InventoryItemsController do
 
   describe 'POST #create' do
     context 'when is succesfully created' do
+      let(:user){ FactoryBot.create(:user) }
 
       before(:each) do
         @folio = InventoryTransaction.next_checkin_folio
-        user = FactoryBot.create :user
+        
         project = FactoryBot.create :project
         client = FactoryBot.create :client
 
@@ -62,6 +63,13 @@ describe Api::V1::InventoryItemsController do
         last_transaction = CheckInTransaction.last
 
         expect(last_transaction.folio).to eq @folio
+      end
+
+      it 'should log the action' do
+        last_log = Log.last
+
+        expect(last_log.user.email).to eq user.email
+        expect(last_log.sys_module).to eq 'Entrada'
       end
 
       it { should respond_with 201 }

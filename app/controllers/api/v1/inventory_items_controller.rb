@@ -42,6 +42,8 @@ module Api
           PmItem.create(user_id: params[:pm_id], inventory_item_id: @inventory_item.id) if params[:pm_id].present?
           AeItem.create(user_id: params[:ae_id], inventory_item_id: @inventory_item.id) if params[:pm_id].present?
 
+          log_action(current_user.id, 'Entrada', "Entrada del artículo #{@inventory_item.name}.", next_folio) 
+
           render json: @inventory_item.get_details, status: 201, location: [:api, @inventory_item]
           return
         end
@@ -180,7 +182,7 @@ module Api
           return
         end
 
-        log_action(current_user.id, 'Salida', "El usuario #{current_user.email} realizó una salida de #{inventory_items.count} artículos.", folio) 
+        log_action(current_user.id, 'Salida', "Salida de #{inventory_items.count} artículos.", folio) 
         render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: inventory_items.count, folio: CheckOutTransaction.last.folio }, status: 201
       end
 
