@@ -135,10 +135,10 @@ describe Api::V1::InventoryItemsController do
 
   describe 'POST #multiple_withdrawal' do
     context 'when multiple InventoryItems with location are succesfully withdrawn' do
-      before(:each) do
-        user = FactoryBot.create :user
-        supplier = FactoryBot.create :supplier
+      let(:user){ FactoryBot.create(:user) }
+      let(:supplier){ FactoryBot.create(:supplier) }
 
+      before(:each) do
         inventory_items = []
         3.times do |_t|
           inventory_item = create_item_with_location
@@ -167,6 +167,12 @@ describe Api::V1::InventoryItemsController do
       it 'registers the transactions with a CheckOut folio' do
         last_transaction = CheckOutTransaction.last
         expect(last_transaction.folio).to eq 'FS-0000001'
+      end
+
+      it 'should log who made the transaction' do
+        last_log = Log.last
+
+        expect(last_log.user.email).to eq user.email
       end
 
       it { should respond_with 201 }

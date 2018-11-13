@@ -1,7 +1,7 @@
 module Api
   module V1
     class InventoryItemsController < ApplicationController
-      before_action only: %i[create authorize_entry authorize_withdrawal request_item_entry cancel_item_entry_request destroy stats_pm_ae re_entry] do
+      before_action only: %i[create authorize_entry authorize_withdrawal request_item_entry cancel_item_entry_request destroy stats_pm_ae re_entry multiple_withdrawal] do
         authenticate_with_token! request.headers['Authorization']
       end
       after_action :send_notification_authorize_entry, only: [:authorize_entry]
@@ -180,6 +180,7 @@ module Api
           return
         end
 
+        log_action(current_user.id, 'Salida', "El usuario #{current_user.email} realizó una salida de #{inventory_items.count} artículos.", folio) 
         render json: { success: '¡Se ha realizado una salida masiva!', items_withdrawn: inventory_items.count, folio: CheckOutTransaction.last.folio }, status: 201
       end
 

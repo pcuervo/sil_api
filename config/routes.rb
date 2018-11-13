@@ -191,6 +191,7 @@ Sil::Application.routes.draw do
           post 'destroy', action: 'destroy'
         end
       end
+      resources :logs, only: %i[index]
     end
   end
 

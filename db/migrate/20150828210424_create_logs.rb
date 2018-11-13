@@ -4,7 +4,7 @@ class CreateLogs < ActiveRecord::Migration
       t.references  :user, index: true
       t.string      :sys_module
       t.string      :action
-      t.integer     :actor_id
+      t.string     :actor_id
       t.timestamps null: false
     end
     add_foreign_key :logs, :users
