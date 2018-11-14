@@ -445,6 +445,13 @@ describe Api::V1::InventoryItemsController do
         expect(last_transaction.folio).to include 'FE-'
       end
 
+      it 'should log the action' do
+        last_log = Log.last
+
+        expect(last_log.user.email).to eq user.email
+        expect(last_log.sys_module).to eq 'Reingreso'
+      end
+
       it { should respond_with 201 }
     end
 

@@ -266,24 +266,10 @@ module Api
         rescue SilExceptions::InvalidQuantityToAdd => e
           render json: { errors: e.message }, status: 422 
         else
+          log_action(current_user.id, 'Reingreso', "Reingreso del artículo #{@inventory_item.name}.", last_folio) 
+
           render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  @inventory_item.name + '"!' }, status: 201
         end
-
-         
-        #@todo: 
-        # inventory_item.update({
-        #   status: InventoryItem::IN_STOCK,
-        #   state: params[:state]})
-        # inventory_item.quantity = inventory_item.quantity.to_i + params[:quantity].to_i
-        # if inventory_item.save
-        #   @inventory_item = InventoryItem.where('actable_id = ? AND actable_type = ?', inventory_item.id, 'BulkItem').first
-        #   log_checkin_transaction( params[:entry_date], @inventory_item.id, "Reingreso granel", '', params[:additional_comments], params[:delivery_company], params[:delivery_company_contact], params[:quantity])
-        #   send_notifications_re_entry
-        #   render json: { success: '¡Has reingresado '+ params[:quantity].to_s + ' existencia(s) del artículo  "' +  inventory_item.name + '"!' }, status: 201  
-        #   return
-        # end
-    
-        # render json: { errors: inventory_item.errors }, status: 422 
       end
 
       def quick_search

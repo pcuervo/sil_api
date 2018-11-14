@@ -1,7 +1,7 @@
 module Api
   module V1
     class DeliveriesController < ApplicationController
-      before_action only: %i[index by_delivery_man] do
+      before_action only: %i[index by_delivery_man create] do
         authenticate_with_token! request.headers['Authorization']
       end
       after_action :send_new_delivery_notifications, only: [:create]
@@ -55,6 +55,8 @@ module Api
           @delivery.add_items(items, @delivery_user.first_name + ' ' + @delivery_user.last_name, 'Salida por envío a ' + @delivery.company + '. Recibe: ' + @delivery.addressee + '.')
 
           send_delivery_request_notifications if Delivery::PENDING_APPROVAL == @delivery.status
+
+          log_action(current_user.id, 'Envío', "Envío de #{items.count} artículos.", @delivery.folio) 
 
           render json: @delivery, status: 201, location: [:api, @delivery]
         else
