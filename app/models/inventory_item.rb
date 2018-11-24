@@ -118,6 +118,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     client = project.client
     client_contact = project.client_contact
     locations = warehouse_locations
+    transaction = InventoryTransaction.find_by(inventory_item_id: id, concept: 'Entrada granel inicial')
+    comments = transaction.present? ? transaction.additional_comments : ''
 
     details = {
       'inventory_item' => {
@@ -149,7 +151,8 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         'quantity' => quantity,
         'brand' => brand,
         'model' => model,
-        'extra_parts' => extra_parts
+        'extra_parts' => extra_parts,
+        'additional_comments' => comments
       }
     }
 
