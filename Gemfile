@@ -25,6 +25,7 @@ gem 'active_model_serializers', '0.9.3'
 gem 'active_record-acts_as'
 
 gem 'rack-cors', '1.0.1'
+gem 'rack-attack'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
