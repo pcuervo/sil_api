@@ -29,12 +29,11 @@ class Rack::Attack
   end
 
   throttle('inventory_modification', limit: 1, period: 5.seconds) do |req|
-    if req.path == '/api/inventory_items/multiple_withdrawal' || req.path == '/api/inventory_items/re_entry'
+    if req.path == '/api/inventory_items/multiple_withdrawal' || req.path == '/api/inventory_items/re_entry' || ( req.path.start_with?('/api/users/') && req.path.end_with?('inventory_items') )
       true
-      return
     end
 
-    req.path.start_with?('/api/users/') && req.path.end_with?('inventory_items')
+    
   end
 
   # Throttle POST requests to /login by email param
