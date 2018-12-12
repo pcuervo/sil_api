@@ -82,7 +82,9 @@ class InventoryTransaction < ActiveRecord::Base
           'status'        => inventory_item.status_name,
           'quantity'      => inventory_item.quantity,
           'img'           => inventory_item.item_img(:medium),
-          'thumb'         => inventory_item.item_img(:thumb)
+          'thumb'         => inventory_item.item_img(:thumb),
+          'description'   => inventory_item.description,
+          'extra_parts'   => inventory_item.extra_parts
         },
         'id'                     => i.id,
         'actable_type'           => i.actable_type,
