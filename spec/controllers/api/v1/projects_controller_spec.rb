@@ -18,6 +18,18 @@ describe Api::V1::ProjectsController do
     it { should respond_with 200 }
   end
 
+  describe 'GET #lean_index' do
+    before{ FactoryBot.create_list(:project, 5) }
+    before(:each) { get :lean_index }
+
+    it 'returns Projects in JSON format' do
+      project_response = json_response[:projects]
+      expect(project_response.count).to eq 5
+    end
+
+    it { should respond_with 200 }
+  end
+
   describe 'GET #index' do
     before(:each) do
       5.times { FactoryBot.create :project }
@@ -88,14 +100,13 @@ describe Api::V1::ProjectsController do
   describe 'POST #update' do
     let(:user) { FactoryBot.create(:user) }
     let(:project) { FactoryBot.create(:project) }
-    let(:client){ FactoryBot.create(:client, name: 'Miggy') }
+    let(:client) { FactoryBot.create(:client, name: 'Miggy') }
 
     context 'when successful' do
       before(:each) do
         api_authorization_header user.auth_token
         post :update, params: { id: project.id,
-                                project: { litobel_id: 'hp_new_id', name: 'new_name', client_id: client.id } 
-                              }, format: :json
+                                project: { litobel_id: 'hp_new_id', name: 'new_name', client_id: client.id } }, format: :json
       end
 
       it 'renders the json representation for the updated project' do

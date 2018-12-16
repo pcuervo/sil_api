@@ -9,7 +9,7 @@ module Api
       before_action only: %i[transfer_inventory transfer_inventory_items] do
         set_transfer_projects
       end
-      before_action only: [:inventory] do
+      before_action only: %i[inventory lean_show] do
         set_project
       end
 
@@ -27,6 +27,11 @@ module Api
         # respond_with Project.find(params[:id])
         render json: Project.find(params[:id]), include: 'inventory_items'
       end
+
+      def lean_index
+        render json: Project.all.order(name: :asc), each_serializer: LeanProjectSerializer
+      end
+
 
       def create
         client_contact = User.find_by_actable_id(params[:client_contact_id])

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'api_constraints'
 
 Sil::Application.routes.draw do
@@ -77,6 +79,7 @@ Sil::Application.routes.draw do
           get 'get_project_users/:id',  action: 'project_users'
           get 'get_project_client/:id', action: 'project_client'
           get 'by_user/:id',            action: 'by_user'
+          get 'lean_index',             action: 'lean_index'
           post 'add_users',             action: 'add_users'
           post 'remove_user',           action: 'remove_user'
           post 'update',                action: 'update'
@@ -93,8 +96,8 @@ Sil::Application.routes.draw do
       end
       resources :client_contacts, only: %i[show index create update destroy] do
         collection do
-          get 'get_by_client/',    action: 'by_client'
-          get 'by_user/:id',    action: 'by_user'
+          get 'get_by_client/', action: 'by_client'
+          get 'by_user/:id', action: 'by_user'
           post 'inventory_items',  action: 'inventory_items'
           get 'stats/:id',         action: 'stats'
           post 'update',           action: 'update'
@@ -195,5 +198,5 @@ Sil::Application.routes.draw do
     end
   end
 
-  match '*path', via: [:options], to: lambda {|_| [204, { 'Content-Type' => 'text/plain' }]}
+  match '*path', via: [:options], to: ->(_) { [204, { 'Content-Type' => 'text/plain' }] }
 end
