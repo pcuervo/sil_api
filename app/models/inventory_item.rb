@@ -342,22 +342,24 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def self.migrate_items
-    InventoryItem.all.each do |item|
-      if item.actable_type == 'BulkItem'
-        bulk_item = BulkItem.find(item.actable_id)
-        item.update_attributes(quantity: bulk_item.quantity)
-      end
+  def delete_transactions
+    inventory_transactions.destroy_all
+  end
 
-      next unless item.actable_type == 'UnitItem'
-      unit = UnitItem.find(item.actable_id)
-      item.update_attributes(
-        serial_number: unit.serial_number,
-        brand: unit.brand,
-        model: unit.model,
-        quantity: 1
-      )
-    end
+  def delete_warehouse_transactions
+    warehouse_transactions.destroy_all
+  end
+
+  def delete_item_locations
+    item_locations.destroy_all
+  end
+
+  def delete_withdraw_request_items
+    withdraw_request_items.destroy_all
+  end
+
+  def delete_delivery_request_items
+    delivery_request_items.destroy_all
   end
 
   def self.quick_search(keyword, in_stock)
@@ -370,6 +372,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
     items
   end
+
   # Scopes
 
   scope :recent, lambda {
@@ -427,31 +430,11 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     end
   end
 
-  def delete_transactions
-    inventory_transactions.destroy_all
-  end
-
-  def delete_warehouse_transactions
-    warehouse_transactions.destroy_all
-  end
-
-  def delete_item_locations
-    item_locations.destroy_all
-  end
-
-  def delete_withdraw_request_items
-    withdraw_request_items.destroy_all
-  end
-
   def delete_bundle_item_parts
     return if actable_type != 'BundleItem'
 
     sql = 'DELETE from bundle_item_parts WHERE bundle_item_id = ' + actable_id.to_s
     ActiveRecord::Base.connection.execute(sql)
-  end
-
-  def delete_delivery_request_items
-    delivery_request_items.destroy_all
   end
 
   def delete_pm_items

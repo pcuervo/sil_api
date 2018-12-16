@@ -79,7 +79,7 @@ RSpec.configure do |config|
   config.include Request::HeadersHelpers, :type => :controller
   config.include Devise::Test::ControllerHelpers, :type => :controller
   # Factories and other helpers
-  [:model, :controller].each do |type| 
+  [:model, :controller, :class].each do |type| 
     config.include ExtendedFactories::DeliveryHelpers, :type => type
     config.include ExtendedFactories::WarehouseHelpers, :type => type
     config.include ExtendedFactories::ProjectHelpers, :type => type
