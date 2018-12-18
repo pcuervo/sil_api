@@ -9,7 +9,7 @@ module Api
       before_action only: %i[transfer_inventory transfer_inventory_items] do
         set_transfer_projects
       end
-      before_action only: %i[inventory lean_show] do
+      before_action only: %i[inventory lean_show show] do
         set_project
       end
 
@@ -20,12 +20,12 @@ module Api
       end
 
       def show
-        unless Project.exists?(params[:id])
+        unless @project
           render json: { errors: 'No se encontró el proyecto.' }, status: 422
           return
         end
-        # respond_with Project.find(params[:id])
-        render json: Project.find(params[:id]), include: 'inventory_items'
+
+        render json: @project, include: ['inventory_items', 'inventory_items.item_locations']
       end
 
       def lean_index

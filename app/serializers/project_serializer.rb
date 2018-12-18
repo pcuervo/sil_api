@@ -1,9 +1,9 @@
 class ProjectSerializer < ActiveModel::Serializer
-  attributes :id, :name, :litobel_id, :created_at, :client, :users, :has_inventory, :inventory_items, :client_id
+  attributes :id, :name, :litobel_id, :created_at, :client, :users, :client_id, :has_inventory
+
+  has_many :inventory_items, serializer: LeanItemSerializer
 
   def has_inventory
-    return true if object.inventory_items.count > 0
-
-    return false
+    object.inventory_items.count > 0
   end
 end

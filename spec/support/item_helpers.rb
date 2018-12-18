@@ -9,7 +9,7 @@ module ExtendedFactories
     def create_item_with_location(quantity, project)
       item = FactoryBot.create(:inventory_item, quantity: 0, project_id: project.id)
       location = FactoryBot.create(:warehouse_location)
-      supplier = FactoryBot.create(:supplier)
+      supplier = Supplier.find_or_create_by(name: 'Litobel')
 
       item.add(quantity, InventoryItem::NEW, Date.today, 'Entrada inicial', supplier.id, 'NA', 'Alta de inventario de un wey tops', InventoryTransaction.next_checkin_folio)
       location.locate(item, quantity)

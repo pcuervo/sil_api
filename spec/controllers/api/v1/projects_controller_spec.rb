@@ -6,6 +6,8 @@ describe Api::V1::ProjectsController do
   describe 'GET #show' do
     before(:each) do
       @project = FactoryBot.create :project
+      5.times{ create_item_with_location(100, @project) }
+
       get :show, params: { id: @project.id }
     end
 
@@ -13,6 +15,13 @@ describe Api::V1::ProjectsController do
       project_response = json_response[:project]
       expect(project_response[:name]).to eql @project.name
       expect(project_response[:litobel_id]).to eql @project.litobel_id
+    end
+
+    it 'returns all InventoryItem data' do
+      project_response = json_response[:project]
+      puts project_response.to_yaml
+
+      expect(project_response[:inventory_items].count).to eql 5
     end
 
     it { should respond_with 200 }

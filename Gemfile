@@ -19,7 +19,7 @@ gem 'jquery-rails'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
 #Api gems
-gem 'active_model_serializers', '0.9.3'
+gem 'active_model_serializers', '~> 0.10.0'
 
 # Used of MTI
 gem 'active_record-acts_as'

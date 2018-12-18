@@ -179,7 +179,7 @@ RSpec.describe Api::V1::ClientContactsController, type: :controller do
     end
 
     it "returns hash containing inventory items that belong to a client contact" do
-      client_contact_response = json_response[:client_contacts]
+      client_contact_response = json_response[:inventory_items]
       expect(client_contact_response.size).to eq(3)
     end
 
