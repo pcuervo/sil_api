@@ -49,8 +49,9 @@ Sil::Application.routes.draw do
           post 'destroy/',                      action: 'destroy'
           post 'update/',                       action: 'update'
           # usados
-          post 'quick_search/',                 action: 'quick_search'
+          post 'quick_search/', action: 'quick_search'
           post 're_entry/', action: 're_entry'
+          post 'replenish/', action: 'replenish'
         end
       end
       resources :unit_items, only: %i[index show] do

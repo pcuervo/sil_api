@@ -16,5 +16,20 @@ module ExtendedFactories
 
       item
     end
+
+    # Used to simulate CSV data to replenish Inventory
+    def format_for_replenish(items, quantity, location)
+      item_data = []
+      items.each do |item|
+        data = []
+        data.push(item.id)
+        data.push(quantity)
+        data.push(location.name)
+        data.push(FFaker::HipsterIpsum.sentence)
+        item_data.push(data)
+      end
+      item_data
+    end
+
   end
 end

@@ -479,4 +479,26 @@ describe Api::V1::InventoryItemsController do
       it { should respond_with 422 }
     end
   end
+
+  describe 'POST #replenish' do
+    context 'when successful' do
+      let(:user){ FactoryBot.create(:user) }
+      let(:location){ FactoryBot.create(:warehouse_location) }
+      let(:items) { FactoryBot.create_list(:inventory_item, 5, quantity: 0) }
+      let(:quantity){ 50 }
+      let(:item_data){ format_for_replenish(items, quantity, location) }
+
+      before(:each) do
+        api_authorization_header user.auth_token
+        post :replenish, params: { data: item_data }
+      end
+
+      it 'returns the number of Items added' do
+        expect(json_response[:processed]).to eq 5
+        expect(json_response[:errors].count).to eq 0
+      end
+
+      it { should respond_with 201 }
+    end
+  end
 end

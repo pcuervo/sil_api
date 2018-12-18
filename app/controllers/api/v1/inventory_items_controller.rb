@@ -282,6 +282,13 @@ module Api
         render json: InventoryItem.quick_search(params[:keyword], in_stock), status: 200  
       end
 
+      def replenish
+        replenisher = ReplenishInventory.new(params[:data])
+        replenisher.replenish
+
+        render json: { processed: replenisher.processed, errors: replenisher.errors }, status: 201  
+      end
+
       private
 
       def inventory_item_params
