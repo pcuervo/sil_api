@@ -59,7 +59,7 @@ module Api
         render json: CheckInTransaction.latest(transactions), status: :ok and return if type == 'check_in'
         render json: CheckOutTransaction.latest(transactions), status: :ok and return if type == 'check_out'
 
-        render json: InventoryTransaction.latest(transactions), status: :ok
+        render json: { inventory_transactions: InventoryTransaction.latest(transactions) }, serializer: InventoryTransactionSerializer, status: :ok
       end
 
       def latest_by_user

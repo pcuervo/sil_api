@@ -8,7 +8,6 @@ RSpec.describe Api::V1::LogsController, type: :controller do
     end
 
     it "returns all records from the database" do
-      puts json_response.to_yaml
       logs_response = json_response[:logs]
       expect(logs_response.size).to eq(5)
     end

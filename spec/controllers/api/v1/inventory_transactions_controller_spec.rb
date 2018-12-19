@@ -112,7 +112,7 @@ describe Api::V1::InventoryTransactionsController do
       end
 
       it "returns 3 CheckIn transactions" do
-        inventory_transaction_response = json_response[:inventory_transactions]
+        inventory_transaction_response = json_response[:check_in_transactions]
         expect(inventory_transaction_response.size).to eq(3)
       end
     end
@@ -124,7 +124,7 @@ describe Api::V1::InventoryTransactionsController do
       end
 
       it "returns 3 CheckOut transactions" do
-        inventory_transaction_response = json_response[:inventory_transactions]
+        inventory_transaction_response = json_response[:check_out_transactions]
         expect(inventory_transaction_response.size).to eq(3)
       end
     end
@@ -145,7 +145,7 @@ describe Api::V1::InventoryTransactionsController do
       end
 
       it "returns 3 CheckIn transactions" do
-        inventory_transaction_response = json_response[:inventory_transactions]
+        inventory_transaction_response = json_response[:check_in_transactions]
         expect(inventory_transaction_response.size).to eq(3)
       end
     end

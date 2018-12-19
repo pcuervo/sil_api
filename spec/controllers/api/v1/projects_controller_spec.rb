@@ -19,7 +19,6 @@ describe Api::V1::ProjectsController do
 
     it 'returns all InventoryItem data' do
       project_response = json_response[:project]
-      puts project_response.to_yaml
 
       expect(project_response[:inventory_items].count).to eql 5
     end
@@ -119,7 +118,6 @@ describe Api::V1::ProjectsController do
       end
 
       it 'renders the json representation for the updated project' do
-        puts json_response.to_yaml
         project_response = json_response[:project]
         expect(project_response[:litobel_id]).to eql 'hp_new_id'
         expect(project_response[:name]).to eql 'new_name'
@@ -367,7 +365,7 @@ describe Api::V1::ProjectsController do
       end
 
       it "when Project's inventory is returned correctly" do
-        project_response = json_response[:projects]
+        project_response = json_response[:inventory_items]
         expect(project_response.count).to eq 3
       end
 
