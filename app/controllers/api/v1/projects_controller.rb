@@ -197,7 +197,7 @@ module Api
 
         render json: @project.inventory_items, status: 200
       end
-
+      
       private
 
       def project_params
