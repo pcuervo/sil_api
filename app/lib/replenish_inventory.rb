@@ -6,10 +6,11 @@
 class ReplenishInventory
   attr_reader(:data, :processed, :errors)
 
-  ITEM_INDEX = 0
-  QUANTITY_INDEX = 1
-  LOCATION_INDEX = 2
-  COMMENTS_INDEX = 3
+  ITEM_ID_INDEX = 0
+  ITEM_NAME_INDEX = 1
+  QUANTITY_INDEX = 2
+  LOCATION_INDEX = 3
+  COMMENTS_INDEX = 4
 
   class ReplenishInventoryError < StandardError; end
   class InvalidItemError < ReplenishInventoryError; end
@@ -31,7 +32,7 @@ class ReplenishInventory
   def replenish
     folio = InventoryTransaction.next_checkin_folio
     @data.each do |d| 
-      by_item(d[ITEM_INDEX], d[QUANTITY_INDEX], d[LOCATION_INDEX], d[COMMENTS_INDEX], folio)
+      by_item(d[ITEM_ID_INDEX], d[QUANTITY_INDEX], d[LOCATION_INDEX], d[COMMENTS_INDEX], folio)
     end
   end
 
@@ -45,10 +46,10 @@ class ReplenishInventory
     @processed += 1
   end
 
-  def valid_row(item_id, quantity, location_name)
+  def valid_row(item_id, quantity, location_name)    
     raise InvalidItemError.new(item_id) unless InventoryItem.exists?(item_id)
     raise InvalidLocationError.new(location_name) unless WarehouseLocation.exists?(name: location_name)
-    raise InvalidQuantity.new(item_id) unless quantity > 0
+    raise InvalidQuantity.new(item_id) unless quantity.to_i > 0
 
     true
   rescue ReplenishInventoryError => e

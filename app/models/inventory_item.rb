@@ -350,6 +350,16 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     warehouse_transactions.destroy_all
   end
 
+  def delete_pm_items
+    sql = 'DELETE from pm_items WHERE inventory_item_id = ' + id.to_s
+    ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def delete_ae_items
+    sql = 'DELETE from ae_items WHERE inventory_item_id = ' + id.to_s
+    ActiveRecord::Base.connection.execute(sql)
+  end
+
   def delete_item_locations
     item_locations.destroy_all
   end
@@ -437,13 +447,4 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     ActiveRecord::Base.connection.execute(sql)
   end
 
-  def delete_pm_items
-    sql = 'DELETE from pm_items WHERE inventory_item_id = ' + id.to_s
-    ActiveRecord::Base.connection.execute(sql)
-  end
-
-  def delete_ae_items
-    sql = 'DELETE from ae_items WHERE inventory_item_id = ' + id.to_s
-    ActiveRecord::Base.connection.execute(sql)
-  end
 end

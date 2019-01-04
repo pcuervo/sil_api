@@ -128,7 +128,7 @@ RSpec.describe ReplenishInventory, type: :class do
         let(:replenisher){ ReplenishInventory.new(item_data) }
 
         before do
-          invalid_data = [items.first.id, quantity, 'INVALID_LOCATION']
+          invalid_data = [items.first.id, items.first.name, quantity, 'INVALID_LOCATION']
           item_data.unshift(invalid_data)
         end
 
@@ -149,7 +149,7 @@ RSpec.describe ReplenishInventory, type: :class do
         let(:replenisher){ ReplenishInventory.new(item_data) }
 
         before do
-          invalid_data = [items.first.id, -1, location.name]
+          invalid_data = [items.first.id, items.first.name, -1, location.name]
           item_data.unshift(invalid_data)
         end
 

@@ -88,6 +88,7 @@ Sil::Application.routes.draw do
           post 'transfer_inventory',    action: 'transfer_inventory'
           post 'transfer_inventory_items', action: 'transfer_inventory_items'
           post 'inventory', action: 'inventory'
+          post 'clean_inventory', action: 'clean_inventory'
         end
       end
       resources :clients, only: %i[show index create destroy] do

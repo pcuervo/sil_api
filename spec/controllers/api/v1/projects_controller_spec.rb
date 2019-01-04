@@ -372,4 +372,27 @@ describe Api::V1::ProjectsController do
       it { should respond_with 200 }
     end
   end
+
+  describe 'POST #clean_inventory' do
+    let(:user) { FactoryBot.create(:user) }
+    let(:project){ FactoryBot.create(:project) }
+    let(:item) { 10.times { create_item_with_location(100, project) } }
+
+    context 'when successful' do
+      before(:each) do
+        api_authorization_header user.auth_token
+
+        post :clean_inventory, params: { id: project.id }
+      end
+
+      it "when Project's inventory is cleaned" do
+        project_response = json_response[:success]
+
+        expect(project_response).to eq "Se ha limpiado el inventario del proyecto #{project.name}"
+        expect(project.inventory_items.count).to eq 0
+      end
+
+      it { should respond_with 200 }
+    end
+  end
 end

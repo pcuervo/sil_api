@@ -9,7 +9,7 @@ module Api
       before_action only: %i[transfer_inventory transfer_inventory_items] do
         set_transfer_projects
       end
-      before_action only: %i[inventory lean_show show] do
+      before_action only: %i[inventory lean_show show clean_inventory] do
         set_project
       end
 
@@ -196,6 +196,16 @@ module Api
         end
 
         render json: @project.inventory_items, status: 200
+      end
+
+      def clean_inventory
+        unless @project
+          render json: { errors: 'No existe el proyecto' }, status: 422
+          return
+        end
+
+        InventoryCleaner::by_project(@project)
+        render json: {success: "¡Se ha reiniciado el inventario del proyecto #{@project.name} correctamente!"}, status: 200
       end
       
       private

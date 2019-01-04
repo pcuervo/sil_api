@@ -23,6 +23,7 @@ module ExtendedFactories
       items.each do |item|
         data = []
         data.push(item.id)
+        data.push(item.name)
         data.push(quantity)
         data.push(location.name)
         data.push(FFaker::HipsterIpsum.sentence)

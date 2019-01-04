@@ -285,8 +285,10 @@ module Api
       def replenish
         replenisher = ReplenishInventory.new(params[:data])
         replenisher.replenish
+        folio = '-'
+        folio = CheckInTransaction.last.folio if replenisher.processed > 0
 
-        render json: { processed: replenisher.processed, errors: replenisher.errors }, status: 201  
+        render json: { processed: replenisher.processed, errors: replenisher.errors.reverse, folio: folio }, status: 201  
       end
 
       private

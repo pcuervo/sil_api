@@ -7,6 +7,8 @@ class InventoryCleaner
 
     item.delete_transactions
     item.delete_warehouse_transactions
+    item.delete_pm_items
+    item.delete_ae_items
   end
 
   # Reset Inventory by Project
