@@ -17,6 +17,36 @@ module ExtendedFactories
       item
     end
 
+    def csv_load_attributes(num_items)
+      item_data = []
+      project = FactoryBot.create(:project)
+      client = FactoryBot.create(:client)
+      location = FactoryBot.create(:warehouse_location)
+
+      num_items.times { item_data.push(load_item_attributes(project, client, location)) }
+
+      item_data
+    end
+
+    def load_item_attributes(project, client, location)
+      quantity = 1
+      is_high_value = false
+      [
+        project.name,
+        client.name,
+        FFaker::Product.product_name + rand(100).to_s,
+        quantity,
+        FFaker::Vehicle.vin,
+        'ACME',
+        '1800',
+        FFaker::HipsterIpsum.paragraph,
+        'No comments',
+        'Desktop',
+        is_high_value,
+        location.name
+      ]
+    end
+
     # Used to simulate CSV data to replenish Inventory
     def format_for_replenish(items, quantity, location)
       item_data = []

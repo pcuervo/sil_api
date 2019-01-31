@@ -150,4 +150,75 @@ describe Api::V1::InventoryTransactionsController do
       end
     end
   end
+
+  describe "POST #cancel_folio" do
+    let(:user) { FactoryBot.create(:user, role: User::ADMIN) }
+    let(:num_items){ 5 }
+    let(:user){ FactoryBot.create(:user) }
+    let(:item_data) { csv_load_attributes(num_items) }
+    let(:inventory_loader){ InventoryLoad.new(user, item_data) }
+    let(:litobel){ Supplier.find_or_create_by(name: 'Litobel') }
+
+    before { inventory_loader.load }
+
+    context 'when successful with CheckOut folio' do
+      let(:folio){ InventoryTransaction.next_checkout_folio }
+
+      before do
+        InventoryItem.all.each do |item|
+          item.withdraw(
+            Date.today, 
+            '', 
+            litobel.id, 
+            '', 
+            'This is a test', 
+            item.quantity, 
+            folio
+          )
+        end
+      end
+
+      before(:each) do
+        api_authorization_header user.auth_token
+        post :cancel_folio, params: { folio: folio }
+      end
+
+      it 'should return success message' do
+        expect(json_response).to have_key(:success)
+        expect(json_response[:items]).to eq 5
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context 'when successful with CheckIn folio' do
+      before(:each) do
+        folio = CheckInTransaction.last.folio
+        api_authorization_header user.auth_token
+        post :cancel_folio, params: { folio: folio }
+      end
+
+      it 'should return success message' do
+        expect(json_response).to have_key(:success)
+        expect(json_response[:items]).to eq 5
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context 'when not successful' do
+      before(:each) do
+        api_authorization_header user.auth_token
+        post :cancel_folio, params: { folio: 'fakefolio' }
+      end
+
+      it 'should return success message' do
+        puts json_response.to_yaml
+        expect(json_response).to have_key(:error)
+        expect(json_response[:error]).to eq 'No se encontró el folio'
+      end
+
+      it { should respond_with 200 }
+    end
+  end
 end

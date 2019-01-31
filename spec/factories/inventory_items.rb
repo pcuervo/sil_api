@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :inventory_item do
-    sequence(:name) { |n| FFaker::Product.product_name + n.to_s + rand(100).to_s }
+    sequence(:name) { |n| rand(100).to_s + FFaker::Product.product_name + n.to_s + rand(100).to_s }
     description { FFaker::HipsterIpsum.paragraph } 
     item_type { "Desktop" }
     user

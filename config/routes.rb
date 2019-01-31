@@ -117,6 +117,7 @@ Sil::Application.routes.draw do
           post 'by_folio', action: 'by_folio'
           post 'latest', action: 'latest'
           post 'latest_by_user', action: 'latest_by_user'
+          post 'cancel_folio', action: 'cancel_folio'
         end
       end
       resources :warehouse_locations, only: %i[show index] do

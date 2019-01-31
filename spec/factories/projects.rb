@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :project do
-    name { 'Project_' + random_number }
+    name { "#{random_number}-#{FFaker::Address.street_address}" }
     litobel_id { FFaker::Vehicle.vin }
     client
   end

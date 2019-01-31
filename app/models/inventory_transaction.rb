@@ -243,5 +243,58 @@ class InventoryTransaction < ActiveRecord::Base
     next_folio_num
   end
 
+  def self.cancel_checkout_folio(folio)
+    transactions = CheckOutTransaction.where(folio: folio)
+    raise SilExceptions::InvalidFolio unless transactions.count.positive?
+
+    delivery_company = Supplier.find_or_create_by(name: 'Litobel')
+    new_folio = self::next_checkin_folio
+    transactions.each do |transaction|
+      item = transaction.inventory_item
+      item.add(
+        transaction.quantity, 
+        InventoryItem::GOOD,
+        Date.today,
+        "Reingreso por cancelación de folio: #{folio}",
+        delivery_company.id,
+        '',
+        "Reingreso por cancelación de folio: #{folio}",
+        new_folio
+      )
+
+      location = WarehouseLocation.current_or_last(item.id)
+
+      next unless location
+
+      location.locate(item, transaction.quantity)
+    end
+
+    transactions.update_all(folio: "#{folio} - Cancelado")
+    true
+  end
+
+  def self.cancel_checkin_folio(folio)
+    transactions = CheckInTransaction.where(folio: folio)
+    raise SilExceptions::InvalidFolio unless transactions.count.positive?
+
+    delivery_company = Supplier.find_or_create_by(name: 'Litobel')
+    new_folio = self::next_checkout_folio
+    transactions.each do |transaction|
+      item = transaction.inventory_item
+      item.withdraw(
+        Date.today,
+        '',
+        delivery_company.id,
+        '',
+        "Reingreso por cancelación de folio: #{folio}",
+        transaction.quantity, 
+        new_folio
+      )
+    end
+
+    transactions.update_all(folio: "#{folio} - Cancelado")
+    true
+  end
+
   scope :latest, ->(num) { order(created_at: :desc).limit(num) }
 end

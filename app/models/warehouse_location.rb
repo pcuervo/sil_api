@@ -238,6 +238,17 @@ class WarehouseLocation < ActiveRecord::Base
 
   def self.bulk_locate(_user_email, item_locations_arr); end
 
+  def self.current_or_last(item_id)
+    item_location = ItemLocation.find_by(inventory_item_id: item_id)
+    return item_location.warehouse_location if item_location
+
+    transactions = WarehouseTransaction.where(inventory_item_id: item_id).order(created_at: :desc)
+
+    return transactions.first.warehouse_location if transactions.count > 0
+
+    nil
+  end
+
   # def self.remove_extra 
 
 

@@ -78,6 +78,37 @@ module Api
         end
         
       end
+
+      def cancel_folio
+        folio = InventoryTransaction.by_folio(params[:folio])
+        transactions = folio['inventory_transactions']
+
+        if transactions.count.positive? 
+          if transactions.first['actable_type'] == 'CheckOutTransaction'
+            InventoryTransaction.cancel_checkout_folio(params[:folio])
+            new_folio = CheckInTransaction.last.folio
+          else
+            InventoryTransaction.cancel_checkin_folio(params[:folio])
+            new_folio = CheckOutTransaction.last.folio
+          end
+
+          render json: { 
+              success: '¡El folio fue cancelado correctamente!',
+              items: transactions.count,
+              folio: new_folio
+            }, 
+            status: :ok
+          return
+        end
+      
+        render json: { error: 'No se encontró el folio' }, status: 422
+      end
+
+      private
+
+      def item_locations(transactions)
+
+      end
     end
   end
 end

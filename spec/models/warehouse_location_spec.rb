@@ -373,4 +373,35 @@ describe WarehouseLocation, type: :model do
       end
     end
   end
+
+  describe '.current_or_last' do
+    let(:project){ FactoryBot.create(:project) }
+    let(:item){ create_item_with_location(100, project) }
+    let(:item_location){ item.item_locations.first }
+    let(:location){ item_location.warehouse_location }
+
+    context 'when InventoryItem is currently located in WarehouseLocation' do
+      it 'returns WarehouseLocation' do
+        current_location = WarehouseLocation.current_or_last(item.id)
+  
+        expect(current_location.name).to eq location.name
+      end
+    end
+
+    context 'when InventoryItem is not located, but had a WarehouseLocation in the past' do
+      let(:litobel){ Supplier.find_or_create_by(name: 'Litobel') }
+      let(:folio){ InventoryTransaction.next_checkout_folio }
+
+      before do
+        location.touch
+        item.withdraw(Date.today, '', litobel.id, '', 'This is a test', item.quantity, folio)
+      end
+
+      it 'returns WarehouseLocation' do
+        current_location = WarehouseLocation.current_or_last(item.id)
+  
+        expect(current_location.name).to eq location.name
+      end
+    end
+  end
 end

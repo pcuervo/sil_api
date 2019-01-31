@@ -96,3 +96,5 @@ es:
         item_not_in_location: "Ese artículo no se encuentra en la ubicación"
     inventory_item:
         invalid_quantity_to_add: "La cantidad a agregar debe ser mayor que 0"
+    inventory_transactions:
+      invalid_folio: "No se encontró el folio"

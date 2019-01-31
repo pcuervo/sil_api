@@ -63,4 +63,80 @@ RSpec.describe InventoryTransaction, type: :model do
       expect(InventoryTransaction.next_checkin_folio).to eql 'FE-0000003'
     end
   end
+
+  describe '.cancel_checkout_folio' do
+    context 'when successful' do
+      let(:num_items){ 5 }
+      let(:user){ FactoryBot.create(:user) }
+      let(:item_data) { csv_load_attributes(num_items) }
+      let(:inventory_loader){ InventoryLoad.new(user, item_data) }
+      let(:litobel){ Supplier.find_or_create_by(name: 'Litobel') }
+      let(:folio){ InventoryTransaction.next_checkout_folio }
+
+      before do
+        inventory_loader.load 
+
+        InventoryItem.all.each do |item|
+          item.withdraw(
+            Date.today, 
+            '', 
+            litobel.id, 
+            '', 
+            'This is a test', 
+            item.quantity, 
+            folio
+          )
+        end
+      end
+
+      it 'should return folio InventoryItems and locate in previous location' do
+        InventoryTransaction.cancel_checkout_folio(folio)
+        in_stock = InventoryItem.where(status: 1)
+
+        expect(in_stock.count).to eq num_items
+        expect(CheckInTransaction.count).to eq num_items*2
+        expect(CheckOutTransaction.count).to eq num_items
+        expect(ItemLocation.count).to eq num_items
+      end
+    end
+
+    context 'when not successful' do
+      context 'folio not found' do
+        it 'should raise error if folio not found' do
+          expect{ InventoryTransaction.cancel_checkout_folio('fakefolio') }.to raise_error(SilExceptions::InvalidFolio)
+        end
+      end
+    end
+  end
+
+  describe '.cancel_checkin_folio' do
+    context 'when successful' do
+      let(:num_items){ 5 }
+      let(:user){ FactoryBot.create(:user) }
+      let(:item_data) { csv_load_attributes(num_items) }
+      let(:inventory_loader){ InventoryLoad.new(user, item_data) }
+      let(:litobel){ Supplier.find_or_create_by(name: 'Litobel') }
+
+      before { inventory_loader.load } 
+
+      it 'should withdraw Items' do
+        folio = CheckInTransaction.last.folio
+        InventoryTransaction.cancel_checkin_folio(folio)
+        out_of_stock = InventoryItem.where(status: 2)
+
+        expect(out_of_stock.count).to eq num_items
+        expect(CheckInTransaction.count).to eq num_items
+        expect(CheckOutTransaction.count).to eq num_items
+        expect(ItemLocation.count).to eq 0
+      end
+    end
+
+    context 'when not successful' do
+      context 'folio not found' do
+        it 'should raise error if folio not found' do
+          expect{ InventoryTransaction.cancel_checkin_folio('fakefolio') }.to raise_error(SilExceptions::InvalidFolio)
+        end
+      end
+    end
+  end
 end
