@@ -679,6 +679,7 @@ GEM
     ffi (1.9.25)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
+    honeybadger (4.2.1)
     i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     jaro_winkler (1.5.1)
@@ -866,6 +867,7 @@ DEPENDENCIES
   devise
   factory_bot_rails
   ffaker
+  honeybadger (~> 4.0)
   jquery-rails
   kaminari
   paperclip (>= 5.0)

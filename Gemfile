@@ -66,5 +66,7 @@ group :test do
 end
 
 gem "devise"
+
+gem 'honeybadger', '~> 4.0'
 #gem 'puma'
 
