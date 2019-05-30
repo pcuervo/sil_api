@@ -501,4 +501,31 @@ describe Api::V1::InventoryItemsController do
       it { should respond_with 201 }
     end
   end
+
+  describe 'GET #by_barcode' do
+    let(:barcode){ 'HP IS COOL' }
+    before { @item = FactoryBot.create(:inventory_item, barcode: barcode) }
+
+    context 'when sending string AS-IS' do
+      before(:each) { get :by_barcode, params: { barcode: barcode } }
+
+      it 'returns the information about an inventory item' do
+        puts json_response.to_yaml
+        inventory_item_response = json_response[:inventory_item]
+        expect(inventory_item_response[:name]).to eql @item.name
+      end
+
+      it { should respond_with 200 }
+    end
+
+    context 'when sending URL string with + instead of spaces' do
+      let(:url_barcode) { 'HP+IS+COOL' }
+      before(:each) { get :by_barcode, params: { barcode: url_barcode } }
+
+      it 'returns the information about an inventory item' do
+        inventory_item_response = json_response[:inventory_item]
+        expect(inventory_item_response[:name]).to eql @item.name
+      end
+    end
+  end
 end

@@ -28,6 +28,7 @@ Sil::Application.routes.draw do
       end
       resources :inventory_items, only: %i[index show] do
         collection do
+          # @todo: change to post
           get 'by_barcode/',                    action: 'by_barcode'
           get 'by_type/',                       action: 'by_type'
           get 'pending_entry/',                 action: 'pending_entry'

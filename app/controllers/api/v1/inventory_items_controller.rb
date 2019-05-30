@@ -92,7 +92,8 @@ module Api
       end
 
       def by_barcode
-        inventory_item = InventoryItem.find_by_barcode(params[:barcode])
+        barcode = params[:barcode].gsub('+', ' ')
+        inventory_item = InventoryItem.find_by(barcode: barcode)
         if inventory_item.present?
           respond_with inventory_item.get_details
           return
