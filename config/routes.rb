@@ -131,6 +131,7 @@ Sil::Application.routes.draw do
           post 'mark_as_available', action: 'mark_as_available'
           post 'csv_locate',        action: 'csv_locate'
           post 'remove_item'
+          post 'transfer_to'
         end
       end
       resources :warehouse_racks, only: %i[show index create] do

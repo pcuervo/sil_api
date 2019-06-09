@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
+  let(:user){ FactoryBot.create(:user) }
+
   describe "GET #show" do 
     before(:each) do
       @warehouse_location = FactoryBot.create :warehouse_location
@@ -158,7 +160,6 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
   end
 
   describe "POST #remove_item" do
-    let(:user){ FactoryBot.create(:user) }
     let(:warehouse_location){ FactoryBot.create(:warehouse_location) }
     let(:inventory_item){ FactoryBot.create(:inventory_item) }
     
@@ -195,6 +196,55 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
       end
 
       it { should respond_with 422 }
+    end
+  end
+
+  describe 'POST #transfer_to' do
+    let(:items_transfered) { 4 }
+    let(:current_location) { create_location_with_items(items_transfered) }
+    let(:new_location) { FactoryBot.create(:warehouse_location) }
+
+    before { api_authorization_header user.auth_token }
+
+    context 'succesfull' do
+      before do
+        post :transfer_to, 
+              params: { 
+                current_location_id: current_location.id, 
+                new_location_id: new_location.id 
+              }, 
+              format: :json
+      end
+
+      it 'transfers all items from one location to anoter' do
+        warehouse_location_response = json_response[:warehouse_location]
+
+        expect(current_location.item_locations.count).to eq 0
+        expect(new_location.item_locations.count).to eq items_transfered
+      end
+    end
+
+    context 'not succesfull' do
+      let(:invalid_current_location) { -1 }
+      let(:invalid_new_location) { -1 }
+
+      context 'when current or new location is not found' do
+        before do
+          post :transfer_to, 
+                params: { 
+                  current_location_id: invalid_current_location, 
+                  new_location_id: new_location.id 
+                }, 
+                format: :json
+        end
+
+        it 'returns an error' do
+          pp json_response
+          error = json_response[:errors]
+
+          expect(error).to eq 'Alguna de las ubicaciones no se encontró'
+        end
+      end
     end
   end
 end

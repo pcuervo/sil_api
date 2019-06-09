@@ -120,6 +120,16 @@ module Api
         render json: { errors: e.message }, status: 422
       end
 
+      def transfer_to
+        current_location = WarehouseLocation.find(params[:current_location_id])
+        new_location = WarehouseLocation.find(params[:new_location_id])
+
+        current_location.transfer_to(new_location)
+        render json: { success: 'Ubicación transferida con éxito', new_location_id: new_location.id }, status: 201
+      rescue ActiveRecord::RecordNotFound => e
+        render json: { errors: 'Alguna de las ubicaciones no se encontró' }, status: 422
+      end
+
       private
 
       def warehouse_location_params

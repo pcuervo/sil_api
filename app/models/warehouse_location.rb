@@ -78,6 +78,7 @@ class WarehouseLocation < ActiveRecord::Base
 
     if current_item_location.quantity == quantity
       remove_item(inventory_item.id) 
+      update_status
       return
     end
     
@@ -247,6 +248,15 @@ class WarehouseLocation < ActiveRecord::Base
     return transactions.first.warehouse_location if transactions.count > 0
 
     nil
+  end
+
+  def transfer_to(new_location)
+    items = item_locations.select(:inventory_item_id, :quantity)
+    items.each do |item|
+      relocate(InventoryItem.find(item.inventory_item_id), item.quantity, new_location)
+    end
+
+    empty
   end
 
   # def self.remove_extra 

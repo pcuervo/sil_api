@@ -404,4 +404,53 @@ describe WarehouseLocation, type: :model do
       end
     end
   end
+
+  describe '.transfer_to' do
+    let(:items_transfered) { 4 }
+    let(:current_location) { create_location_with_items(items_transfered) }
+    let(:new_location) { FactoryBot.create(:warehouse_location) }
+
+    before do
+      current_location.transfer_to(new_location)
+      current_location.reload
+      new_location.reload
+    end
+
+    it 'transfers all items from one location to anoter' do
+      expect(current_location.item_locations.count).to eq 0
+      expect(new_location.item_locations.count).to eq items_transfered
+    end
+
+    it 'updates the status of both locations' do
+      expect(current_location.status).to eq WarehouseLocation::EMPTY
+      expect(new_location.status).to eq WarehouseLocation::PARTIAL_SPACE
+    end
+
+    it 'records all ENTRY WarehouseTransactions to new location' do
+      transactions = WarehouseTransaction.where(warehouse_location_id: new_location.id)
+      
+      expect(transactions.count).to eq 4
+      expect(transactions.first.concept).to eq WarehouseTransaction::ENTRY
+    end
+
+    it 'records all WITHDRAW WarehouseTransactions to new location' do
+      transactions = WarehouseTransaction.where(
+        warehouse_location_id: current_location.id, 
+        concept: WarehouseTransaction::WITHDRAW
+      )
+      
+      expect(transactions.count).to eq 4
+      expect(transactions.first.concept).to eq WarehouseTransaction::WITHDRAW
+    end
+
+    it 'records all InventoryTransactions' do
+      transactions = WarehouseTransaction.where(
+        warehouse_location_id: current_location.id, 
+        concept: WarehouseTransaction::WITHDRAW
+      )
+      
+      expect(transactions.count).to eq 4
+      expect(transactions.first.concept).to eq WarehouseTransaction::WITHDRAW
+    end
+  end
 end

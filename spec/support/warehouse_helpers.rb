@@ -14,5 +14,17 @@ module ExtendedFactories
 
       rack
     end
+
+    def create_location_with_items(num_items)
+      rack = FactoryBot.create(:warehouse_rack)
+      location = FactoryBot.create(:warehouse_location, warehouse_rack_id: rack.id)
+
+      num_items.times do
+        item = FactoryBot.create(:inventory_item)
+        location.locate(item, item.quantity)
+      end
+
+      location
+    end
   end
 end
