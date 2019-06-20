@@ -528,4 +528,48 @@ describe Api::V1::InventoryItemsController do
       end
     end
   end
+
+  describe 'POST #stats_pm_ae' do
+    context 'when successful' do
+      context 'without any projects' do
+        let(:num_items){ 10 }
+        let(:project_a){ create_project_with_items(num_items) }
+        let(:pm){ FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE) }
+
+        before(:each) do
+          api_authorization_header pm.auth_token
+          post :stats_pm_ae
+        end
+
+        it 'returns no stats' do
+          pp json_response
+          stats_response = json_response[:stats]
+          expect(stats_response[:total_number_items]).to eq 0
+          expect(stats_response[:total_number_projects]).to eq 0
+        end
+      end
+
+      context 'for Project Manager with multiple Projects' do
+        let(:num_items){ 10 }
+        let(:project_a){ create_project_with_items(num_items) }
+        let(:project_b){ create_project_with_items(num_items) }
+        let(:pm){ FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE) }
+
+        before(:each) do
+          project_a.users << pm
+          project_b.users << pm
+
+          api_authorization_header pm.auth_token
+          post :stats_pm_ae
+        end
+
+        it 'returns stats for PM Projects' do
+          pp json_response
+          stats_response = json_response[:stats]
+          expect(stats_response[:total_number_items]).to eq num_items * 2
+          expect(stats_response[:total_number_projects]).to eq 2
+        end
+      end
+    end
+  end
 end

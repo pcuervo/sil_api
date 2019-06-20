@@ -226,15 +226,11 @@ module Api
       def stats_pm_ae
         stats = {}
         project_ids = []
-        current_user.projects.each do |p|
-          project_ids.push(p.id)
-        end
+        current_user.projects.each { |project| project_ids.push(project.id) }
 
         stats['total_number_items'] = InventoryItem.where('project_id IN (?)', project_ids).count
         stats['total_number_projects'] = current_user.projects.count
-        #stats['current_rent'] = InventoryItem.estimated_current_rent(project_ids)
         stats['inventory_by_type'] = InventoryItem.inventory_by_type(project_ids)
-        # stats['occupation_by_month'] = InventoryItem.occupation_by_month
 
         render json: { stats: stats }, status: 200
       end

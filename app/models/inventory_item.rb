@@ -405,13 +405,13 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   scope :inventory_value, -> { where('status IN (?)', [IN_STOCK, PARTIAL_STOCK, PENDING_ENTRY]).sum(:value) }
 
-  scope :inventory_by_type, lambda { |project_ids = nil|
-    if !project_ids.nil?
-      where('project_id IN (?)', project_ids).group(:item_type).count
-    else
-      group(:item_type).count
-    end
-  }
+  # scope :inventory_by_type, lambda { |project_ids = nil|
+  #   if !project_ids.nil?
+  #     where('project_id IN (?)', project_ids).group(:item_type).count
+  #   else
+  #     group(:item_type).count
+  #   end
+  # }
 
   scope :occupation_by_month, lambda {
     find_by_sql("
@@ -445,6 +445,12 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
     sql = 'DELETE from bundle_item_parts WHERE bundle_item_id = ' + actable_id.to_s
     ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def self.inventory_by_type(project_ids = [])
+    return InventoryItem.group(:item_type).count if project_ids.empty?
+
+    InventoryItem.where('project_id IN (?)', project_ids).group(:item_type).count
   end
 
 end

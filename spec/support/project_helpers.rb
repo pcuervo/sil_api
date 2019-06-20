@@ -2,11 +2,11 @@ module ExtendedFactories
   module ProjectHelpers
     def create_project_with_items(num_items) 
       project = FactoryBot.create(:project)
-      supplier = FactoryBot.create(:supplier)
+      libotel = Supplier.find_or_create_by(name: 'Litobel')
 
       num_items.times do 
         item = FactoryBot.create(:inventory_item, { project_id: project.id, quantity: 0 } )
-        log_checkin_transaction(item.id, supplier.id, item.quantity)
+        log_checkin_transaction(item.id, libotel.id, item.quantity)
       end
       project.reload
 
