@@ -6,3 +6,5 @@ coverage/*
 tmp/*
 
 .byebug_history
+
+.env
