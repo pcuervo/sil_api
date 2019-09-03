@@ -307,6 +307,6 @@ class InventoryTransaction < ActiveRecord::Base
     transactions = transactions.checkin if type == 'checkin'
     transactions = transactions.checkout if type == 'checkout'
 
-    transactions.limit(100).order(created_at: :desc)
+    transactions.limit(200).order(created_at: :desc)
   end
 end
