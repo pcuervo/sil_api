@@ -92,4 +92,7 @@ RSpec.configure do |config|
   end
 
   config.use_transactional_fixtures = false
+
+  # Uncomment to view queries!
+  # ActiveRecord::Base.logger = Logger.new(STDOUT)
 end

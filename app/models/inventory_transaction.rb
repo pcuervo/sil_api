@@ -4,6 +4,10 @@ class InventoryTransaction < ActiveRecord::Base
   belongs_to :inventory_item
   validates :concept, :inventory_item, presence: true
 
+  scope :latest, ->(num) { order(created_at: :desc).limit(num) }
+  scope :checkin, -> { where(actable_type: 'CheckInTransaction') }
+  scope :checkout, -> { where(actable_type: 'CheckOutTransaction') }
+
   def self.search(_params = {}, user)
     if User::CLIENT == user.role
       client_user = ClientContact.find(user.actable_id)
@@ -296,5 +300,13 @@ class InventoryTransaction < ActiveRecord::Base
     true
   end
 
-  scope :latest, ->(num) { order(created_at: :desc).limit(num) }
+  def self.by_project(project, type = 'all')
+    items_id = project.inventory_items.pluck(:id)
+    transactions = InventoryTransaction.where(inventory_item_id: items_id).includes(:inventory_item)
+
+    transactions = transactions.checkin if type == 'checkin'
+    transactions = transactions.checkout if type == 'checkout'
+
+    transactions
+  end
 end

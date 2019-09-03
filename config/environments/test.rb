@@ -42,4 +42,6 @@ Rails.application.configure do
 
   # Fixed time zone for Mexico City
   config.time_zone = "Mexico City"
+
+  config.log_level = :debug
 end

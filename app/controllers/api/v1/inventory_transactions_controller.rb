@@ -4,6 +4,9 @@ module Api
       before_action only: %i[index get_check_ins get_check_outs] do
         authenticate_with_token! request.headers['Authorization']
       end
+      before_action only: %i[by_project] do
+        set_project_and_type 
+      end
       respond_to :json
 
       def show
@@ -104,11 +107,17 @@ module Api
         render json: { error: 'No se encontró el folio' }, status: 422
       end
 
+      def by_project
+        transactions = InventoryTransaction.by_project(@project, @type)
+        render json: transactions, each_serializer: LeanTransactionSerializer, status: :ok
+      end
+
       private
 
-      def item_locations(transactions)
-
-      end
+        def set_project_and_type
+          @project = Project.find(params[:project_id])
+          @type = params[:type].nil? ? 'all' : params[:type]
+        end
     end
   end
 end

@@ -221,4 +221,20 @@ describe Api::V1::InventoryTransactionsController do
       it { should respond_with 200 }
     end
   end
+
+  describe "POST #by_project" do
+    let(:project) { create_project_with_items(5) }
+    let(:user) { FactoryBot.create(:user, role: User::ADMIN) }
+      
+    before(:each) do
+      api_authorization_header user.auth_token
+      post :by_project, params: { project_id: project.id, type: 'checkin' }
+    end
+
+    it "returns transactions by project" do
+      inventory_transaction_response = json_response[:inventory_transactions]
+      expect(inventory_transaction_response.size).to eq(5)
+    end
+
+  end
 end

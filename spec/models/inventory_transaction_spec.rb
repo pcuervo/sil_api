@@ -139,4 +139,37 @@ RSpec.describe InventoryTransaction, type: :model do
       end
     end
   end
+
+  describe 'InventoryTransaction.by_project' do
+    let(:num_items) { 5 }
+    let(:project){ create_project_with_items(num_items) }
+    let(:first_item) { project.inventory_items.first }
+    let(:folio){ InventoryTransaction.next_checkout_folio }
+
+    before { first_item.withdraw(Date.today, '', Supplier.first, 'John Doe', 'My Comments', first_item.quantity, folio) }
+
+    context 'without specifying transaction type' do
+      it 'returns all transactions for a given project' do
+        transactions = InventoryTransaction.by_project(project)
+
+        expect(transactions.count).to eq num_items + 1
+      end
+    end
+
+    context 'when specifying checkin type' do
+      it 'returns all CheckInTransactions for given project' do
+        transactions = InventoryTransaction.by_project(project, 'checkin')
+
+        expect(transactions.count).to eq num_items
+      end
+    end
+
+    context 'when specifying checkin type' do
+      it 'returns all CheckOutTransactions for given project' do
+        transactions = InventoryTransaction.by_project(project, 'checkout')
+
+        expect(transactions.count).to eq 1
+      end
+    end
+  end
 end
