@@ -300,13 +300,16 @@ class InventoryTransaction < ActiveRecord::Base
     true
   end
 
-  def self.by_project(project, type = 'all')
+  def self.by_project(project, type = 'all', start_date = nil, end_date = nil)
     items_id = project.inventory_items.pluck(:id)
     transactions = InventoryTransaction.where(inventory_item_id: items_id).includes(:inventory_item)
+
+    transactions = transactions.where('created_at >= ?', start_date.beginning_of_day ) if start_date
+    transactions = transactions.where('created_at <= ?', end_date.end_of_day ) if end_date
 
     transactions = transactions.checkin if type == 'checkin'
     transactions = transactions.checkout if type == 'checkout'
 
-    transactions.limit(200).order(created_at: :desc)
+    transactions.limit(300).order(created_at: :desc)
   end
 end

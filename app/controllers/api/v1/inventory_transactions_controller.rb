@@ -5,7 +5,7 @@ module Api
         authenticate_with_token! request.headers['Authorization']
       end
       before_action only: %i[by_project] do
-        set_project_and_type 
+        set_project_params 
       end
       respond_to :json
 
@@ -108,15 +108,17 @@ module Api
       end
 
       def by_project
-        transactions = InventoryTransaction.by_project(@project, @type)
+        transactions = InventoryTransaction.by_project(@project, @type, @start_date, @end_date)
         render json: transactions, each_serializer: LeanTransactionSerializer, status: :ok
       end
 
       private
 
-        def set_project_and_type
+        def set_project_params
           @project = Project.find(params[:project_id])
           @type = params[:type].nil? ? 'all' : params[:type]
+          @start_date = params[:start_date].nil? ? nil : params[:start_date].to_date
+          @end_date = params[:end_date].nil? ? nil : params[:end_date].to_date
         end
     end
   end

@@ -228,7 +228,7 @@ describe Api::V1::InventoryTransactionsController do
       
     before(:each) do
       api_authorization_header user.auth_token
-      post :by_project, params: { project_id: project.id, type: 'checkin' }
+      post :by_project, params: { project_id: project.id, type: 'checkin', start_date: 2.days.ago }
     end
 
     it "returns transactions by project" do

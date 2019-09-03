@@ -143,16 +143,23 @@ RSpec.describe InventoryTransaction, type: :model do
   describe 'InventoryTransaction.by_project' do
     let(:num_items) { 5 }
     let(:project){ create_project_with_items(num_items) }
+    let(:total_transactions) { InventoryTransaction.count }
+    let(:total_checkin_transactions) { CheckInTransaction.count }
+    let(:total_checkout_transactions) { CheckOutTransaction.count }
     let(:first_item) { project.inventory_items.first }
     let(:folio){ InventoryTransaction.next_checkout_folio }
 
-    before { first_item.withdraw(Date.today, '', Supplier.first, 'John Doe', 'My Comments', first_item.quantity, folio) }
+    before do 
+      first_item.withdraw(Date.today, '', Supplier.first, 'John Doe', 'My Comments', first_item.quantity, folio)
+      # Simulate a past item
+      first_item.inventory_transactions.first.update(created_at: 5.days.ago)
+    end
 
     context 'without specifying transaction type' do
       it 'returns all transactions for a given project' do
-        transactions = InventoryTransaction.by_project(project)
+        transactions = InventoryTransaction.by_project(project, 'all')
 
-        expect(transactions.count).to eq num_items + 1
+        expect(transactions.count).to eq total_transactions
       end
     end
 
@@ -160,7 +167,7 @@ RSpec.describe InventoryTransaction, type: :model do
       it 'returns all CheckInTransactions for given project' do
         transactions = InventoryTransaction.by_project(project, 'checkin')
 
-        expect(transactions.count).to eq num_items
+        expect(transactions.count).to eq total_checkin_transactions
       end
     end
 
@@ -168,7 +175,33 @@ RSpec.describe InventoryTransaction, type: :model do
       it 'returns all CheckOutTransactions for given project' do
         transactions = InventoryTransaction.by_project(project, 'checkout')
 
-        expect(transactions.count).to eq 1
+        expect(transactions.count).to eq total_checkout_transactions
+      end
+    end
+
+    context 'when specifying date filters' do
+      context 'when specifying start and end date' do
+        it 'returns items from yesterday and today' do
+          transactions = InventoryTransaction.by_project(project, 'all', Date.yesterday, Date.today)
+
+          expect(transactions.count).to eq 5
+        end
+      end
+
+      context 'when specifying end date only' do
+        it 'returns items with transactions before yesterday' do
+          transactions = InventoryTransaction.by_project(project, 'all', nil, 4.days.ago)
+
+          expect(transactions.count).to eq 1
+        end
+      end
+
+      context 'when specifying start date only' do
+        it 'returns items with transactions after yesterday' do
+          transactions = InventoryTransaction.by_project(project, 'all', 1.days.ago, nil)
+
+          expect(transactions.count).to eq 5
+        end
       end
     end
   end
