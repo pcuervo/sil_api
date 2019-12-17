@@ -6,7 +6,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   before_destroy :delete_item_locations
   before_destroy :delete_withdraw_request_items
   before_destroy :delete_delivery_request_items
-  before_destroy :delete_pm_items
   before_destroy :delete_ae_items
   before_destroy :delete_bundle_item_parts
 
@@ -20,7 +19,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   has_many :warehouse_transactions
   has_many :withdraw_request_items
   has_many :delivery_request_items
-  has_many :pm_items
   has_many :ae_items
 
   # For item image
@@ -64,14 +62,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
     inventory_items = inventory_items.where('status = ?', params[:status]) if params[:status].present?
 
-    if params[:pm_id].present?
-      user = User.find(params[:pm_id])
-      projects = user.projects
-      projects_id = []
-      projects.each { |p| projects_id.push(p.id) }
-      inventory_items = inventory_items.where('project_id IN (?)', projects_id)
-    end
-
     if params[:ae_id].present?
       user = User.find(params[:ae_id])
       projects = user.projects
@@ -112,7 +102,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   def get_details    
     project = Project.find(project_id)
-    pm = get_pm(project)
     ae = get_ae(project)
 
     client = project.client
@@ -131,9 +120,7 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         'project' => project.litobel_id + ' / ' + project.name,
         'project_number' => project.litobel_id,
         'project_id' => project_id,
-        'pm_id' => pm_id,
         'ae_id' => ae_id,
-        'pm' => pm,
         'ae' => ae,
         'description' => description,
         'client' => client,
@@ -296,21 +283,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     ae.first_name + ' ' + ae.last_name
   end
 
-  def get_pm(project)
-    return project.pm_name unless pm_items.present?
-
-    pm = pm_items.first.user
-    pm.first_name + ' ' + pm.last_name
-  end
-
-  def pm_id
-    project = Project.find(project_id)
-    return project.pm_id unless pm_items.present?
-
-    pm = pm_items.first.user
-    pm.id
-  end
-
   def ae_id
     project = Project.find(project_id)
     return project.ae_id unless ae_items.present?
@@ -348,11 +320,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   def delete_warehouse_transactions
     warehouse_transactions.destroy_all
-  end
-
-  def delete_pm_items
-    sql = 'DELETE from pm_items WHERE inventory_item_id = ' + id.to_s
-    ActiveRecord::Base.connection.execute(sql)
   end
 
   def delete_ae_items

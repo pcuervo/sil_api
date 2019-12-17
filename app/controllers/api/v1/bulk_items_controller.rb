@@ -31,8 +31,7 @@ class Api::V1::BulkItemsController < ApplicationController
         @item_request.destroy
       end
 
-      PmItem.create( :user_id => params[:pm_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
-      AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:pm_id].present?
+      AeItem.create( :user_id => params[:ae_id], :inventory_item_id => @inventory_item.id ) if params[:ae_id].present?
 
       render json: bulk_item.get_details, status: 201, location: [:api, bulk_item]
     else
@@ -49,18 +48,6 @@ class Api::V1::BulkItemsController < ApplicationController
     end
 
     if bulk_item.update( bulk_item_params )
-      
-      if params[:pm_id].present?
-        pm_item = PmItem.where( :inventory_item_id => inventory_item.id ).first
-        if pm_item.present?          
-          sql = "DELETE from pm_items WHERE inventory_item_id = " + inventory_item.id.to_s
-          ActiveRecord::Base.connection.execute(sql)
-          PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
-        else
-          PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
-        end
-      end
-
       if params[:ae_id].present?
         ae_item = AeItem.where( :inventory_item_id => inventory_item.id ).first
         if ae_item.present?          
@@ -195,10 +182,8 @@ class Api::V1::BulkItemsController < ApplicationController
 
     def send_notifications_approved_entry
       transaction = CheckInTransaction.last
-      pm = User.find( @item_request.pm_id )
       ae = User.find( @item_request.ae_id )
 
-      pm.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
       ae.notifications << Notification.create( :title => 'Entrada aprobada', :inventory_item_id => @inventory_item.id, :message => 'Se aprobó la entrada del artículo "' + @inventory_item.name + '" con fecha de entrada ' + transaction.entry_date.strftime("%d/%m/%Y")  )
     end
 end

@@ -5,7 +5,6 @@ FactoryBot.define do
     quantity                  { 10 }
     item_type                 { 'Laptop' }
     project_id                { 1 }
-    pm_id                     { 3 }
     ae_id                     { 4 }
     state                     { 1 }
     validity_expiration_date  { '2016-09-29' }

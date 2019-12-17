@@ -10,7 +10,6 @@ RSpec.describe InventoryItemRequest, type: :model do
   # Required fields
   it { should validate_presence_of :name }
   it { should validate_presence_of :project_id }
-  it { should validate_presence_of :pm_id }
   it { should validate_presence_of :ae_id }
   it { should validate_presence_of :item_type }
 
@@ -18,11 +17,9 @@ RSpec.describe InventoryItemRequest, type: :model do
     before(:each) do
       project = FactoryBot.create :project
       ae = FactoryBot.create :user
-      pm = FactoryBot.create :user
       3.times.each do
         item_request = FactoryBot.create :inventory_item_request
         item_request.project_id = project.id
-        item_request.pm_id = pm.id
         item_request.ae_id = ae.id
         item_request.save
       end

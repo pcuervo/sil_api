@@ -1,7 +1,7 @@
 module Api
   module V1
     class InventoryItemsController < ApplicationController
-      before_action only: %i[create authorize_entry authorize_withdrawal request_item_entry cancel_item_entry_request destroy stats_pm_ae re_entry multiple_withdrawal] do
+      before_action only: %i[create authorize_entry authorize_withdrawal request_item_entry cancel_item_entry_request destroy stats_ae re_entry multiple_withdrawal] do
         authenticate_with_token! request.headers['Authorization']
       end
       after_action :send_notification_authorize_entry, only: [:authorize_entry]
@@ -21,7 +21,7 @@ module Api
       def create
         @inventory_item = current_user.inventory_items.build(inventory_item_params)
 
-        if User::CLIENT == current_user.role || User::PROJECT_MANAGER == current_user.role || User::ACCOUNT_EXECUTIVE == current_user.role
+        if User::CLIENT == current_user.role || User::ACCOUNT_EXECUTIVE == current_user.role
           @inventory_item.status = InventoryItem::PENDING_ENTRY
         end
 
@@ -39,8 +39,7 @@ module Api
             @item_request.destroy
           end
 
-          PmItem.create(user_id: params[:pm_id], inventory_item_id: @inventory_item.id) if params[:pm_id].present?
-          AeItem.create(user_id: params[:ae_id], inventory_item_id: @inventory_item.id) if params[:pm_id].present?
+          AeItem.create(user_id: params[:ae_id], inventory_item_id: @inventory_item.id) if params[:ae_id].present?
 
           log_action(current_user.id, 'Entrada', "Entrada del artículo #{@inventory_item.name}.", next_folio) 
 
@@ -60,19 +59,7 @@ module Api
           inventory_item.item_img = item_img
         end
     
-        if inventory_item.update( inventory_item_params )
-          
-          if params[:pm_id].present?
-            pm_item = PmItem.where( :inventory_item_id => inventory_item.id ).first
-            if pm_item.present?          
-              sql = "DELETE from pm_items WHERE inventory_item_id = " + inventory_item.id.to_s
-              ActiveRecord::Base.connection.execute(sql)
-              PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
-            else
-              PmItem.create( :user_id => params[:pm_id], :inventory_item_id => inventory_item.id ) 
-            end
-          end
-    
+        if inventory_item.update( inventory_item_params )    
           if params[:ae_id].present?
             ae_item = AeItem.where( :inventory_item_id => inventory_item.id ).first
             if ae_item.present?          
@@ -223,7 +210,7 @@ module Api
         render json: { stats: stats }, status: 200
       end
 
-      def stats_pm_ae
+      def stats_ae
         stats = {}
         project_ids = []
         current_user.projects.each { |project| project_ids.push(project.id) }
@@ -295,7 +282,7 @@ module Api
       end
 
       def inventory_item_request_params
-        params.require(:inventory_item_request).permit(:name, :description, :state, :quantity, :project_id, :pm_id, :ae_id, :item_type, :validity_expiration_date, :entry_date, :is_high_value)
+        params.require(:inventory_item_request).permit(:name, :description, :state, :quantity, :project_id, :ae_id, :item_type, :validity_expiration_date, :entry_date, :is_high_value)
       end
 
       def send_notification_authorize_entry
@@ -324,11 +311,11 @@ module Api
       def send_cancelled_entry_request_notifications
         return unless @cancelled
 
-        if current_user.role == User::PROJECT_MANAGER || current_user.role == User::ACCOUNT_EXECUTIVE || current_user.role == User::CLIENT
+        if current_user.role == User::ACCOUNT_EXECUTIVE || current_user.role == User::CLIENT
           users = User.where('role IN (?)', [User::ADMIN, User::WAREHOUSE_ADMIN])
           message = 'El usuario ' + current_user.first_name + ' ' + current_user.last_name + ' ha cancelado la solicitud de entrada para el artículo "' + @inventory_item_request.name + '" del día ' + @inventory_item_request.entry_date.strftime('%d/%m/%Y') + '.'
         else
-          users = User.where('id IN (?)', [@inventory_item_request.pm_id, @inventory_item_request.ae_id])
+          users = User.where('id IN (?)', [@inventory_item_request.ae_id, @inventory_item_request.ae_id])
           message = 'Se ha rechazado tu solicitud de entrada para el artículo "' + @inventory_item_request.name + '" para el día ' + @inventory_item_request.entry_date.strftime('%d/%m/%Y') + ', ponte en contacto con el jefe de almacén para conocer el motivo.'
         end
         users.each do |admin|

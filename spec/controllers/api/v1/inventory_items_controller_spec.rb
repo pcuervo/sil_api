@@ -39,7 +39,7 @@ describe Api::V1::InventoryItemsController do
 
       before(:each) do
         @folio = InventoryTransaction.next_checkin_folio
-        
+
         project = FactoryBot.create :project
         client = FactoryBot.create :client
 
@@ -293,13 +293,12 @@ describe Api::V1::InventoryItemsController do
 
         project = FactoryBot.create :project
         ae = FactoryBot.create :user
-        pm = FactoryBot.create :user
         3.times.each do
           item_request = FactoryBot.create :inventory_item_request
-          item_request.project_id = project.id
-          item_request.pm_id = pm.id
-          item_request.ae_id = ae.id
-          item_request.save
+          item_request.update(
+            project_id: project.id,
+            ae_id: ae.id
+          )
         end
 
         api_authorization_header user.auth_token
@@ -510,7 +509,6 @@ describe Api::V1::InventoryItemsController do
       before(:each) { get :by_barcode, params: { barcode: barcode } }
 
       it 'returns the information about an inventory item' do
-        puts json_response.to_yaml
         inventory_item_response = json_response[:inventory_item]
         expect(inventory_item_response[:name]).to eql @item.name
       end
@@ -529,42 +527,40 @@ describe Api::V1::InventoryItemsController do
     end
   end
 
-  describe 'POST #stats_pm_ae' do
+  describe 'POST #stats_ae' do
     context 'when successful' do
       context 'without any projects' do
         let(:num_items){ 10 }
         let(:project_a){ create_project_with_items(num_items) }
-        let(:pm){ FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE) }
+        let(:ae){ FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE) }
 
         before(:each) do
-          api_authorization_header pm.auth_token
-          post :stats_pm_ae
+          api_authorization_header ae.auth_token
+          post :stats_ae
         end
 
         it 'returns no stats' do
-          pp json_response
           stats_response = json_response[:stats]
           expect(stats_response[:total_number_items]).to eq 0
           expect(stats_response[:total_number_projects]).to eq 0
         end
       end
 
-      context 'for Project Manager with multiple Projects' do
+      context 'for Account Executive with multiple Projects' do
         let(:num_items){ 10 }
         let(:project_a){ create_project_with_items(num_items) }
         let(:project_b){ create_project_with_items(num_items) }
-        let(:pm){ FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE) }
+        let(:ae){ FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE) }
 
         before(:each) do
-          project_a.users << pm
-          project_b.users << pm
+          project_a.users << ae
+          project_b.users << ae
 
-          api_authorization_header pm.auth_token
-          post :stats_pm_ae
+          api_authorization_header ae.auth_token
+          post :stats_ae
         end
 
-        it 'returns stats for PM Projects' do
-          pp json_response
+        it 'returns stats for AE Projects' do
           stats_response = json_response[:stats]
           expect(stats_response[:total_number_items]).to eq num_items * 2
           expect(stats_response[:total_number_projects]).to eq 2

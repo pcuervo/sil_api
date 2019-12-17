@@ -19,14 +19,12 @@ module ExtendedFactories
     end  
 
     def add_users_to_project(project)
-      pm = FactoryBot.create(:user, role: User::PROJECT_MANAGER)
       ae = FactoryBot.create(:user, role: User::ACCOUNT_EXECUTIVE)
       client_contact = FactoryBot.create(:client_contact)
       client_user = client_contact.acting_as
 
-      project.users << pm
       project.users << ae
       project.users << client_user
     end
-	end
+  end
 end

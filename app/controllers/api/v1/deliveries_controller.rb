@@ -48,7 +48,7 @@ module Api
         @delivery = Delivery.new(delivery_params)
         @delivery_user.deliveries << @delivery
 
-        @delivery.status = Delivery::PENDING_APPROVAL if [User::PROJECT_MANAGER, User::ACCOUNT_EXECUTIVE, User::CLIENT].include? @delivery_user.role
+        @delivery.status = Delivery::PENDING_APPROVAL if [ User::ACCOUNT_EXECUTIVE, User::CLIENT].include? @delivery_user.role
 
         if @delivery.save!
           items = params[:inventory_items]

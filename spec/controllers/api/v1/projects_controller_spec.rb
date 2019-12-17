@@ -59,14 +59,12 @@ describe Api::V1::ProjectsController do
         client = FactoryBot.create :client
         client_contact = FactoryBot.create :client_contact
 
-        pm = FactoryBot.create :user
-        pm.role = User::PROJECT_MANAGER
         ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
         @project_attributes = FactoryBot.attributes_for :project
         @project_attributes[:client_id] = client.id
         api_authorization_header user.auth_token
-        post :create, params: { user_id: user.id, client_contact_id: client_contact.id, pm_id: pm.id, ae_id: ae.id, project: @project_attributes }, format: :json
+        post :create, params: { user_id: user.id, client_contact_id: client_contact.id,  ae_id: ae.id, project: @project_attributes }, format: :json
       end
 
       it 'renders the project record just created in JSON format' do
@@ -80,15 +78,12 @@ describe Api::V1::ProjectsController do
     context 'when project is not created' do
       before(:each) do
         user = FactoryBot.create :user
-        pm = FactoryBot.create :user
-        pm.role = User::PROJECT_MANAGER
         ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
         invalid_project_attributes = FactoryBot.attributes_for(:project, name: nil)
 
         api_authorization_header user.auth_token
-        # post :create, params: { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: @invalid_project_attributes }, format: :json
-        post :create, params: { user_id: user.id, pm_id: pm.id, ae_id: ae.id, project: invalid_project_attributes }, format: :json
+        post :create, params: { user_id: user.id, ae_id: ae.id, project: invalid_project_attributes }, format: :json
       end
 
       it 'renders an errors json' do
@@ -223,19 +218,17 @@ describe Api::V1::ProjectsController do
     context 'when user are added to project' do
       before(:each) do
         user = FactoryBot.create :user
-        @pm = FactoryBot.create :user
-        @pm.role = User::PROJECT_MANAGER
         @ae = FactoryBot.create :user
         @ae.role = User::ACCOUNT_EXECUTIVE
 
         @project = FactoryBot.create :project
         api_authorization_header user.auth_token
-        post :add_users, params: { new_pm_id: @pm.id, new_ae_id: @ae.id, project_id: @project.id }
+        post :add_users, params: { new_ae_id: @ae.id, project_id: @project.id }
       end
 
       it 'renders the project record just created in JSON format' do
         json_response
-        expect(@project.users.count).to eql 2
+        expect(@project.users.count).to eql 1
       end
 
       it { should respond_with 201 }
@@ -254,7 +247,7 @@ describe Api::V1::ProjectsController do
       end
 
       it 'renders the json errors when there are no users present' do
-        expect(json_response[:errors]).to include 'Necesitas agregar al menos un Project Manager, Ejecutivo de Cuenta o Contato Cliente'
+        expect(json_response[:errors]).to include 'Necesitas agregar al menos un Ejecutivo de Cuenta o Contacto de Cliente'
       end
     end
   end
@@ -388,7 +381,7 @@ describe Api::V1::ProjectsController do
       it "when Project's inventory is cleaned" do
         project_response = json_response[:success]
 
-        expect(project_response).to eq "Se ha limpiado el inventario del proyecto #{project.name}"
+        expect(project_response).to eq "¡Se ha reiniciado el inventario del proyecto #{project.name} correctamente!"
         expect(project.inventory_items.count).to eq 0
       end
 

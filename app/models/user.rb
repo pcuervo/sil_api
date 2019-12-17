@@ -2,9 +2,8 @@ class User < ActiveRecord::Base
   actable
   before_create :generate_authentication_token!
   after_create :assign_token
-  # before_destroy :remove_from_projects
 
-  validates :role, inclusion: { in: [1, 2, 3, 4, 5, 6, 7], message: '%{value} is not a valid role' }
+  validates :role, inclusion: { in: [1, 3, 4, 5, 6, 7], message: '%{value} is not a valid role' }
   validates :first_name, :last_name, :email, :role, presence: true
 
   # Include default devise modules. Others available are:
@@ -19,13 +18,11 @@ class User < ActiveRecord::Base
   has_many :delivery_requests
   has_and_belongs_to_many :projects
   has_and_belongs_to_many :notifications
-  has_many :pm_items
   has_many :ae_items
   has_many :user_tokens
 
   # AVAILABLE ROLES
   ADMIN = 1
-  PROJECT_MANAGER = 2
   ACCOUNT_EXECUTIVE = 3
   WAREHOUSE_ADMIN = 4
   DELIVERY = 5
@@ -61,8 +58,6 @@ class User < ActiveRecord::Base
     case role
     when ADMIN
       'Administrador'
-    when PROJECT_MANAGER
-      'Project Manager'
     when ACCOUNT_EXECUTIVE
       'Ejecutivo de cuenta'
     when WAREHOUSE_ADMIN
@@ -77,13 +72,7 @@ class User < ActiveRecord::Base
   # @todo: Refactor and add tests
   def transfer_inventory_to(new_user_id)
     new_user = User.find(new_user_id)
-    if role == PROJECT_MANAGER
-      pm_items.each do |item|
-        PmItem.create(user_id: new_user_id, inventory_item_id: item.inventory_item_id)
-        sql = 'DELETE from pm_items WHERE inventory_item_id = ' + item.inventory_item_id.to_s + ' AND user_id = ' + id.to_s
-        ActiveRecord::Base.connection.execute(sql)
-      end
-    elsif role == ACCOUNT_EXECUTIVE
+    if role == ACCOUNT_EXECUTIVE
       ae_items.each do |item|
         AeItem.create(user_id: new_user_id, inventory_item_id: item.inventory_item_id)
         sql = 'DELETE from ae_items WHERE inventory_item_id = ' + item.inventory_item_id.to_s + ' AND user_id = ' + id.to_s
@@ -119,12 +108,10 @@ class User < ActiveRecord::Base
 
   scope :all_admin_users, -> { where('role IN (?)', [WAREHOUSE_ADMIN, ADMIN]) }
   scope :admin_users, -> { where(role: ADMIN) }
-  scope :pm_users, -> { where(role: PROJECT_MANAGER) }
   scope :ae_users, -> { where(role: ACCOUNT_EXECUTIVE) }
   scope :client_users, -> { where(role: CLIENT) }
   scope :delivery_users, -> { where(role: DELIVERY) }
   scope :warehouse_admins, -> { where(role: WAREHOUSE_ADMIN) }
-  scope :pm_ae_users, -> { where('role = ? OR role = ?', PROJECT_MANAGER, ACCOUNT_EXECUTIVE) }
 
   private
 

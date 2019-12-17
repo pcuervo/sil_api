@@ -213,12 +213,11 @@ describe Api::V1::InventoryTransactionsController do
       end
 
       it 'should return success message' do
-        puts json_response.to_yaml
         expect(json_response).to have_key(:error)
         expect(json_response[:error]).to eq 'No se encontró el folio'
       end
 
-      it { should respond_with 200 }
+      it { should respond_with 422 }
     end
   end
 

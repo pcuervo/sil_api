@@ -14,7 +14,7 @@ describe User do
 
   it { should validate_presence_of(:first_name) }
   it { should validate_presence_of(:last_name) }
-  it { should validate_inclusion_of(:role).in_array([1, 2, 3, 4, 5, 6, 7]) }
+  it { should validate_inclusion_of(:role).in_array([1, 3, 4, 5, 6, 7]) }
   it { should validate_presence_of(:email) }
   it { should validate_confirmation_of(:password) }
   it { should allow_value('example@domain.com').for(:email) }

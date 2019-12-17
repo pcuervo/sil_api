@@ -1,3 +1,3 @@
 class LeanProjectSerializer < ActiveModel::Serializer
-  attributes :id, :name
+  attributes :id, :name, :litobel_id
 end

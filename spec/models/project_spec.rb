@@ -33,9 +33,7 @@ RSpec.describe Project, type: :model do
         expect(Project.exists?(destroyed_project.id)).to eq false
       end
 
-      it 'removes project managers, account executives and client users from project after destroying' do
-        pm = FactoryBot.create :user
-        pm.role = User::PROJECT_MANAGER
+      it 'removes account executives and client users from project after destroying' do
         ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
 

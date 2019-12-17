@@ -58,15 +58,6 @@ module Api
 
       def delete
         user = User.find(params[:id])
-        if params[:pm].present?
-          user.transfer_inventory_to(params[:pm])
-          user.transfer_deliveries_to(params[:pm])
-          user.transfer_requests_to(params[:pm])
-          user.destroy
-          render json: { success: 'Se ha eliminado el usuario y se ha transferido su inventario con éxito' }
-          return
-        end
-
         if params[:ae].present?
           user.transfer_inventory_to(params[:ae])
           user.transfer_deliveries_to(params[:ae])
@@ -92,10 +83,6 @@ module Api
       def destroy
         current_user.destroy
         head 204
-      end
-
-      def project_managers
-        respond_with User.pm_users
       end
 
       def account_executives

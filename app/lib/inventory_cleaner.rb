@@ -8,7 +8,6 @@ class InventoryCleaner
     item.delete_transactions
     item.delete_warehouse_transactions
     item.delete_item_locations
-    item.delete_pm_items
     item.delete_ae_items
   end
 

@@ -35,24 +35,21 @@ module Api
 
       def create
         client_contact = User.find_by_actable_id(params[:client_contact_id])
-        project_manager = User.find_by_id(params[:pm_id])
         account_executive = User.find_by_id(params[:ae_id])
 
         if client_contact.nil?
-          render json: { errors: 'No se encontró la información de contacto del cliente.' }, status: 422
+          render json: { errors: 'No se encontró la información del contacto del cliente.' }, status: 422
           return
         end
 
-        if project_manager.nil? || account_executive.nil?
-          render json: { errors: 'No se encontró la información del Project Manager o Ejecutivo de Cuenta.' }, status: 422
+        if account_executive.nil?
+          render json: { errors: 'No se encontró la información del Ejecutivo de Cuenta.' }, status: 422
           return
         end
 
         project = Project.new(project_params)
 
         if project.save
-
-          project.users << project_manager
           project.users << account_executive
           project.users << client_contact
           render json: project, status: 201, location: [:api, project]
@@ -118,21 +115,12 @@ module Api
       def add_users
         success_msg = 'Usuario(s) agregado(s) con éxito.'
 
-        if !params[:new_pm_id].present? && !params[:new_ae_id].present? && !params[:client_contact_id]
-          render json: { errors: ['Necesitas agregar al menos un Project Manager, Ejecutivo de Cuenta o Contato Cliente'] }, status: 422
+        if !params[:new_ae_id].present? && !params[:client_contact_id]
+          render json: { errors: ['Necesitas agregar al menos un Ejecutivo de Cuenta o Contacto de Cliente'] }, status: 422
           return
         end
 
         project = Project.find(params[:project_id])
-        if params[:new_pm_id].present?
-          if project.users.where('user_id = ?', params[:new_pm_id]).count.zero?
-            pm = User.find(params[:new_pm_id])
-            project.users << pm
-          else
-
-            success_msg = 'Ya existe el usuario en el proyecto.'
-          end
-        end
         if params[:new_ae_id].present?
           if project.users.where('user_id = ?', params[:new_ae_id]).count.zero?
             ae = User.find(params[:new_ae_id])

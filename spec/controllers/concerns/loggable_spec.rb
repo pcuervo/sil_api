@@ -15,7 +15,9 @@ describe Loggable do
     end
 
     it "returns true when the user created was logged" do
-      expect(user_log.log_action(@admin.id, 'User', 'Create', @new_user.id)).to eq (true)
+      user_log.log_action(@admin.id, 'User', 'Create', @new_user.id)
+
+      expect(Log.count).to eq 1
     end
 
   end

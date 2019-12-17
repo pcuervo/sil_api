@@ -95,7 +95,7 @@ RSpec.describe Api::V1::DeliveriesController, type: :controller do
       it { should respond_with 201 }
     end
 
-    context "when a Delivery request is succesfully created by User PM or AE" do
+    context "when a Delivery request is succesfully created by User AE" do
       before(:each) do
         @admin = FactoryBot.create :user
         @admin.role = 1
