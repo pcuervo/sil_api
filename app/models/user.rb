@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   before_create :generate_authentication_token!
   after_create :assign_token
 
-  validates :role, inclusion: { in: [1, 3, 4, 5, 6, 7], message: '%{value} is not a valid role' }
+  validates :role, inclusion: { in: [1, 3, 4, 5, 7], message: '%{value} is not a valid role' }
   validates :first_name, :last_name, :email, :role, presence: true
 
   # Include default devise modules. Others available are:
@@ -26,7 +26,6 @@ class User < ActiveRecord::Base
   ACCOUNT_EXECUTIVE = 3
   WAREHOUSE_ADMIN = 4
   DELIVERY = 5
-  CLIENT = 6
   WAREHOUSE = 7
 
   has_attached_file :avatar,
@@ -64,8 +63,6 @@ class User < ActiveRecord::Base
       'Jefe de almacén'
     when DELIVERY
       'Repartidor'
-    when CLIENT
-      'Cliente'
     end
   end
 
@@ -109,7 +106,6 @@ class User < ActiveRecord::Base
   scope :all_admin_users, -> { where('role IN (?)', [WAREHOUSE_ADMIN, ADMIN]) }
   scope :admin_users, -> { where(role: ADMIN) }
   scope :ae_users, -> { where(role: ACCOUNT_EXECUTIVE) }
-  scope :client_users, -> { where(role: CLIENT) }
   scope :delivery_users, -> { where(role: DELIVERY) }
   scope :warehouse_admins, -> { where(role: WAREHOUSE_ADMIN) }
 

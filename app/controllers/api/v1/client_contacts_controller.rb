@@ -19,18 +19,6 @@ module Api
         respond_with ClientContact.all.order(:created_at)
       end
 
-      def create
-        client_contact = ClientContact.new(client_contact_params)
-        client_contact.role = User::CLIENT
-
-        if client_contact.save
-          render json: client_contact, status: 201, location: [:api, client_contact]
-          return
-        end
-
-        render json: { errors: client_contact.errors }, status: 422
-      end
-
       def update
         client_contact = ClientContact.find(params[:id])
 

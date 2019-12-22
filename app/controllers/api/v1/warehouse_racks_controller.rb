@@ -76,7 +76,6 @@ module Api
           ).pluck('inventory_items.id').count
 
         warehouse_occupation_percentage = (total_occupied_locations.to_i / total_locations.to_f * 100).round
-        current_month_rent = ClientContact.get_clients_current_rent
 
         stats['total_racks'] = total_racks
         stats['total_locations'] = total_locations
@@ -84,7 +83,7 @@ module Api
         stats['total_items_in_warehouse'] = total_items_in_warehouse
         stats['total_items_with_pending_location'] = total_items_with_pending_location + total_items_with_pending_reentry_location
         stats['warehouse_occupation_percentage'] = warehouse_occupation_percentage
-        stats['current_month_rent'] = current_month_rent
+        stats['current_month_rent'] = 0
 
         render json: { stats: stats }, status: 200
       end

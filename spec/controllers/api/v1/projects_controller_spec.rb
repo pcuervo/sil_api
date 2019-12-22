@@ -57,14 +57,13 @@ describe Api::V1::ProjectsController do
       before(:each) do
         user = FactoryBot.create :user
         client = FactoryBot.create :client
-        client_contact = FactoryBot.create :client_contact
 
         ae = FactoryBot.create :user
         ae.role = User::ACCOUNT_EXECUTIVE
         @project_attributes = FactoryBot.attributes_for :project
         @project_attributes[:client_id] = client.id
         api_authorization_header user.auth_token
-        post :create, params: { user_id: user.id, client_contact_id: client_contact.id,  ae_id: ae.id, project: @project_attributes }, format: :json
+        post :create, params: { user_id: user.id, ae_id: ae.id, project: @project_attributes }, format: :json
       end
 
       it 'renders the project record just created in JSON format' do
@@ -181,13 +180,11 @@ describe Api::V1::ProjectsController do
     before(:each) do
       project = FactoryBot.create :project
       @client = project.client
-      client_contact = FactoryBot.create :client_contact
-      @client.client_contacts << client_contact
 
       get :project_client, params: { id: project.id }
     end
 
-    it 'returns the client and client_contact of the given project in JSON format' do
+    it 'returns the client of the given project in JSON format' do
       project_client_response = json_response[:client]
       expect(project_client_response[:name]).to eq @client.name
     end
@@ -247,7 +244,7 @@ describe Api::V1::ProjectsController do
       end
 
       it 'renders the json errors when there are no users present' do
-        expect(json_response[:errors]).to include 'Necesitas agregar al menos un Ejecutivo de Cuenta o Contacto de Cliente'
+        expect(json_response[:errors]).to include 'Necesitas agregar al menos un Ejecutivo de Cuenta'
       end
     end
   end

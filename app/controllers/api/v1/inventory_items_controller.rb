@@ -21,7 +21,7 @@ module Api
       def create
         @inventory_item = current_user.inventory_items.build(inventory_item_params)
 
-        if User::CLIENT == current_user.role || User::ACCOUNT_EXECUTIVE == current_user.role
+        if User::ACCOUNT_EXECUTIVE == current_user.role
           @inventory_item.status = InventoryItem::PENDING_ENTRY
         end
 
@@ -295,7 +295,7 @@ module Api
 
       def send_notification_authorize_withdrawal
         project = @item.project
-        users = project.users.where('role IN (?)', [User::ACCOUNT_EXECUTIVE, User::CLIENT])
+        users = project.users.where('role IN (?)', [User::ACCOUNT_EXECUTIVE])
         users.each do |u|
           u.notifications << Notification.create(title: 'Confirmación de salida', inventory_item_id: @item.id, message: 'Se ha aprobado la salida del artículo "' + @item.name + '" en el proyecto "' + project.name + '".')
         end
@@ -311,7 +311,7 @@ module Api
       def send_cancelled_entry_request_notifications
         return unless @cancelled
 
-        if current_user.role == User::ACCOUNT_EXECUTIVE || current_user.role == User::CLIENT
+        if current_user.role == User::ACCOUNT_EXECUTIVE
           users = User.where('role IN (?)', [User::ADMIN, User::WAREHOUSE_ADMIN])
           message = 'El usuario ' + current_user.first_name + ' ' + current_user.last_name + ' ha cancelado la solicitud de entrada para el artículo "' + @inventory_item_request.name + '" del día ' + @inventory_item_request.entry_date.strftime('%d/%m/%Y') + '.'
         else

@@ -9,15 +9,7 @@ class InventoryTransaction < ActiveRecord::Base
   scope :checkout, -> { where(actable_type: 'CheckOutTransaction') }
 
   def self.search(_params = {}, user)
-    if User::CLIENT == user.role
-      client_user = ClientContact.find(user.actable_id)
-      inventory_transactions = InventoryTransaction.eager_load(:inventory_item).where(
-        'inventory_item_id IN (?)',
-        client_user.inventory_items_id
-      ).order(created_at: :desc)
-    else
-      inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
-    end
+    inventory_transactions = InventoryTransaction.all.order(created_at: :desc)
 
     transaction_details = { 'inventory_transactions' => [] }
 
@@ -162,29 +154,6 @@ class InventoryTransaction < ActiveRecord::Base
 
   def self.check_outs
     transactions = CheckOutTransaction.all.order(updated_at: :desc)
-    check_outs = { 'inventory_transactions' => [] }
-
-    transactions.each do |t|
-      item = InventoryItem.find(t.inventory_item_id)
-      inventory_transaction = InventoryTransaction.where('actable_type = ? AND actable_id = ?', 'CheckOutTransaction', t.id).first
-      check_outs['inventory_transactions'].push(
-        'id'           => inventory_transaction.id,
-        'concept'      => inventory_transaction.concept,
-        'actable_type' => item.actable_type,
-        'exit_date'    => t.exit_date,
-        'name'         => item.name,
-        'item_type'    => item.item_type
-      )
-    end
-
-    check_outs
-  end
-
-  def self.check_outs_by_client(client_user, limit = 100)
-    client_projects = client_user.client.projects.pluck(:id)
-    client_items_ids = InventoryItem.where('project_id IN (?)', client_projects).pluck(:id)
-
-    transactions = CheckOutTransaction.where('inventory_item_id IN (?)', client_items_ids).order(updated_at: :desc).limit(limit)
     check_outs = { 'inventory_transactions' => [] }
 
     transactions.each do |t|

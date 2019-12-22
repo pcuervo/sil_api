@@ -135,20 +135,6 @@ describe Api::V1::InventoryTransactionsController do
     let(:user) { FactoryBot.create(:user, role: User::ADMIN) }
 
     before { add_users_to_project(project) }
-      
-    context 'when retrieving by Client' do
-      let(:client_user) { project.users.where('role = ?', User::CLIENT).first }
-
-      before(:each) do
-        api_authorization_header user.auth_token
-        post :latest_by_user, params: { user_id: client_user.id, type: 'check_in', num_transactions: 3 }
-      end
-
-      it "returns 3 CheckIn transactions" do
-        inventory_transaction_response = json_response[:check_in_transactions]
-        expect(inventory_transaction_response.size).to eq(3)
-      end
-    end
   end
 
   describe "POST #cancel_folio" do

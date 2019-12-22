@@ -1,5 +1,4 @@
 class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
-  after_create :send_notification_to_account_executives, if: :belongs_to_client?
   after_create :send_entry_request_notifications, if: :pending_entry?
   before_destroy :delete_transactions
   before_destroy :delete_warehouse_transactions
@@ -70,23 +69,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
       inventory_items = inventory_items.where('project_id IN (?)', projects_id)
     end
 
-    if params[:client_id].present?
-      user = User.find(params[:client_id])
-      client_user = ClientContact.find(user.actable_id)
-      projects = client_user.client.projects
-      projects_id = []
-      projects.each { |p| projects_id.push(p.id) }
-      inventory_items = inventory_items.where('project_id IN (?)', projects_id)
-    end
-
-    if params[:client_contact_id].present?
-      user = User.find(params[:client_contact_id])
-      projects = user.projects
-      projects_id = []
-      projects.each { |p| projects_id.push(p.id) }
-      inventory_items = inventory_items.where('project_id IN (?)', projects_id)
-    end
-
     inventory_items = inventory_items.where('storage_type = ?', params[:storage_type]) if params[:storage_type].present?
 
     inventory_items = inventory_items.page(params[:page]).per(50).order(created_at: :desc) if params[:page]
@@ -105,7 +87,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     ae = get_ae(project)
 
     client = project.client
-    client_contact = project.client_contact
     locations = warehouse_locations
     transaction = InventoryTransaction.find_by(inventory_item_id: id, concept: 'Entrada granel inicial')
     comments = transaction.present? ? transaction.additional_comments : ''
@@ -124,7 +105,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
         'ae' => ae,
         'description' => description,
         'client' => client,
-        'client_contact' => client_contact,
         'img' => item_img,
         'img_thumb' => item_img(:medium),
         'state' => state,
@@ -264,12 +244,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
     cannot_withdraw
   end
 
-  def belongs_to_client?
-    return true if user.role == User::CLIENT
-
-    false
-  end
-
   def pending_entry?
     return true if status == PENDING_ENTRY
 
@@ -372,14 +346,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
 
   scope :inventory_value, -> { where('status IN (?)', [IN_STOCK, PARTIAL_STOCK, PENDING_ENTRY]).sum(:value) }
 
-  # scope :inventory_by_type, lambda { |project_ids = nil|
-  #   if !project_ids.nil?
-  #     where('project_id IN (?)', project_ids).group(:item_type).count
-  #   else
-  #     group(:item_type).count
-  #   end
-  # }
-
   scope :occupation_by_month, lambda {
     find_by_sql("
       SELECT to_char(created_at, 'MM-YY') as mon, count(created_at)
@@ -393,13 +359,6 @@ class InventoryItem < ActiveRecord::Base # rubocop:disable Metrics/ClassLength
   scope :total_high_value_items, -> { where('is_high_value = ?', 1).count }
 
   private
-
-  def send_notification_to_account_executives
-    account_executives = project.users.where('role = ?', User::ACCOUNT_EXECUTIVE)
-    account_executives.each do |ae|
-      ae.notifications << Notification.create(title: 'Solicitud de entrada', inventory_item_id: id, message: 'El cliente "' + user.first_name + ' ' + user.last_name + '" ha solicitado un ingreso.')
-    end
-  end
 
   def send_entry_request_notifications
     User.all_admin_users.each do |admin|

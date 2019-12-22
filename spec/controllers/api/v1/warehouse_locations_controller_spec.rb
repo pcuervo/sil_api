@@ -239,7 +239,6 @@ RSpec.describe Api::V1::WarehouseLocationsController, type: :controller do
         end
 
         it 'returns an error' do
-          pp json_response
           error = json_response[:errors]
 
           expect(error).to eq 'Alguna de las ubicaciones no se encontró'

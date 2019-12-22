@@ -89,10 +89,6 @@ module Api
         respond_with User.ae_users
       end
 
-      def client_contacts
-        respond_with User.client_users
-      end
-
       def delivery_users
         respond_with User.delivery_users
       end

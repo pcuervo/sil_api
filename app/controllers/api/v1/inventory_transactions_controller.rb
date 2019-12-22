@@ -44,12 +44,6 @@ module Api
         render json: { folio: 'FE-0000000' }, status: :ok
       end
 
-      def check_outs_by_client
-        user = User.find(params[:id])
-        client_user = ClientContact.find(user.actable_id)
-        respond_with InventoryTransaction.check_outs_by_client(client_user)
-      end
-
       def by_folio
         transactions = InventoryTransaction.by_folio(params[:folio])
         render json: transactions, status: :ok

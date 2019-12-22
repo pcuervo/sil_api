@@ -14,7 +14,6 @@ class InventoryItemSerializer < ActiveModel::Serializer
     project_data[:name] = project.name
     project_data[:ae] = project.ae_name
     project_data[:client] = project.client
-    project_data[:client_contact] = project.client_contact
     project_data
   end
 

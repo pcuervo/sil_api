@@ -22,13 +22,6 @@ class Project < ActiveRecord::Base
     ae.id
   end
 
-  def client_contact
-    client_contact = ClientContact.find_by_client_id(client_id)
-
-    return unless client_contact.present?
-    client_contact.first_name + ' ' + client_contact.last_name
-  end
-
   def remove_inventory
     inventory_items.delete_all
   end

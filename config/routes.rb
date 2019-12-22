@@ -14,7 +14,6 @@ Sil::Application.routes.draw do
           post 'delete/', action: 'delete'
           get 'get_account_executives/', action: 'account_executives'
           get 'get_warehouse_admins/', action: 'warehouse_admins'
-          get 'get_client_contacts/', action: 'client_contacts'
           get 'get_delivery_users/', action: 'delivery_users'
         end
         resources :inventory_items, only: %i[create update]
@@ -96,21 +95,10 @@ Sil::Application.routes.draw do
           post 'update', action: 'update'
         end
       end
-      resources :client_contacts, only: %i[show index create update destroy] do
-        collection do
-          get 'get_by_client/', action: 'by_client'
-          get 'by_user/:id', action: 'by_user'
-          post 'inventory_items',  action: 'inventory_items'
-          get 'stats/:id',         action: 'stats'
-          post 'update',           action: 'update'
-          post 'destroy',          action: 'destroy'
-        end
-      end
       resources :inventory_transactions, only: %i[show index] do
         collection do
           get 'get_check_ins', action: 'check_ins'
           get 'get_check_outs', action: 'check_outs'
-          get 'get_check_outs_by_client/:id', action: 'check_outs_by_client'
           post 'search', action: 'search'
           get 'last_checkout_folio', action: 'last_checkout_folio'
           get 'last_checkin_folio', action: 'last_checkin_folio'

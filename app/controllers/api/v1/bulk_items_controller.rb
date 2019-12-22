@@ -171,13 +171,6 @@ class Api::V1::BulkItemsController < ApplicationController
       admins.each do |admin|
         admin.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.role_name + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
       end
-
-      if User::CLIENT == @inventory_item.user.role
-        account_executives = project.users.where( 'role = ?', User::ACCOUNT_EXECUTIVE )
-        account_executives.each do |ae|
-          ae.notifications << Notification.create( :title => 'Solicitud de salida', :inventory_item_id => @inventory_item.id, :message => @inventory_item.user.role_name + ' "' + @inventory_item.user.first_name + ' ' + @inventory_item.user.last_name + '" ha solicitado la salida del artículo "' + @inventory_item.name + '".'  )
-        end
-      end
     end
 
     def send_notifications_approved_entry
