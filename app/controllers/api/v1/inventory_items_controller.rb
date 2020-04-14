@@ -48,6 +48,9 @@ module Api
         end
 
         render json: { errors: @inventory_item.errors }, status: 422
+      rescue Paperclip::Errors::NotIdentifiedByImageMagickError
+        puts 'nothing to see here'
+        @inventory_item.item_img = 'default.png'
       end
 
       def update

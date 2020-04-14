@@ -57,6 +57,7 @@ describe Api::V1::InventoryItemsController do
         expect(inventory_item_response[:brand]).to eql @inventory_item_attributes[:brand]
         expect(inventory_item_response[:model]).to eql @inventory_item_attributes[:model]
         expect(inventory_item_response[:quantity]).to eql @inventory_item_attributes[:quantity]
+        expect(inventory_item_response[:state]).to eql @inventory_item_attributes[:state]
       end
 
       it 'should automatically add a transaction folio' do

@@ -5,6 +5,7 @@ FactoryBot.define do
     item_type { "Desktop" }
     user
     project
+    state InventoryItem::NEW
     value { 100.00 }
     serial_number { FFaker::Vehicle.vin }
     quantity { 100 }
