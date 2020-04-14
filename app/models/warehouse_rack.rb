@@ -80,6 +80,7 @@ class WarehouseRack < ActiveRecord::Base
           'thumb'         => item.item_img(:thumb),
           'name'          => item.name,
           'brand'         => item.brand,
+          'project_name'  => item.project.name,
           'location_id'   => il.warehouse_location_id,
           'location'      => il.warehouse_location.name,
           'quantity'      => il.quantity,
