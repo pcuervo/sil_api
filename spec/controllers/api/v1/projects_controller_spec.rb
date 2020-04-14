@@ -35,6 +35,13 @@ describe Api::V1::ProjectsController do
       expect(project_response.count).to eq 5
     end
 
+    it 'should include Client' do
+      project_response = json_response[:projects]
+      first_project = project_response.first
+
+      expect(first_project).to have_key(:client)
+    end
+
     it { should respond_with 200 }
   end
 

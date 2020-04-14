@@ -29,7 +29,10 @@ module Api
       end
 
       def lean_index
-        render json: Project.all.order(name: :asc), each_serializer: LeanProjectSerializer
+        order_by = 'name'
+        order_by = params[:order_by] if params[:order_by].present?
+
+        render json: Project.all.order("#{order_by} ASC"), each_serializer: LeanProjectSerializer
       end
 
 
