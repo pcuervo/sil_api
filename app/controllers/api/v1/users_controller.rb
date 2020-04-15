@@ -86,7 +86,7 @@ module Api
       end
 
       def account_executives
-        respond_with User.ae_users
+        respond_with User.ae_users.by_name
       end
 
       def delivery_users

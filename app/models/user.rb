@@ -108,6 +108,7 @@ class User < ActiveRecord::Base
   scope :ae_users, -> { where(role: ACCOUNT_EXECUTIVE) }
   scope :delivery_users, -> { where(role: DELIVERY) }
   scope :warehouse_admins, -> { where(role: WAREHOUSE_ADMIN) }
+  scope :by_name, -> { order(first_name: :asc) }
 
   private
 
