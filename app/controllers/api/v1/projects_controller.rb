@@ -103,7 +103,7 @@ module Api
         user = User.find(params[:id])
         projects = user.projects
 
-        respond_with projects
+        respond_with projects.order("#{order_by} ASC"), each_serializer: LeanProjectSerializer
       end
 
       def add_users
