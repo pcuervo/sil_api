@@ -100,6 +100,7 @@ module Api
       end
 
       def by_user
+        order_by = 'name'
         user = User.find(params[:id])
         projects = user.projects
 
