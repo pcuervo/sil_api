@@ -734,7 +734,8 @@ GEM
     rack (2.0.5)
     rack-attack (5.4.2)
       rack (>= 1.0, < 3)
-    rack-cors (1.0.1)
+    rack-cors (1.0.5)
+      rack (>= 1.6.0)
     rack-test (0.6.3)
       rack (>= 1.0)
     rails (5.0.0)
@@ -874,7 +875,7 @@ DEPENDENCIES
   pg (~> 0.20.0)
   puma
   rack-attack
-  rack-cors (= 1.0.1)
+  rack-cors (= 1.0.5)
   rails (= 5.0)
   rails_12factor
   rspec-rails (~> 3.4)
